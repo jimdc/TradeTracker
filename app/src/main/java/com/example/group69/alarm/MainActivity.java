@@ -98,7 +98,7 @@ public class MainActivity extends ActionBarActivity {
     public void setAlarm(View view) {
 
         // Define a time value of 5 seconds
-        Long alertTime = new GregorianCalendar().getTimeInMillis()+60*1000*31;
+        Long alertTime = new GregorianCalendar().getTimeInMillis()+60*1000*61;
 
         // Define our intention of executing AlertReceiver
         Intent alertIntent = new Intent(this, AlertReceiver.class);
