@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Button
 import android.util.Log
+import org.jetbrains.anko.db.*
 
 import java.util.GregorianCalendar
 
@@ -88,7 +89,32 @@ class MainActivity : AppCompatActivity() {
         alertButton = findViewById(R.id.alertButton) as Button
         experiButton = findViewById(R.id.experiButton) as Button
 
+        Log.d("Somehow", "I am called")
         Updaten().execute("SWN")
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        var buttonup: String = "Press me"
+        database.use {
+            select("Test_table", "lastID").exec() {
+                if (count > 0) {
+                    buttonup = getString(0)
+                } else {
+                    buttonup = "666"
+                }
+            }
+        }
+
+        experiButton.text = buttonup
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("YAY", "I was paused")
+        database.use {
+            update("Test_table", "lastID" to GregorianCalendar().timeInMillis.toString())
+        }
     }
 
 
@@ -143,7 +169,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun experiMent(view: View) {
-        experiButton.text = "You pressed me!"
+        val freshthing : String = GregorianCalendar().timeInMillis.toString()
+        experiButton.text = freshthing
+        database.use {
+            update("Test_table", "lastID" to freshthing)
+                    .exec()
+        }
     }
 
     fun setAlarm(view: View) {
