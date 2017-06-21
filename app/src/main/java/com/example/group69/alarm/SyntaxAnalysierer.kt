@@ -52,7 +52,11 @@ object SyntaxAnalysierer {
                 if (to != -1) {
                     price = hitmill.substring(from + 1, to)
                     rez = price.replace(",".toRegex(), "")
-                    return java.lang.Double.parseDouble(rez)
+                    try {
+                        return java.lang.Double.parseDouble(rez)
+                    } catch (e: java.lang.NumberFormatException) {
+                        return 4.20;
+                    }
                 } else {
                     return -1.0 //could not find "to"
                 }

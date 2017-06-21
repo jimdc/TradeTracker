@@ -4,6 +4,9 @@ import org.jetbrains.anko.db.*
 import org.jetbrains.anko.async
 import org.jetbrains.anko.uiThread
 import android.database.sqlite.*
+import android.database.sqlite.SQLiteDatabase
+
+
 
 /**
  * Created by james on 17/06/2017.

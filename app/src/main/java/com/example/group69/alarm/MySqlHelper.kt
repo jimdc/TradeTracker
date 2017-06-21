@@ -19,7 +19,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.createTable("Portfolio", true,
+        db?.createTable("Portfolio", true,
                 "_stockid" to INTEGER + PRIMARY_KEY,
                 "ticker" to TEXT,
                 "urgency" to TEXT,
@@ -27,7 +27,18 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
                 "targetprice" to INTEGER)
     }
 
+    /*fun insert(stock: Stock) {
+        db.insert("Portfolio",
+                "_stockid" to 42,
+                "ticker" to stock.name,
+                "urgency" to stock.urgency,
+                "volatility" to stock.volatility,
+                "targetprice" to stock.targetprice
+        )
+    }*/
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        db?.dropTable("User", true)
     }
 
 }
