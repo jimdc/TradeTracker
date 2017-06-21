@@ -11,6 +11,7 @@ import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Button
+import android.util.Log
 
 import java.util.GregorianCalendar
 
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var showNotificationBut: Button
     lateinit var stopNotificationBut: Button
     lateinit var alertButton: Button
+    lateinit var experiButton: Button
 
     // Allows us to notify the user that something happened in the background
     internal lateinit var notificationManager: NotificationManager
@@ -68,11 +70,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onProgressUpdate(vararg progress: String) {
-            try {
-                MainActivity().showNotificationBut.text = progress[0]
-            } catch (e: kotlin.UninitializedPropertyAccessException) {
-                //Do nothing.
-            }
+            Log.d("SWN price: ", progress[0])
         }
 
         override fun onPostExecute(result: Int?) {
@@ -80,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) { //Only called when you restore from a saved state!
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -88,7 +86,9 @@ class MainActivity : AppCompatActivity() {
         showNotificationBut = findViewById(R.id.showNotificationBut) as Button
         stopNotificationBut = findViewById(R.id.stopNotificationBut) as Button
         alertButton = findViewById(R.id.alertButton) as Button
-        val uppsala = Updaten().execute("SWN") as Updaten
+        experiButton = findViewById(R.id.experiButton) as Button
+
+        Updaten().execute("SWN")
     }
 
 
@@ -140,6 +140,10 @@ class MainActivity : AppCompatActivity() {
             notificationManager.cancel(notifID)
         }
 
+    }
+
+    fun experiMent(view: View) {
+        experiButton.text = "You pressed me!"
     }
 
     fun setAlarm(view: View) {

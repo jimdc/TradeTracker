@@ -1,8 +1,6 @@
 package com.example.group69.alarm
 
-/**
- * Created by james on 17/06/2017.
- */
+import android.util.Log
 
 object SyntaxAnalysierer {
 
@@ -20,7 +18,7 @@ object SyntaxAnalysierer {
 
     fun PriceAndPercent(symbol: String): String {
         val hitmill = readHTML(symbol)
-        if (!hitmill.equals("Error")) {
+        if (readHTML(symbol) != "Error") {
             val price = priceOf(hitmill, symbol)
             val percent = Prozent(hitmill, symbol)
 
@@ -39,12 +37,11 @@ object SyntaxAnalysierer {
     private fun priceOf(hitmill: String, symbol: String): Double {
         val price: String
         val rez: String
-        val p: Int
         val from: Int
         val to: Int
 
         //p = html.indexOf("Fz(36px) Mb(-4px)", 0);      // "yfs_l84" index
-        p = hitmill.indexOf("Mb(-4px) D(ib)", 0)
+        val p = hitmill.indexOf("Mb(-4px) D(ib)", 0)
         if (p != -1) {
             from = hitmill.indexOf(">", p)            // ">" index
             if (from != -1) {
@@ -52,11 +49,12 @@ object SyntaxAnalysierer {
                 if (to != -1) {
                     price = hitmill.substring(from + 1, to)
                     rez = price.replace(",".toRegex(), "")
-                    try {
+                    Log.d("REZ: ", rez)
+                    //try {
                         return java.lang.Double.parseDouble(rez)
-                    } catch (e: java.lang.NumberFormatException) {
-                        return 4.20;
-                    }
+                    //} catch (e: java.lang.NumberFormatException) {
+                    //    return 4.20;
+                    //}
                 } else {
                     return -1.0 //could not find "to"
                 }

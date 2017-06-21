@@ -8,7 +8,6 @@
         android:text="Show Notification"
         android:id="@+id/showNotificationBut"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:onClick="showNotification"/>
 
@@ -18,7 +17,6 @@
         android:text="Stop Notification"
         android:id="@+id/stopNotificationBut"
         android:layout_below="@+id/showNotificationBut"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:onClick="stopNotification"/>
 
@@ -28,8 +26,16 @@
         android:text="Alert in 5 Seconds"
         android:id="@+id/alertButton"
         android:layout_below="@+id/stopNotificationBut"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:onClick="setAlarm"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Experiment Button"
+        android:id="@+id/experiButton"
+        android:layout_below="@+id/alertButton"
+        android:layout_alignParentStart="true"
+        android:onClick="experiMent"/>
 
 </RelativeLayout>

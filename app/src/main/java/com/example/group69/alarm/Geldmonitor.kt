@@ -195,7 +195,7 @@ class Geldmonitor : Runnable {
 
                     rs.absolute(0)//set pointer to begining of list
 
-                    while (rs.next() == true) {
+                    while (rs.next()) {
                         call = rs.getString("phone")
                         currPrice = SyntaxAnalysierer.priceOf(rs.getString("ticker"))
                         if (rs.getString("AB") == "b") {

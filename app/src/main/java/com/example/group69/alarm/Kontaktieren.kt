@@ -3,7 +3,6 @@ package com.example.group69.alarm
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStreamReader
-import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.UnsupportedEncodingException
 import java.net.HttpURLConnection
@@ -18,10 +17,6 @@ import javax.mail.Session
 import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
-
-/**
- * Created by james on 5/2/17.
- */
 
 object Kontaktieren {
     @Throws(InterruptedException::class)

@@ -1,8 +1,8 @@
 package com.example.group69.alarm
 
-import org.jetbrains.anko.db.*;
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import org.jetbrains.anko.db.*
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 
 class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
 
@@ -19,7 +19,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        db?.createTable("Portfolio", true,
+        db.createTable("Portfolio", true,
                 "_stockid" to INTEGER + PRIMARY_KEY,
                 "ticker" to TEXT,
                 "urgency" to TEXT,
@@ -38,7 +38,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
     }*/
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db?.dropTable("User", true)
+        db.dropTable("User", true)
     }
 
 }
