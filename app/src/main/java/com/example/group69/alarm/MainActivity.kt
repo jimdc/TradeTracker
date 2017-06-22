@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.Button
 import android.util.Log
 import org.jetbrains.anko.db.*
+import android.support.design.widget.Snackbar
 
 import java.util.GregorianCalendar
 
@@ -22,7 +23,7 @@ import java.util.GregorianCalendar
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var showNotificationBut: Button
+    val showNotificationBut: Button by lazy {  findViewById(R.id.showNotificationBut) as Button }
     lateinit var stopNotificationBut: Button
     lateinit var alertButton: Button
     lateinit var experiButton: Button
@@ -74,6 +75,14 @@ class MainActivity : AppCompatActivity() {
             Log.d("SWN price: ", progress[0])
         }
 
+        inner class MyUndoListener : View.OnClickListener {
+
+            override fun onClick(v: View) {
+
+                // Code to undo the user's last action
+            }
+        }
+
         override fun onPostExecute(result: Int?) {
             //showDialog("Downloaded " + result + " bytes");
         }
@@ -84,7 +93,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Initialize buttons
-        showNotificationBut = findViewById(R.id.showNotificationBut) as Button
         stopNotificationBut = findViewById(R.id.stopNotificationBut) as Button
         alertButton = findViewById(R.id.alertButton) as Button
         experiButton = findViewById(R.id.experiButton) as Button
@@ -175,6 +183,8 @@ class MainActivity : AppCompatActivity() {
             update("Test_table", "lastID" to freshthing)
                     .exec()
         }
+        val snack = Snackbar.make(view, "This is my snack", 5)
+        snack.show()
     }
 
     fun setAlarm(view: View) {
