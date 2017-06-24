@@ -44,6 +44,9 @@ class MainActivity : AppCompatActivity() {
 
         override fun doInBackground(vararg tickers: String): Int? {
             runs = 0
+            Log.d("all tickers", tickers.get(0).toString())
+            var s : String = "fb"
+            Log.d("all tickers", tickers.get(0).toString() + " " + tickers.get(1).toString())
             while (true) {
                 try {
 
@@ -98,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         experiButton = findViewById(R.id.experiButton) as Button
 
         Log.d("Somehow", "I am called")
-        Updaten().execute("SWN")
+        Updaten().execute("SWN", "FB") //activates doInBackground
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -190,7 +193,7 @@ class MainActivity : AppCompatActivity() {
     fun setAlarm(view: View) {
 
         // Define a time value of 5 seconds
-        val alertTime = GregorianCalendar().timeInMillis + 60 * 1000 * 61
+        val alertTime = GregorianCalendar().timeInMillis + 5 * 1000
 
         // Define our intention of executing AlertReceiver
         val alertIntent = Intent(this, AlertReceiver::class.java)
