@@ -110,7 +110,7 @@ object Kontaktieren {
     fun send(msg: String) {
 
         val username = "mangomailbot@gmail.com"
-        val password = "1234"
+        val password = "qwerqwer1234"
 
         val props = Properties()
         props.put("mail.smtp.auth", "true")
@@ -131,7 +131,7 @@ object Kontaktieren {
             val message = MimeMessage(session)
             message.setFrom(InternetAddress(username))
             message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse("7328500309@vtext.com")) //kevins phone lol: 8482193579@tmomail.net
+                    InternetAddress.parse("7328500309@vtext.com"))
             //message.setSubject("Testing Subject"); //check if this can be removed
             message.setText(msg)
 
