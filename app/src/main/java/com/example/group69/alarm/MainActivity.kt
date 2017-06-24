@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity() {
         database.use {
             select("Test_table", "lastID").exec() {
                 if (count > 0) {
+                    moveToLast()
                     buttonup = getString(0)
                 } else {
                     buttonup = "666"
@@ -121,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         Log.d("YAY", "I was paused")
         database.use {
-            update("Test_table", "lastID" to GregorianCalendar().timeInMillis.toString())
+            replace("Test_table", "lastID" to GregorianCalendar().timeInMillis.toString())
         }
     }
 
@@ -177,13 +178,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun experiMent(view: View) {
-        val freshthing : String = GregorianCalendar().timeInMillis.toString()
+        val freshthing : String = GregorianCalendar().timeInMillis.toString();
+        var result : Long = 666;
         experiButton.text = freshthing
         database.use {
-            update("Test_table", "lastID" to freshthing)
-                    .exec()
+
+            result = replace("Test_table", "lastID" to freshthing)
         }
-        val snack = Snackbar.make(view, "This is my snack", 5)
+
+        val snack = Snackbar.make(view, "Rows affected: " + result.toString(), 5)
         snack.show()
     }
 
