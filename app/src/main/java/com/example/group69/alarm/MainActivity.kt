@@ -24,6 +24,8 @@ import java.util.GregorianCalendar
 class MainActivity : AppCompatActivity() {
 
     val showNotificationBut: Button by lazy {  findViewById(R.id.showNotificationBut) as Button }
+    val addstockButton: Button by lazy { findViewById(R.id.addstockButton) as Button }
+    val showstockButton: Button by lazy { findViewById(R.id.showstockButton) as Button }
     lateinit var stopNotificationBut: Button
     lateinit var alertButton: Button
     lateinit var experiButton: Button
@@ -188,6 +190,14 @@ class MainActivity : AppCompatActivity() {
 
         val snack = Snackbar.make(view, "Rows affected: " + result.toString(), 5)
         snack.show()
+    }
+
+    fun addstock(view: View) {
+
+    }
+
+    fun showstocks(view: View) {
+
     }
 
     fun setAlarm(view: View) {

@@ -41,4 +41,22 @@
         android:layout_alignParentStart="true"
         android:onClick="experiMent"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add stock"
+        android:id="@+id/addstockButton"
+        android:layout_below="@+id/experiButton"
+        android:layout_alignParentStart="true"
+        android:onClick="addstock"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Show stocks"
+        android:id="@+id/showstockButton"
+        android:layout_below="@+id/addstockButton"
+        android:layout_alignParentStart="true"
+        android:onClick="showstocks"/>
+
 </RelativeLayout>
