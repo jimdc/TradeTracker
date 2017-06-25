@@ -59,5 +59,14 @@
         android:layout_below="@+id/addstockButton"
         android:layout_alignParentStart="true"
         android:onClick="showstocks"/>
+    <Button
+        android:id="@+id/hotStocks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/showstockButton"
+        android:onClick="openHot"
+        android:text="Hot Stocks" />
 
 </RelativeLayout>

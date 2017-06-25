@@ -186,6 +186,11 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun openHot(view: View) {
+        val intent = Intent(this,HotStockActivity::class.java)
+        startActivity(intent)
+    }
+
     fun experiMent(view: View) {
         val freshthing : String = GregorianCalendar().timeInMillis.toString();
         var result : Long = 666;
