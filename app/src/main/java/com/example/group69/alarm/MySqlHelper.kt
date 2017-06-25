@@ -20,18 +20,16 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.createTable("Test_table", true,
-                "lastID" to TEXT + PRIMARY_KEY)
-        /*db.createTable("Portfolio", true,
-                "_stockid" to INTEGER + PRIMARY_KEY,
+        db.createTable("Portefeuille", true,
+                "_stockid" to INTEGER + PRIMARY_KEY + UNIQUE,
                 "ticker" to TEXT,
-                "urgency" to TEXT,
-                "volatility" to INTEGER,
-                "targetprice" to INTEGER)*/
+                "target" to REAL,
+                "ab" to INTEGER,
+                "phone" to INTEGER)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.dropTable("Test_table", true)
+        db.dropTable("Portefeuille", true)
     }
 
 }

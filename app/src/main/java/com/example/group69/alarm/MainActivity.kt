@@ -17,6 +17,9 @@ import org.jetbrains.anko.*
 import android.support.design.widget.Snackbar
 
 import java.util.GregorianCalendar
+import android.content.ContentValues
+
+
 
 // NotificationManager : Allows us to notify the user that something happened in the background
 // AlarmManager : Allows you to schedule for your application to do something at a later date
@@ -110,7 +113,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         var buttonup: String = "Press me"
-        database.use {
+        /*database.use {
             select("Test_table", "lastID").exec() {
                 if (count > 0) {
                     moveToLast()
@@ -119,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                     buttonup = "666"
                 }
             }
-        }
+        }*/
 
         experiButton.text = buttonup
     }
@@ -127,9 +130,9 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         Log.d("YAY", "I was paused")
-        database.use {
+        /*database.use {
             replace("Test_table", "lastID" to GregorianCalendar().timeInMillis.toString())
-        }
+        }*/
     }
 
 
@@ -198,10 +201,8 @@ class MainActivity : AppCompatActivity() {
 
     fun addstock(view: View) {
         var vl = verticalLayout {
-            val ticker = editText() {
-                hint = "Ticker name"
-                requestFocus()
-            }
+            val ticker = editText() { hint = "Ticker name"; requestFocus() }
+            val tprice = editText() { hint = "Target price" }
             val phone = checkBox { text = "Phone" }
             val ab = radioGroup {
                 radioButton { text = "above" }
@@ -211,7 +212,27 @@ class MainActivity : AppCompatActivity() {
 
             button("Add stock") {
                 onClick {
-                    toast("Added ${ticker.text}, ab=${ab.checkedRadioButtonId}, phone=${phone.isChecked}!")
+                    val newstock: Stock = Stock(GregorianCalendar().timeInMillis,
+                            ticker.text.toString(), tprice.text.toString().toDoubleOrNull(),
+                            (ab.checkedRadioButtonId == 1), phone.isChecked)
+                    var rownum : Long = 666
+
+                    database.use {
+                        val con = ContentValues()
+                        con.put("_stockid", newstock.stockid)
+                        con.put("ticker", newstock.ticker)
+                        con.put("target", newstock.target)
+                        con.put("ab", newstock.above)
+                        con.put("phone", newstock.phone)
+
+                        rownum = replace("Portefeuille", null, con)
+                    }
+
+                    if (rownum != -1L) {
+                        toast("Added row ${rownum}: " + newstock.toString())
+                    } else {
+                        toast("SQLiteDatabase error, could not add row")
+                    }
                 }
             }
         }
@@ -219,6 +240,34 @@ class MainActivity : AppCompatActivity() {
 
     fun showstocks(view: View) {
 
+        var stocklist : List<Stock> = ArrayList()
+
+        try {
+            database.use {
+                val sresult = select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
+                sresult.exec() {
+                    if (count > 0) {
+                        val rowParser = classParser<Stock>()
+                        stocklist = parseList(rowParser)
+                    }
+                }
+            }
+        } catch (e: android.database.sqlite.SQLiteException) {
+            toast(e.toString())
+            return
+        }
+
+        if (!stocklist.isEmpty()) {
+
+            var stocknamelist : List<CharSequence> = ArrayList()
+            stocklist.forEach { i -> stocknamelist += i.toString() }
+
+            selector("Choose one of your stocks", stocknamelist) {
+                i -> toast("You chose option " + i)
+            }
+        } else {
+            toast("DB query failed; stock list is empty")
+        }
     }
 
     fun setAlarm(view: View) {

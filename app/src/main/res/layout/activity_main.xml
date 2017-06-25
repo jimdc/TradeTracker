@@ -39,7 +39,8 @@
         android:id="@+id/experiButton"
         android:layout_below="@+id/alertButton"
         android:layout_alignParentStart="true"
-        android:onClick="experiMent"/>
+        android:onClick="experiMent"
+        android:enabled="false"/>
 
     <Button
         android:layout_width="match_parent"
