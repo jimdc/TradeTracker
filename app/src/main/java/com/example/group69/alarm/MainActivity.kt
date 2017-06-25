@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.Button
 import android.util.Log
 import org.jetbrains.anko.db.*
+import org.jetbrains.anko.*
 import android.support.design.widget.Snackbar
 
 import java.util.GregorianCalendar
@@ -196,7 +197,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addstock(view: View) {
+        var vl = verticalLayout {
+            val ticker = editText() {
+                hint = "Ticker name"
+                requestFocus()
+            }
+            val phone = checkBox { text = "Phone" }
+            val ab = radioGroup {
+                radioButton { text = "above" }
+                radioButton { text = "below" }
+                check(1) //set "above" to be default
+            }
 
+            button("Add stock") {
+                onClick {
+                    toast("Added ${ticker.text}, ab=${ab.checkedRadioButtonId}, phone=${phone.isChecked}!")
+                }
+            }
+        }
     }
 
     fun showstocks(view: View) {
