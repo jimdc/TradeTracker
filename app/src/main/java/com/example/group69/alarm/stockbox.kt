@@ -5,4 +5,8 @@ import org.jetbrains.anko.uiThread
 import android.database.sqlite.*
 import android.database.sqlite.SQLiteDatabase
 
-data class Stock (val stockid: Long, val ticker: String, var target: Double?, var above: Boolean, var phone: Boolean)
+data class Stock (val stockid: Long = 1337,
+                  val ticker: String = "BABA",
+                  var target: Double = 4.20,
+                  var above: Long = 1,
+                  var phone: Long = 0)

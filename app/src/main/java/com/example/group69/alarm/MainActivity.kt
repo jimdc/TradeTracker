@@ -205,6 +205,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addstock(view: View) {
+
         var vl = verticalLayout {
             val ticker = editText() { hint = "Ticker name"; requestFocus() }
             val tprice = editText() { hint = "Target price" }
@@ -217,9 +218,14 @@ class MainActivity : AppCompatActivity() {
 
             button("Add stock") {
                 onClick {
+                    val target: Double? = tprice.text.toString().toDoubleOrNull();
+                    var longIsChecked: Long = 0;
+                    if (phone.isChecked) { longIsChecked = 1; }
+
                     val newstock: Stock = Stock(GregorianCalendar().timeInMillis,
-                            ticker.text.toString(), tprice.text.toString().toDoubleOrNull(),
-                            (ab.checkedRadioButtonId == 1), phone.isChecked)
+                            ticker.text.toString(), target ?: 6.66,
+                            ab.checkedRadioButtonId.toLong(), longIsChecked)
+
                     var rownum : Long = 666
 
                     database.use {
@@ -238,9 +244,13 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         toast("SQLiteDatabase error, could not add row")
                     }
+
+                    finish()
                 }
             }
+            
         }
+
     }
 
     fun showstocks(view: View) {
@@ -252,7 +262,7 @@ class MainActivity : AppCompatActivity() {
                 val sresult = select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
                 sresult.exec() {
                     if (count > 0) {
-                        val rowParser = classParser<Stock>()
+                        val rowParser = rowParser(::Stock)
                         stocklist = parseList(rowParser)
                     }
                 }
