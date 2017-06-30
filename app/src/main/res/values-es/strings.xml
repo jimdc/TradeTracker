@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Alarma</string>
+    <string name="hotstock">Stocks Calientes</string>
+    <string name="addstock">Añadir Stock</string>
+    <string name="moar">Más sobre la notificación</string>
+    <string name="showstox">Mostrar Stocks</string>
+    <string name="shownotif">Mostrar Notificación</string>
+    <string name="stopnotif">Detener Notificación</string>
+    <string name="unused">Marcador de posición</string>
+    <string name="allie5">Alerta en 5 Segundos</string>
+    <string name="fivepass">Cinco Segundos Han Pasado</string>
+    <string name="alert">Alerta</string>
+    <string name="timesup">¡Se acabó el tiempo!</string>
+    <string name="alnew">Alerta: Mensaje nuevo</string>
+    <string name="newmsg">Mensaje nuevo</string>
+    <string name="msg">Mensaje</string>
+    <string name="choose1">Elija una de sus stocks</string>
+    <string name="youchose">Elige la opción</string>
+    <string name="failempty">DB consulta fracasó; La lista de acciones está vacía</string>
+    <string name="fail2add">SQLiteDatabase de error, no podía añadir fila</string>
+    <string name="addsuccess">Agregado con éxito</string>
+</resources>

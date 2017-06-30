@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
                     for (ticker in tickers) {
                         publishProgress(
-                                SyntaxAnalysierer.PriceAndPercent(ticker)
+                                ticker, SyntaxAnalysierer.PriceAndPercent(ticker)
                         )
                     }
 
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onProgressUpdate(vararg progress: String) {
-            Log.d("SWN price: ", progress[0])
+            Log.d("Stock", progress[0] + " price: " + progress[1])
         }
 
         inner class MyUndoListener : View.OnClickListener {
@@ -106,30 +106,15 @@ class MainActivity : AppCompatActivity() {
         alertButton = findViewById(R.id.alertButton) as Button
         experiButton = findViewById(R.id.experiButton) as Button
 
-        Log.d("Somehow", "I am called")
         Updaten().execute("SWN", "FB") //activates doInBackground
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        var buttonup: String = "Press me"
-        /*database.use {
-            select("Test_table", "lastID").exec() {
-                if (count > 0) {
-                    moveToLast()
-                    buttonup = getString(0)
-                } else {
-                    buttonup = "666"
-                }
-            }
-        }*/
-
-        experiButton.text = buttonup
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d("YAY", "I was paused")
         /*database.use {
             replace("Test_table", "lastID" to GregorianCalendar().timeInMillis.toString())
         }*/
@@ -140,9 +125,9 @@ class MainActivity : AppCompatActivity() {
 
         // Builds a notification
         val notificBuilder = NotificationCompat.Builder(this)
-                .setContentTitle("Message")
-                .setContentText("New Message")
-                .setTicker("Alert New Message")
+                .setContentTitle(getResources().getString(R.string.msg))
+                .setContentText(getResources().getString(R.string.newmsg))
+                .setTicker(getResources().getString(R.string.alnew))
                 .setSmallIcon(R.drawable.ntt_logo_24_24)
 
         // Define that we have the intention of opening MoreInfoNotification
@@ -240,9 +225,9 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     if (rownum != -1L) {
-                        toast("Added row ${rownum}: " + newstock.toString())
+                        toast(getResources().getString(R.string.addsuccess) + "#${rownum}: " + newstock.toString())
                     } else {
-                        toast("SQLiteDatabase error, could not add row")
+                        toast(getResources().getString(R.string.fail2add))
                     }
 
                     finish()
@@ -277,11 +262,11 @@ class MainActivity : AppCompatActivity() {
             var stocknamelist : List<CharSequence> = ArrayList()
             stocklist.forEach { i -> stocknamelist += i.toString() }
 
-            selector("Choose one of your stocks", stocknamelist) {
-                i -> toast("You chose option " + i)
+            selector(getResources().getString(R.string.choose1), stocknamelist) {
+                i -> toast(getResources().getString(R.string.youchose) + i)
             }
         } else {
-            toast("DB query failed; stock list is empty")
+            toast(getResources().getString(R.string.failempty))
         }
     }
 

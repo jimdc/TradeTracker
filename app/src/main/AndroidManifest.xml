@@ -23,14 +23,14 @@
             </intent-filter>
         </activity>
         <activity android:name="com.example.group69.alarm.MoreInfoNotification"
-            android:label="More on notification"
+            android:label="@string/moar"
             android:parentActivityName="com.example.group69.alarm.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.group69.alarm.MainActivity"/>
         </activity>
         <activity android:name="com.example.group69.alarm.HotStockActivity"
-            android:label="Hot Stocks"
+            android:label="@string/hotstock"
             android:parentActivityName="com.example.group69.alarm.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

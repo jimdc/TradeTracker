@@ -15,7 +15,11 @@ public class AlertReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        createNotification(context, "Times Up", "5 Seconds Has Passed", "Alert");
+        createNotification(context,
+                context.getResources().getString(R.string.timesup),
+                context.getResources().getString(R.string.fivepass),
+                context.getResources().getString(R.string.alert)
+        );
 
     }
    /* public void GenerateNotify(Context context) {

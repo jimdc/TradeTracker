@@ -1,3 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Alarm</string>
+    <string name="hotstock">Hot Stocks</string>
+    <string name="addstock">Add Stock</string>
+    <string name="moar">More on notification</string>
+    <string name="showstox">Show Stocks</string>
+    <string name="shownotif">Show Notification</string>
+    <string name="stopnotif">Stop Notification</string>
+    <string name="unused">Placeholder</string>
+    <string name="allie5">Alert in 5 Seconds</string>
+    <string name="fivepass">Five Seconds Have Passed</string>
+    <string name="alert">Alert</string>
+    <string name="timesup">Time\'s Up!</string>
+    <string name="alnew">Alert: new message</string>
+    <string name="newmsg">New message</string>
+    <string name="msg">Message</string>
+    <string name="choose1">Choose one of your stocks</string>
+    <string name="youchose">You chose</string>
+    <string name="failempty">DB query failed; stock list is empty</string>
+    <string name="fail2add">SQLiteDatabase error, could not add row</string>
+    <string name="addsuccess">Successfully added</string>
 </resources>
