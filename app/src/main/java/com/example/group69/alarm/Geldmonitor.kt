@@ -197,9 +197,10 @@ class Geldmonitor : Runnable {
 
                     while (rs.next()) {
                         call = rs.getString("phone")
-                        currPrice = SyntaxAnalysierer.priceOf(rs.getString("ticker"))
+                        val stock = yahoofinance.YahooFinance.get(rs.getString("ticker"));
+                        val currPrice = stock.quote.price
                         if (rs.getString("AB") == "b") {
-                            if (currPrice <= java.lang.Double.parseDouble(rs.getString("price"))) {
+                            if (currPrice.compareTo(java.math.BigDecimal(rs.getString("price"))) <= 0) {
                                 Kontaktieren.send(rs.getString("ticker") + " (" + rs.getString("ticker") + ") has fallen to " + currPrice)
                                 if (call == "y") {
                                     Kontaktieren.phoneCall(callCount % 2)
@@ -208,7 +209,7 @@ class Geldmonitor : Runnable {
                                 rs.deleteRow()
                             }
                         } else if (rs.getString("AB") == "a") {
-                            if (currPrice >= java.lang.Double.parseDouble(rs.getString("price"))) {
+                            if (currPrice.compareTo(java.math.BigDecimal(rs.getString("price"))) >= 0) {
                                 Kontaktieren.send(rs.getString("ticker") + " (" + rs.getString("ticker") + ") has risen to " + currPrice)
                                 if (call == "y") {
                                     Kontaktieren.phoneCall(callCount % 2)
@@ -225,8 +226,10 @@ class Geldmonitor : Runnable {
                     if (print) { //send important data from table with current prices to phone
                         var p = ""
                         while (rs.next()) {
+                            val stock = yahoofinance.YahooFinance.get(rs.getString("ticker"));
+                            val currPrice = stock.quote.price
                             p = p + rs.getString("ticker") + " " + rs.getString("AB") + " " + rs.getString("phone") + " " +
-                                    rs.getString("price") + " now: " + SyntaxAnalysierer.priceOf(rs.getString("ticker")) + "\r\n"
+                                    rs.getString("price") + " now: " + currPrice + "\r\n"
                         }
                         Kontaktieren.send(p)
                         rs.absolute(0)

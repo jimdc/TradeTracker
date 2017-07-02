@@ -9,6 +9,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
 
     companion object {
         private var instance: MySqlHelper? = null
+        val dbVersion = 1
 
         @Synchronized
         fun getInstance(ctx: Context): MySqlHelper {
@@ -21,7 +22,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.createTable("Portefeuille", true,
-                "_stockid" to INTEGER + PRIMARY_KEY + UNIQUE,
+                "_stockid" to INTEGER + PRIMARY_KEY + UNIQUE + AUTOINCREMENT,
                 "ticker" to TEXT,
                 "target" to REAL,
                 "ab" to INTEGER,
@@ -30,6 +31,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.dropTable("Portefeuille", true)
+        onCreate(db)
     }
 
 }

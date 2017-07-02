@@ -46,42 +46,28 @@ class MainActivity : AppCompatActivity() {
     internal class Updaten : android.os.AsyncTask<String, String, Int>() {
 
         var result: Double? = null
-        var runs: Int = 0
 
         override fun doInBackground(vararg tickers: String): Int? {
-            runs = 0
-            Log.d("all tickers", tickers.get(0).toString())
-            var s : String = "fb"
-            Log.d("all tickers", tickers.get(0).toString() + " " + tickers.get(1).toString())
             while (true) {
-                try {
+                for (ticker in tickers) {
+                    val stock = yahoofinance.YahooFinance.get(ticker);
+                    val price = stock.quote.price
+                    val change = stock.quote.changeInPercent
 
-                    for (ticker in tickers) {
-                        publishProgress(
-                                ticker, SyntaxAnalysierer.PriceAndPercent(ticker)
-                        )
-                    }
-
-
-                } catch (n: NumberFormatException) {
-                    result = -5.0
-                    n.printStackTrace()
-                    return -1
+                    publishProgress(ticker, price.toString(), change.toString())
                 }
 
                 try {
-                    Thread.sleep(1000)
+                    Thread.sleep(2000)
                 } catch (ie: InterruptedException) {
                     ie.printStackTrace()
                     Thread.currentThread().interrupt()
                 }
-
-                runs++
             }
         }
 
         override fun onProgressUpdate(vararg progress: String) {
-            Log.d("Stock", progress[0] + " price: " + progress[1])
+            Log.d("Stock", progress[0] + " price: " + progress[1] + "pctchange" + progress[2])
         }
 
         inner class MyUndoListener : View.OnClickListener {
@@ -115,9 +101,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        /*database.use {
-            replace("Test_table", "lastID" to GregorianCalendar().timeInMillis.toString())
-        }*/
     }
 
 
