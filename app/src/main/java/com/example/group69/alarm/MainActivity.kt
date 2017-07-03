@@ -179,11 +179,8 @@ class MainActivity : AppCompatActivity() {
             button("Add stock") {
                 onClick {
                     val target: Double? = tprice.text.toString().toDoubleOrNull();
-
-                    var newstock =
-                            Stock(GregorianCalendar().timeInMillis, ticker.text.toString(), target ?: 6.66,
-                                    when(above!!.isChecked) { true -> {1} false -> {0} },
-                                    when(phone.isChecked) { true -> {1} false -> {0} } )
+                    var newstock = Stock(GregorianCalendar().timeInMillis, ticker.text.toString(),
+                            target ?: 6.66, above!!.isChecked, phone.isChecked)
 
                     var rownum : Long = 666
                     database.use {
@@ -213,8 +210,12 @@ class MainActivity : AppCompatActivity() {
                 val sresult = select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
                 sresult.exec() {
                     if (count > 0) {
-                        val rowParser = rowParser(::Stock)
-                        stocklist = parseList(rowParser)
+                        val parser = rowParser {
+                            stockid: Long, ticker: String, target: Double, above: Long, phone: Long ->
+                            Stock(stockid, ticker, target, above, phone)
+                        }
+
+                        stocklist = parseList(parser)
                     }
                 }
             }
