@@ -16,6 +16,9 @@
     <string name="newmsg">Mensaje nuevo</string>
     <string name="msg">Mensaje</string>
     <string name="choose1">Elija una de sus stocks</string>
+    <string name="chooselim">Elija un stock para eliminarlo</string>
+    <string name="numdeleted">El stock \"%1$s\" se ha eliminado</string>
+    <string name="delfail">Error al intentar la eliminación</string>
     <string name="youchose">Elige la opción</string>
     <string name="failempty">DB consulta fracasó; La lista de acciones está vacía</string>
     <string name="fail2add">SQLiteDatabase de error, no podía añadir fila</string>

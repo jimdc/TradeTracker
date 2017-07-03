@@ -22,7 +22,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.createTable("Portefeuille", true,
-                "_stockid" to INTEGER + PRIMARY_KEY + UNIQUE + AUTOINCREMENT,
+                "_stockid" to INTEGER + PRIMARY_KEY + UNIQUE,
                 "ticker" to TEXT,
                 "target" to REAL,
                 "ab" to INTEGER,

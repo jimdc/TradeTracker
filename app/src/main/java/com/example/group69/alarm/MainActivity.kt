@@ -18,7 +18,7 @@ import android.support.design.widget.Snackbar
 
 import java.util.GregorianCalendar
 import android.content.ContentValues
-
+import android.view.ViewManager
 
 
 // NotificationManager : Allows us to notify the user that something happened in the background
@@ -160,51 +160,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun experiMent(view: View) {
-        val freshthing : String = GregorianCalendar().timeInMillis.toString();
-        var result : Long = 666;
-        experiButton.text = freshthing
-        database.use {
-
-            result = replace("Test_table", "lastID" to freshthing)
-        }
-
-        val snack = Snackbar.make(view, "Rows affected: " + result.toString(), 5)
-        snack.show()
     }
 
     fun addstock(view: View) {
+
+        var above : android.widget.RadioButton? = null;
 
         var vl = verticalLayout {
             val ticker = editText() { hint = "Ticker name"; requestFocus() }
             val tprice = editText() { hint = "Target price" }
             val phone = checkBox { text = "Phone" }
             val ab = radioGroup {
-                radioButton { text = "above" }
-                radioButton { text = "below" }
-                check(1) //set "above" to be default
+                above = radioButton { text = "above" }
+                val below = radioButton { text = "below" }
+                check(1)
             }
 
             button("Add stock") {
                 onClick {
                     val target: Double? = tprice.text.toString().toDoubleOrNull();
-                    var longIsChecked: Long = 0;
-                    if (phone.isChecked) { longIsChecked = 1; }
 
-                    val newstock: Stock = Stock(GregorianCalendar().timeInMillis,
-                            ticker.text.toString(), target ?: 6.66,
-                            ab.checkedRadioButtonId.toLong(), longIsChecked)
+                    var newstock =
+                            Stock(GregorianCalendar().timeInMillis, ticker.text.toString(), target ?: 6.66,
+                                    when(above!!.isChecked) { true -> {1} false -> {0} },
+                                    when(phone.isChecked) { true -> {1} false -> {0} } )
 
                     var rownum : Long = 666
-
                     database.use {
-                        val con = ContentValues()
-                        con.put("_stockid", newstock.stockid)
-                        con.put("ticker", newstock.ticker)
-                        con.put("target", newstock.target)
-                        con.put("ab", newstock.above)
-                        con.put("phone", newstock.phone)
-
-                        rownum = replace("Portefeuille", null, con)
+                        rownum = replace("Portefeuille", null, newstock.ContentValues())
                     }
 
                     if (rownum != -1L) {
@@ -243,10 +226,26 @@ class MainActivity : AppCompatActivity() {
         if (!stocklist.isEmpty()) {
 
             var stocknamelist : List<CharSequence> = ArrayList()
-            stocklist.forEach { i -> stocknamelist += i.toString() }
+            stocklist.forEach {
+                i -> stocknamelist += i.toString()
+            }
 
-            selector(getResources().getString(R.string.choose1), stocknamelist) {
-                i -> toast(getResources().getString(R.string.youchose) + i)
+            selector(getResources().getString(R.string.chooselim), stocknamelist) {
+                i -> run {
+                    val st0ck = stocklist.get(i)
+                    val stockid = st0ck.stockid
+                    var nraffected : Int = 0
+
+                    database.use {
+                        nraffected = delete("Portefeuille", "_stockid=$stockid")
+                    }
+
+                    if (nraffected == 1) {
+                        toast(getResources().getString(R.string.numdeleted, st0ck.ticker))
+                    } else if (nraffected == 0) {
+                        toast(getResources().getString(R.string.delfail))
+                    }
+                }
             }
         } else {
             toast(getResources().getString(R.string.failempty))
