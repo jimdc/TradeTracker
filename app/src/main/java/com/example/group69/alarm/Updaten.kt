@@ -1,6 +1,8 @@
 package com.example.group69.alarm
 
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.view.View
@@ -16,7 +18,7 @@ import org.jetbrains.anko.db.select
 import org.jetbrains.anko.toast
 import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
-
+import java.util.*
 
 
 class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
@@ -71,18 +73,17 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 if(stockx.above == 1L){
                     if(currPrice >= stockx.target && !alarmPlayed){ //will need to DELETE THE ALARMPLAYED
                         alarmPlayed = true;
+                        Log.d("mangracina","mangracina")
                         publishProgress("result", a.toString()) //return index so we know which stock to remove from database
                     }
                 }
-                else{
-                    if(currPrice <= stockx.target && !alarmPlayed){
+                else {
+                    if (currPrice <= stockx.target && !alarmPlayed) {
                         alarmPlayed = true;
+                        Log.d("mangracina", "playAlarm")
                         publishProgress("result", a.toString()) //return index so we know which stock to remove from database
                     }
                 }
-               // val change = stock.quote.changeInPercent
-
-               // publishProgress(ticker, price.toString(), change.toString())
             a++
             }
             //publishProgress("alert")
@@ -98,10 +99,11 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     }
 
     override fun onProgressUpdate(vararg progress: String) {
-        //Log.d("Stock", progress[0] + " price: " + progress[1] + "pctchange" + progress[2])
+        playAlarm()
+
         val intent = Intent("com.example.group69.alarm")
-        intent.putExtra(progress[0],progress[1])
-        LocalBroadcastManager.getInstance(this.ctxx).sendBroadcast(intent)
+        intent.putExtra(progress[0],progress[1]) //should send the stock, price, and number so we know which to delete on the UI display
+        LocalBroadcastManager.getInstance(this.ctxx).sendBroadcast(intent) //we can use this later on for updating the UI display
     }
 
     inner class MyUndoListener : View.OnClickListener {
@@ -111,7 +113,27 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
             // Code to undo the user's last action
         }
     }
+    fun playAlarm() {
 
+        Log.d("playAlarm","playAlarm")
+        // Define a time value of 5 seconds
+        val alertTime = GregorianCalendar().timeInMillis + 5
+
+        // Define our intention of executing AlertReceiver
+        val alertIntent = Intent(ctxx, AlertReceiver::class.java)
+
+        // Allows you to schedule for your application to do something at a later date
+        // even if it is in he background or isn't active
+        val alarmManager = ctxx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // set() schedules an alarm to trigger
+        // Trigger for alertIntent to fire in 5 seconds
+        // FLAG_UPDATE_CURRENT : Update the Intent if active
+        alarmManager.set(AlarmManager.RTC_WAKEUP, alertTime,
+                PendingIntent.getBroadcast(ctxx, 1, alertIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT))
+
+    }
     override fun onPostExecute(result: Int?) {
         //showDialog("Downloaded " + result + " bytes");
     }
