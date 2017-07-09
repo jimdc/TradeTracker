@@ -6,7 +6,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 
 class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
-
+    private val mDatabase: SQLiteDatabase? = null
+    private val mInstance: MySqlHelper? = null
+    private val mContext: Context? = null
     companion object {
         private var instance: MySqlHelper? = null
         val dbVersion = 1
@@ -39,3 +41,4 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "mydb") {
 // Access property for Context
 val Context.database: MySqlHelper
     get() = MySqlHelper.getInstance(applicationContext)
+
