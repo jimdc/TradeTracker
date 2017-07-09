@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Alarme</string>
+    <string name="hotstock">Les stocks chauds</string>
+    <string name="addstock">Ajouter un stock</string>
+    <string name="moar">Plus sur la notification</string>
+    <string name="showstox">Afficher les stocks</string>
+    <string name="shownotif">Afficher la notification</string>
+    <string name="stopnotif">Arrêter la notification</string>
+    <string name="unused">Placeholder</string>
+    <string name="allie5">Alerter en 5 secondes</string>
+    <string name="fivepass">Cinq secondes se sont écoulées</string>
+    <string name="alert">Alerte</string>
+    <string name="timesup">Temps écoulé !</string>
+    <string name="alnew">Alerte: nouveau message</string>
+    <string name="newmsg">Nouveau message</string>
+    <string name="msg">Message</string>
+    <string name="choose1">Choisissez l\'un de vos stocks</string>
+    <string name="chooselim">Choisissez un stock à supprimer</string>
+    <string name="numdeleted">Le stock « %1$s » a été supprimé</string>
+    <string name="delfail">La tentative de suppression a échoué</string>
+    <string name="youchose">Vous avez choisi</string>
+    <string name="failempty">DB requête a échoué; La liste des stocks est vide</string>
+    <string name="fail2add">Erreur SQLiteDatabase, impossible d\'ajouter une ligne</string>
+    <string name="addsuccess">Ajouté avec succès</string>
+</resources>
