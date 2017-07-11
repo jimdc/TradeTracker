@@ -282,6 +282,7 @@ class MainActivity : AppCompatActivity() {
 
     fun playAlarm() {
 
+        Log.d("playAlarm","playAlarm")
         // Define a time value of 5 seconds
         val alertTime = GregorianCalendar().timeInMillis + 5
 
@@ -304,7 +305,7 @@ class MainActivity : AppCompatActivity() {
     private fun createBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                playAlarm()
+                Log.d("beforeAlarm","mangracina55")
                 deleteStockOfThisIndex(intent.getStringExtra("result"))
             }
         }
