@@ -171,40 +171,42 @@ class MainActivity : AppCompatActivity() {
 
         var above : android.widget.RadioButton? = null;
 
-        var vl = verticalLayout {
-            val ticker = editText() { hint = "Ticker name"; requestFocus() }
-            val tprice = editText() { hint = "Target price" }
-            val phone = checkBox { text = "Phone" }
-            val ab = radioGroup {
-                above = radioButton { text = "above" }
-                val below = radioButton { text = "below" }
-                check(1)
-            }
-
-            button("Add stock") {
-                onClick {
-                    val target: Double? = tprice.text.toString().toDoubleOrNull();
-                    var newstock = Stock(GregorianCalendar().timeInMillis, ticker.text.toString(),
-                            target ?: 6.66, above!!.isChecked, phone.isChecked)
-
-                    var rownum : Long = 666
-                    database.use {
-                        rownum = replace("Portefeuille", null, newstock.ContentValues())
+        alert {
+            customView {
+                verticalLayout {
+                    val ticker = editText() {
+                        hintResource = R.string.tickername;
+                        //requestFocus()
+                    }
+                    val tprice = editText() { hintResource = R.string.targetprice }
+                    val phone = checkBox { textResource = R.string.phonecall }
+                    val ab = radioGroup {
+                        above = radioButton { textResource = R.string.above }
+                        val below = radioButton { textResource = R.string.below }
+                        check(1)
                     }
 
-                    if (rownum != -1L) {
-                        toast(getResources().getString(R.string.addsuccess) + "#${rownum}: " + newstock.toString())
-                    } else {
-                        toast(getResources().getString(R.string.fail2add))
+                    positiveButton(R.string.addstock) {
+                            val target: Double? = tprice.text.toString().toDoubleOrNull();
+                            var newstock = Stock(GregorianCalendar().timeInMillis, ticker.text.toString(),
+                                    target ?: 6.66, above!!.isChecked, phone.isChecked)
+
+                            var rownum: Long = 666
+                            database.use {
+                                rownum = replace("Portefeuille", null, newstock.ContentValues())
+                            }
+
+                            if (rownum != -1L) {
+                                toast(getResources().getString(R.string.addsuccess) + "#${rownum}: " + newstock.toString())
+                            } else {
+                                toast(getResources().getString(R.string.fail2add))
+                            }
                     }
 
-                    finish()
-
+                    negativeButton(R.string.cancel) { }
                 }
             }
-
-        }
-
+        }.show()
     }
 
     fun showstocks(view: View) {

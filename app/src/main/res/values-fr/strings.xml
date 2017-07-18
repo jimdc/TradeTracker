@@ -23,4 +23,10 @@
     <string name="failempty">DB requête a échoué; La liste des stocks est vide</string>
     <string name="fail2add">Erreur SQLiteDatabase, impossible d\'ajouter une ligne</string>
     <string name="addsuccess">Ajouté avec succès</string>
+    <string name="targetprice">Prix cible</string>
+    <string name="tickername">nom Ticker</string>
+    <string name="phonecall">Appel téléphonique</string>
+    <string name="above">ci-dessus</string>
+    <string name="below">ci-dessous</string>
+    <string name="cancel">Annuler</string>
 </resources>
