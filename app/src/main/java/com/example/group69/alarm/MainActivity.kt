@@ -169,44 +169,8 @@ class MainActivity : AppCompatActivity() {
 
     fun addstock(view: View) {
 
-        var above : android.widget.RadioButton? = null;
-
-        alert {
-            customView {
-                verticalLayout {
-                    val ticker = editText() {
-                        hintResource = R.string.tickername;
-                        //requestFocus()
-                    }
-                    val tprice = editText() { hintResource = R.string.targetprice }
-                    val phone = checkBox { textResource = R.string.phonecall }
-                    val ab = radioGroup {
-                        above = radioButton { textResource = R.string.above }
-                        val below = radioButton { textResource = R.string.below }
-                        check(1)
-                    }
-
-                    positiveButton(R.string.addstock) {
-                            val target: Double? = tprice.text.toString().toDoubleOrNull();
-                            var newstock = Stock(GregorianCalendar().timeInMillis, ticker.text.toString(),
-                                    target ?: 6.66, above!!.isChecked, phone.isChecked)
-
-                            var rownum: Long = 666
-                            database.use {
-                                rownum = replace("Portefeuille", null, newstock.ContentValues())
-                            }
-
-                            if (rownum != -1L) {
-                                toast(getResources().getString(R.string.addsuccess) + "#${rownum}: " + newstock.toString())
-                            } else {
-                                toast(getResources().getString(R.string.fail2add))
-                            }
-                    }
-
-                    negativeButton(R.string.cancel) { }
-                }
-            }
-        }.show()
+        val intent = Intent(this,AddStockActivity::class.java)
+        startActivity(intent)
     }
 
     fun showstocks(view: View) {
