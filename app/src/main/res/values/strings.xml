@@ -22,12 +22,16 @@
     <string name="youchose">You chose</string>
     <string name="failempty">DB query failed; stock list is empty</string>
     <string name="fail2add">SQLiteDatabase error, could not add row</string>
+    <string name="fail2edit">SQLiteDatabase error, could not edit row</string>
     <string name="addsuccess">Successfully added</string>
+    <string name="editsuccess">Successfully edited</string>
     <string name="targetprice">Target price</string>
     <string name="tickername">Ticker name</string>
     <string name="callme">Phone call</string>
     <string name="above">Above</string>
     <string name="below">Below</string>
     <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
     <string name="title_activity_add_stock">Add stock</string>
+    <string name="title_activity_edit_stock">Editing the stock \"%1$s\"</string>
 </resources>

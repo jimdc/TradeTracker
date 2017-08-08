@@ -26,7 +26,7 @@
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.group69.alarm.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
             android:name=".HotStockActivity"
@@ -34,19 +34,19 @@
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.group69.alarm.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
 
         <receiver android:name=".AlertReceiver" />
 
         <activity
-            android:name=".AddStockActivity"
+            android:name=".AddEditStockActivity"
             android:label="@string/title_activity_add_stock"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.group69.alarm.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
     </application>
 

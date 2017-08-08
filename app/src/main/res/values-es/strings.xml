@@ -22,11 +22,16 @@
     <string name="youchose">Elige la opción</string>
     <string name="failempty">DB consulta fracasó; La lista de acciones está vacía</string>
     <string name="fail2add">SQLiteDatabase de error, no podía añadir fila</string>
+    <string name="fail2edit">SQLiteDatabase de error, no podía editar fila</string>
     <string name="addsuccess">Agregado con éxito</string>
+    <string name="editsuccess">Editado con éxito</string>
     <string name="targetprice">Precio objetivo</string>
     <string name="tickername">Nombre del ticker</string>
     <string name="phonecall">Llamada telefónica</string>
     <string name="above">por encima</string>
     <string name="below">por abajo</string>
     <string name="cancel">Anular</string>
+    <string name="delete">Borrar</string>
+    <string name="title_activity_add_stock">Añadir stock</string>
+    <string name="title_activity_edit_stock">Edición el stock \"%1$s\"</string>
 </resources>

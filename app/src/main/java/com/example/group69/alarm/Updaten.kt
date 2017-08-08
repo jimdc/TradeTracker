@@ -19,6 +19,7 @@ import org.jetbrains.anko.toast
 import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import java.util.*
+import java.lang.NullPointerException
 
 
 class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
@@ -69,22 +70,31 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
             for (stockx in stocksTargets) { //this needs to be tweaked as now it will recheck the same stock
                 val stock = yahoofinance.YahooFinance.get(stockx.ticker.toString()); //this will keep checking duplicates with
                 //the yahoo api when it could save time by using the saved value for that stock in a table
-                var currPrice : Double = stock.quote.price.toDouble()
-                if(stockx.above == 1L){
-                    if(currPrice >= stockx.target && !alarmPlayed){ //will need to DELETE THE ALARMPLAYED
-                        alarmPlayed = true;
-                        Log.d("mangracina","mangracina")
-                        publishProgress("result", a.toString()) //return index so we know which stock to remove from database
+                var currPrice : Double? = null
+                try {
+                    var currPrice: Double = stock.quote.price.toDouble()
+                } catch (e: NullPointerException) {
+                    currPrice = null
+                    Log.d("Errorlog", "stock " + stockx.ticker.toString() + " caused NPE!")
+                }
+
+                if (currPrice != null) {
+                    if (stockx.above == 1L) {
+                        if (currPrice >= stockx.target && !alarmPlayed) { //will need to DELETE THE ALARMPLAYED
+                            alarmPlayed = true;
+                            Log.d("mangracina", "mangracina")
+                            publishProgress("result", a.toString()) //return index so we know which stock to remove from database
+                        }
+                    } else {
+                        if (currPrice <= stockx.target && !alarmPlayed) {
+                            alarmPlayed = true;
+                            Log.d("mangracina", "playAlarm")
+                            publishProgress("result", a.toString()) //return index so we know which stock to remove from database
+                        }
                     }
                 }
-                else {
-                    if (currPrice <= stockx.target && !alarmPlayed) {
-                        alarmPlayed = true;
-                        Log.d("mangracina", "playAlarm")
-                        publishProgress("result", a.toString()) //return index so we know which stock to remove from database
-                    }
-                }
-            a++
+
+                a++
             }
             //publishProgress("alert")
             try {

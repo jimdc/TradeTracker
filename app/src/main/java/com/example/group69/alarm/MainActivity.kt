@@ -14,21 +14,11 @@ import android.widget.Button
 import android.util.Log
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.*
-import android.support.design.widget.Snackbar
 
 import java.util.GregorianCalendar
-import android.content.ContentValues
-import android.view.ViewManager
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
-
-
-
-
-
-
-
 
 // NotificationManager : Allows us to notify the user that something happened in the background
 // AlarmManager : Allows you to schedule for your application to do something at a later date
@@ -164,19 +154,15 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun experiMent(view: View) {
-    }
 
     fun addstock(view: View) {
-
-        val intent = Intent(this,AddStockActivity::class.java)
+        val intent = Intent(this, AddEditStockActivity::class.java)
+        intent.putExtra("EditingExisting", false);
         startActivity(intent)
     }
 
     fun showstocks(view: View) {
-
         var stocklist : List<Stock> = ArrayList()
-        //updat2.execute("hii")
         try {
             database.use {
                 val sresult = select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
@@ -205,20 +191,14 @@ class MainActivity : AppCompatActivity() {
 
             selector(getResources().getString(R.string.choose1), stocknamelist) {
                 i -> run {
-                val st0ck = stocklist.get(i)
-                val stockid = st0ck.stockid
-                var nraffected : Int = 0
+                    val st0ck = stocklist.get(i)
 
-                database.use {
-                    nraffected = delete("Portefeuille", "_stockid=$stockid")
-                }
+                    val intent = Intent(this, AddEditStockActivity::class.java)
+                    intent.putExtra("EditingExisting", true)
+                    intent.putExtra("TheStock", st0ck)
 
-                if (nraffected == 1) {
-                    //toast(getResources().getString(R.string.youchose, st0ck.ticker))
-                } else if (nraffected == 0) {
-                    //toast(getResources().getString(R.string.f))
+                    startActivity(intent)
                 }
-            }
             }
         } else {
             toast(getResources().getString(R.string.failempty))
