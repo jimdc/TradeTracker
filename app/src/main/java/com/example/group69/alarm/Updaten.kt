@@ -72,13 +72,14 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 //the yahoo api when it could save time by using the saved value for that stock in a table
                 var currPrice : Double? = null
                 try {
-                    var currPrice: Double = stock.quote.price.toDouble()
+                    currPrice = stock.quote.price.toDouble()
+                    Log.d("Errorlog", "got the price")
                 } catch (e: NullPointerException) {
                     currPrice = null
                     Log.d("Errorlog", "stock " + stockx.ticker.toString() + " caused NPE!")
                 }
-
                 if (currPrice != null) {
+                    Log.d("Errorlog", "not null")
                     if (stockx.above == 1L) {
                         if (currPrice >= stockx.target && !alarmPlayed) { //will need to DELETE THE ALARMPLAYED
                             alarmPlayed = true;
@@ -109,6 +110,7 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     }
 
     override fun onProgressUpdate(vararg progress: String) {
+        Log.d("mangracina", "playing alarm")
         playAlarm()
 
         val intent = Intent("com.example.group69.alarm")
