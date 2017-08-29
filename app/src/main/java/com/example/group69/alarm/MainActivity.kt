@@ -234,7 +234,15 @@ class MainActivity : AppCompatActivity() {
 
         // Define our intention of executing AlertReceiver
         val alertIntent = Intent(this, AlertReceiver::class.java)
-
+        val alert1 : String
+        alert1 = "ayyyy"
+        val alert2 : String
+        alert2 = "ayyyy2"
+        val alert3 : String
+        alert3 = "ayyyy3"
+        alertIntent.putExtra("message1", alert1)
+        alertIntent.putExtra("message2", alert2)
+        alertIntent.putExtra("message3", alert3)
         // Allows you to schedule for your application to do something at a later date
         // even if it is in he background or isn't active
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -252,7 +260,7 @@ class MainActivity : AppCompatActivity() {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 Log.d("beforeAlarm","mangracina55")
-                deleteStockOfThisIndex(intent.getStringExtra("result"))
+                //deleteStockOfThisIndex(intent.getStringExtra("result"))
             }
         }
     }

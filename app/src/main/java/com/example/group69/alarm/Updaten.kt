@@ -25,9 +25,9 @@ import java.lang.NullPointerException
 class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     var stocksTargets : List<Stock> = ArrayList()
     var stocksNow: MutableList<StockNow> = mutableListOf<StockNow>()
-    var result: Double? = null
     var ctxx = ctx
     var i = 0
+    var delStock: Long = 0
     var alarmPlayed : Boolean = false
     override fun doInBackground(vararg tickers: String): Int? {
 
@@ -40,6 +40,10 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
             Log.d("Attempting Updaten", "Updaten")
             try {
                 database.use {
+                    if(alarmPlayed == true) {
+                        database.delete("Portefeuille", "_stockid=$delStock")
+                        alarmPlayed = false
+                    }
                     val sresult = database.select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
                     sresult.exec() {
                         if (count > 0) {
@@ -50,7 +54,9 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                             stocksTargets = parseList(parser)
 
                         }
+
                     }
+
                 }
             } catch (e: android.database.sqlite.SQLiteException) {
                 Log.d("In Updaten: ", "error onCreate: " + e.toString())
@@ -73,7 +79,7 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 var currPrice : Double? = null
                 try {
                     currPrice = stock.quote.price.toDouble()
-                    Log.d("Errorlog", "got the price")
+                    Log.d("Errorlog", "got the price: " + currPrice)
                 } catch (e: NullPointerException) {
                     currPrice = null
                     Log.d("Errorlog", "stock " + stockx.ticker.toString() + " caused NPE!")
@@ -81,16 +87,26 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 if (currPrice != null) {
                     Log.d("Errorlog", "not null")
                     if (stockx.above == 1L) {
-                        if (currPrice >= stockx.target && !alarmPlayed) { //will need to DELETE THE ALARMPLAYED
+                        if (currPrice >= stockx.target) { //will need to DELETE THE ALARMPLAYED
                             alarmPlayed = true;
                             Log.d("mangracina", "mangracina")
-                            publishProgress("result", a.toString()) //return index so we know which stock to remove from database
+                            publishProgress(stockx.ticker.toString(), stockx.target.toString(),stockx.above.toString()) //return index so we know which stock to remove from database
+                            delStock = stockx.stockid
+                            Log.d("delete", "" + delStock)
+
+
                         }
                     } else {
-                        if (currPrice <= stockx.target && !alarmPlayed) {
+                        if (currPrice <= stockx.target) {
                             alarmPlayed = true;
                             Log.d("mangracina", "playAlarm")
-                            publishProgress("result", a.toString()) //return index so we know which stock to remove from database
+                            publishProgress(stockx.ticker.toString(), stockx.target.toString(),stockx.above.toString()) //return index so we know which stock to remove from database
+                            /*var delStock = stockx.stockid
+                            try {
+                                database.delete("Portefeuille", "_stockid=$delStock")
+                            } catch (e: android.database.sqlite.SQLiteException) {
+                                Log.d("In Updaten: ", "error onCreate: " + e.toString())
+                            } */
                         }
                     }
                 }
@@ -111,7 +127,7 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
     override fun onProgressUpdate(vararg progress: String) {
         Log.d("mangracina", "playing alarm")
-        playAlarm()
+        playAlarm(progress[0], progress[1], progress[2])
 
         val intent = Intent("com.example.group69.alarm")
         intent.putExtra(progress[0],progress[1]) //should send the stock, price, and number so we know which to delete on the UI display
@@ -125,14 +141,28 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
             // Code to undo the user's last action
         }
     }
-    fun playAlarm() {
+    fun playAlarm(ticker: String, price: String, ab: String) {
 
-        Log.d("playAlarm","playAlarm")
+        Log.d("playAlarm","" + ab)
         // Define a time value of 5 seconds
         val alertTime = GregorianCalendar().timeInMillis + 5
-
+        val gain: String
         // Define our intention of executing AlertReceiver
+        if(ab == "1"){
+            gain = "rose to"
+        }
+        else gain = "dropped to"
+
         val alertIntent = Intent(ctxx, AlertReceiver::class.java)
+        val alert1 : String
+        alert1 = ticker + " " + gain + " " + price
+        val alert2 : String
+        alert2 = price
+        val alert3 : String
+        alert3 = ab
+        alertIntent.putExtra("message1", alert1)
+        alertIntent.putExtra("message2", alert2)
+        alertIntent.putExtra("message3", alert3)
 
         // Allows you to schedule for your application to do something at a later date
         // even if it is in he background or isn't active

@@ -8,17 +8,23 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.NotificationCompat
+import android.util.Log
+import android.content.Intent.getIntent
+
 
 class AlertReceiver : BroadcastReceiver() {
 
     // Called when a broadcast is made targeting this class
     override fun onReceive(context: Context, intent: Intent) {
-
+        //Log.d("alarmo","ayy")
+        //Log.d("alarmo",intent.extras.getString("message1"))
         createNotification(context,
-                context.resources.getString(R.string.timesup),
-                context.resources.getString(R.string.fivepass),
-                context.resources.getString(R.string.alert)
+                intent.extras.getString("message1").toString(),
+                intent.extras.getString("message2").toString(),
+                intent.extras.getString("message3").toString()
+
         )
+
 
     }
 
@@ -38,7 +44,6 @@ class AlertReceiver : BroadcastReceiver() {
         // Define an Intent and an action to perform with it by another application
         val notificIntent = PendingIntent.getActivity(context, 0,
                 Intent(context, MainActivity::class.java), 0)
-
         // Builds a notification
         val mBuilder = NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ntt_logo_24_24)
