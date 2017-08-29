@@ -34,4 +34,6 @@
     <string name="delete">Effacer</string>
     <string name="title_activity_add_stock">Ajouter un stock</string>
     <string name="title_activity_edit_stock">Édition du stock \"%1$s\"</string>
+    <string name="stocknoexist">Le stock \"%1$s\" n\'existe pas.</string>
+    <string name="NaN">\"%1$s\" n\'est pas un nombre.</string>
 </resources>

@@ -9,9 +9,13 @@ import android.support.v7.widget.AppCompatEditText
 import android.view.View
 import android.widget.*
 import org.jetbrains.anko.*
+import java.util.Calendar
 import org.jetbrains.anko.db.delete
+import java.io.IOException
+import android.util.Log
 
 class AddEditStockActivity : AppCompatActivity() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,36 +27,27 @@ class AddEditStockActivity : AppCompatActivity() {
         val tickerPrice = findViewById(R.id.tickerPrice) as EditText
         val aboveChecked = findViewById(R.id.rbAbove) as RadioButton
         val phoneChecked = findViewById(R.id.phoneCallCB) as CheckBox
-        val fab = findViewById(R.id.fab) as FloatingActionButton
+        val addbutton = findViewById(R.id.fab) as FloatingActionButton
+        val deletebutton = findViewById(R.id.delbtn) as Button
 
         val b = intent.extras
+        var stockid = Calendar.getInstance().getTimeInMillis()
+
         val EditingExisting = b.getBoolean("EditingExisting")
         if (EditingExisting) {
 
             val thestock : Stock = b.getParcelable("TheStock")
-            val stockid = thestock.stockid
+            stockid = thestock.stockid
             val stockticker = thestock.ticker
 
             setTitle(getResources().getString(R.string.title_activity_edit_stock, stockticker))
 
             tickerName.setText(stockticker)
             tickerPrice.setText(thestock.target.toString())
+            aboveChecked.setChecked(thestock.above < 1)
+            phoneChecked.setChecked(thestock.phone < 1)
 
-            if (thestock.above < 1) { //Mindful of both cases since the default can change.
-                aboveChecked.setChecked(false)
-            } else {
-                aboveChecked.setChecked(true)
-            }
-
-            if (thestock.phone < 1) {
-                phoneChecked.setChecked(false)
-            } else {
-                phoneChecked.setChecked(true)
-            }
-
-            val delbtn = findViewById(R.id.delbtn) as Button
-
-            delbtn.setOnClickListener { view ->
+            deletebutton.setOnClickListener { view ->
                 var nraffected : Int = 0
 
                 database.use {
@@ -67,57 +62,19 @@ class AddEditStockActivity : AppCompatActivity() {
 
                 finish()
             }
+        } else { //adding a new stock
+            deletebutton.visibility = View.INVISIBLE
+        }
 
-            fab.setOnClickListener { view ->
+        addbutton.setOnClickListener { view ->
+            val stockaddrequest = StockProposalValidationRequest(this)
 
-                var tickPrice = tickerPrice.text.toString()
-                val target: Double? = tickPrice.toDoubleOrNull()
+            val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
+            var editedstock = Stock(stockid, tickerName.text.toString(),
+                    target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked)
 
-                var editedstock = Stock(thestock.stockid, tickerName.text.toString(),
-                        target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked)
-
-                var rownum: Long = 666
-                database.use {
-                    rownum = replace("Portefeuille", null, editedstock.ContentValues())
-                }
-
-                var result = getResources().getString(R.string.fail2edit)
-                if (rownum != -1L) {
-                    result = getResources().getString(R.string.editsuccess) +
-                            "#${rownum}: " + editedstock.toString()
-                }
-
-                Snackbar.make(view, result, Snackbar.LENGTH_LONG).setAction("Action", null).show()
-
-                finish()
-            }
-
-        } else { //Adding a new stock from scratch.
-            val delbtn = findViewById(R.id.delbtn) as Button
-            delbtn.visibility = View.INVISIBLE
-
-            fab.setOnClickListener { view ->
-
-                var tickPrice = tickerPrice.text.toString()
-                val target: Double? = tickPrice.toDoubleOrNull()
-
-                var newstock = Stock(java.util.GregorianCalendar().timeInMillis, tickerName.text.toString(),
-                        target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked)
-
-                var rownum: Long = 666
-                database.use {
-                    rownum = replace("Portefeuille", null, newstock.ContentValues())
-                }
-
-                var result = getResources().getString(R.string.fail2add)
-                if (rownum != -1L) {
-                    result = getResources().getString(R.string.addsuccess) + "#${rownum}: " + newstock.toString()
-                }
-
-                Snackbar.make(view, result, Snackbar.LENGTH_LONG).setAction("Action", null).show()
-
-                finish()
-            }
+            stockaddrequest.execute(editedstock)
+            finish()
         }
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
