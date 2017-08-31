@@ -46,7 +46,7 @@ class AlertReceiver : BroadcastReceiver() {
                 Intent(context, MainActivity::class.java), 0)
         // Builds a notification
         val mBuilder = NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ntt_logo_24_24)
+                .setSmallIcon(R.drawable.stocklogo)
                 .setContentTitle(msg)
                 .setTicker(msgAlert)
                 .setContentText(msgText)

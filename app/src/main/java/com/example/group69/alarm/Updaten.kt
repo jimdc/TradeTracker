@@ -27,12 +27,11 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     var stocksNow: MutableList<StockNow> = mutableListOf<StockNow>()
     var ctxx = ctx
     var i = 0
-    var delStock: Long = 0
+    var delStock: Long = 5
     var alarmPlayed : Boolean = false
     override fun doInBackground(vararg tickers: String): Int? {
 
         while(true){
-
             var manager: MySqlHelper = MySqlHelper.getInstance(this.ctxx)
             val database = manager.writableDatabase
             //val sqlDB = MySqlHelper(ctxx)
@@ -74,13 +73,17 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
             var a = 0
             for (stockx in stocksTargets) { //this needs to be tweaked as now it will recheck the same stock
-                val stock = yahoofinance.YahooFinance.get(stockx.ticker.toString()); //this will keep checking duplicates with
+                //val stock = yahoofinance.YahooFinance.get(stockx.ticker.toString()); //this will keep checking duplicates with
+
+                val ticker: String = stockx.ticker.toString()
                 //the yahoo api when it could save time by using the saved value for that stock in a table
                 var currPrice : Double? = null
                 try {
-                    currPrice = stock.quote.price.toDouble()
+                    //currPrice = stock.quote.price.toDouble()
+                    Log.d("Errorlog", "got the symb: " + ticker)
+                    currPrice = Geldmonitor.getPrice(ticker)
                     Log.d("Errorlog", "got the price: " + currPrice)
-                } catch (e: NullPointerException) {
+                } catch (e: Exception) {
                     currPrice = null
                     Log.d("Errorlog", "stock " + stockx.ticker.toString() + " caused NPE!")
                 }
@@ -92,15 +95,16 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                             Log.d("mangracina", "mangracina")
                             publishProgress(stockx.ticker.toString(), stockx.target.toString(),stockx.above.toString()) //return index so we know which stock to remove from database
                             delStock = stockx.stockid
-                            Log.d("delete", "" + delStock)
 
 
                         }
-                    } else {
+                    }
+                    else {
                         if (currPrice <= stockx.target) {
                             alarmPlayed = true;
                             Log.d("mangracina", "playAlarm")
                             publishProgress(stockx.ticker.toString(), stockx.target.toString(),stockx.above.toString()) //return index so we know which stock to remove from database
+                            delStock = stockx.stockid
                             /*var delStock = stockx.stockid
                             try {
                                 database.delete("Portefeuille", "_stockid=$delStock")
