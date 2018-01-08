@@ -8,46 +8,17 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/shownotif"
-        android:id="@+id/showNotificationBut"
-        android:layout_alignParentTop="true"
+        android:text="Time Delay"
+        android:id="@+id/timeDelayButton"
         android:layout_alignParentStart="true"
-        android:onClick="showNotification"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/stopnotif"
-        android:id="@+id/stopNotificationBut"
-        android:layout_below="@+id/showNotificationBut"
-        android:layout_alignParentStart="true"
-        android:onClick="stopNotification"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/allie5"
-        android:id="@+id/alertButton"
-        android:layout_below="@+id/stopNotificationBut"
-        android:layout_alignParentStart="true"
-        android:onClick="setAlarm" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/unused"
-        android:id="@+id/experiButton"
-        android:layout_below="@+id/alertButton"
-        android:layout_alignParentStart="true"
-        android:onClick="experiMent"
-        android:enabled="false"/>
+        android:onClick="timeDelay" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/addstock"
         android:id="@+id/addstockButton"
-        android:layout_below="@+id/experiButton"
+        android:layout_below="@+id/timeDelayButton"
         android:layout_alignParentStart="true"
         android:onClick="addstock"/>
 
@@ -68,5 +39,24 @@
         android:layout_below="@+id/showstockButton"
         android:onClick="openHot"
         android:text="@string/hotstock" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="48dp"
+        android:text="Start Scanning"
+        android:onClick="startService"/>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:text="Stop Scanning"
+        android:onClick="stopService"/>
 
 </RelativeLayout>

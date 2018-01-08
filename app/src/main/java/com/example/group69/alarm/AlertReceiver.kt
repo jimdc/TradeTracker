@@ -10,7 +10,7 @@ import android.net.Uri
 import android.support.v4.app.NotificationCompat
 import android.util.Log
 import android.content.Intent.getIntent
-
+import android.os.Vibrator;
 
 class AlertReceiver : BroadcastReceiver() {
 
@@ -72,6 +72,12 @@ class AlertReceiver : BroadcastReceiver() {
 
         // Post the notification
         mNotificationManager.notify(1, mBuilder.build())
+
+        //val v = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        //val num : LongArray = longArrayOf(1500,1500,1500)
+        //v.vibrate(num,1)
+        //Thread.sleep(17000)
+        //v.cancel()
 
     }
 }

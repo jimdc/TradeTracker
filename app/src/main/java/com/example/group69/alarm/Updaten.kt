@@ -3,6 +3,7 @@ package com.example.group69.alarm
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.view.View
@@ -18,6 +19,8 @@ import org.jetbrains.anko.db.select
 import org.jetbrains.anko.toast
 import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
+import android.os.SystemClock
+import android.os.Vibrator
 import java.util.*
 import java.lang.NullPointerException
 
@@ -31,12 +34,28 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     var alarmPlayed : Boolean = false
     override fun doInBackground(vararg tickers: String): Int? {
 
-        while(true){
-            var manager: MySqlHelper = MySqlHelper.getInstance(this.ctxx)
+        TimeZone.getTimeZone("EST")
+        var failcount = 0
+        var timeCount: Long = 0
+        val date = Date()
+        GregorianCalendar().time
+        val cal = Calendar.getInstance()
+        cal.time = date
+        val hours = cal.get(Calendar.HOUR_OF_DAY)
+        Log.d("hours", hours.toString())
+        //while(!Thread.currentThread().isInterrupted()){
+        var ww = 0
+         while(true) {
+             if (isCancelled()) {
+                 break
+             }
+            Log.d("updaten","iteration #" + ww)
+            ww++
+             var manager: MySqlHelper = MySqlHelper.getInstance(this.ctxx)
             val database = manager.writableDatabase
             //val sqlDB = MySqlHelper(ctxx)
 
-            Log.d("Attempting Updaten", "Updaten")
+            Log.d("Attempting Updaten", "Up")
             try {
                 database.use {
                     if(alarmPlayed == true) {
@@ -58,8 +77,7 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
                 }
             } catch (e: android.database.sqlite.SQLiteException) {
-                Log.d("In Updaten: ", "error onCreate: " + e.toString())
-
+                Log.d("In Updaten: ", "sqlLite error onCreate: " + e.toString())
             }
             if (!stocksTargets.isEmpty()) {
 
@@ -77,17 +95,28 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
                 val ticker: String = stockx.ticker.toString()
                 //the yahoo api when it could save time by using the saved value for that stock in a table
-                var currPrice : Double? = null
+                var currPrice = -2.0
                 try {
                     //currPrice = stock.quote.price.toDouble()
-                    Log.d("Errorlog", "got the symb: " + ticker)
                     currPrice = Geldmonitor.getPrice(ticker)
+                    Log.d("Errorlog", "got the symb: " + ticker)
                     Log.d("Errorlog", "got the price: " + currPrice)
-                } catch (e: Exception) {
-                    currPrice = null
-                    Log.d("Errorlog", "stock " + stockx.ticker.toString() + " caused NPE!")
+                } catch (e: Exception){
+                    currPrice = -3.0
+                    //TODO
+                    //when returning the stock's current price to update the gui (which will only happen when gui is opened or remains opened)
+                    //we will show the current price of the stock (updates minimum every 10 seconds, more than that will drain battery)
+                    //if we get back -3.0 as the error code, we will display 'failed to obtain price, alert paused',
+                    // if ALL stocks in stock list have this problem, but cryptos work: (or vise-versa): we will let user know that there is an error
+                    // connecting to the stock/crypto exchange server
+                    // if both are not working simultaneously: we will display that there is no data connection/wifi found, scanning will resume
+                    // automatically when connection is found.
+
+                    //for now just checking to see if all stocks are returning -3.0
+                    Log.d("Errorlog", "got stock " + stockx.ticker.toString() + " caused NPE!")
                 }
-                if (currPrice != null) {
+
+                if (currPrice >= 0) {
                     Log.d("Errorlog", "not null")
                     if (stockx.above == 1L) {
                         if (currPrice >= stockx.target) { //will need to DELETE THE ALARMPLAYED
@@ -114,25 +143,51 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                         }
                     }
                 }
-
+                else{ //if price is less than 0, we have an error from network, might be one stock. if it is all we will find out with:
+                    failcount++
+                }
                 a++
             }
+            if(failcount == stocksTargets.size){
+                //TODO this is where broadcaster will send the mainActivity to
+                // update stock prices as ERROR and give a single notification about network connection being lost.
+                //we dont want to spam network connection lost every minute!!!
+                Log.d("got","network connection error, all stocks getting -3.0")
+                try {
+                 Thread.sleep(60000)
+                } catch (ie: InterruptedException) {
+                 ie.printStackTrace()
+                 Thread.currentThread().interrupt()
+                }
+
+            }
+            failcount = 0
             //publishProgress("alert")
+            timeCount++
+            /*if(timeCount == 1L || timeCount % 30 == 0L){
+                Log.d("timeCount",timeCount.toString() + "time:" + Date().hours.toString())
+                if(Date().hours !in 7..16){
+                    Thread.sleep(28 * 60000)
+                }
+                Log.d("sleep","done sleeping")
+            }
+            */
             try {
-                Thread.sleep(10000)
+                Thread.sleep(8000)
             } catch (ie: InterruptedException) {
                 ie.printStackTrace()
                 Thread.currentThread().interrupt()
             }
 
-        }
 
+        }
+        Log.d("Errorlog","got thread interupted")
+        return 0
     }
 
     override fun onProgressUpdate(vararg progress: String) {
         Log.d("mangracina", "playing alarm")
         playAlarm(progress[0], progress[1], progress[2])
-
         val intent = Intent("com.example.group69.alarm")
         intent.putExtra(progress[0],progress[1]) //should send the stock, price, and number so we know which to delete on the UI display
         LocalBroadcastManager.getInstance(this.ctxx).sendBroadcast(intent) //we can use this later on for updating the UI display
@@ -145,12 +200,17 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
             // Code to undo the user's last action
         }
     }
+    fun pause(time: Long){
+        SystemClock.sleep(time * 60000);
+
+        //Thread.sleep(time * 60000)
+    }
     fun playAlarm(ticker: String, price: String, ab: String) {
 
         Log.d("playAlarm","" + ab)
         // Define a time value of 5 seconds
         val alertTime = GregorianCalendar().timeInMillis + 5
-        val gain: String
+        var gain: String
         // Define our intention of executing AlertReceiver
         if(ab == "1"){
             gain = "rose to"
@@ -159,9 +219,9 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
         val alertIntent = Intent(ctxx, AlertReceiver::class.java)
         val alert1 : String
-        alert1 = ticker + " " + gain + " " + price
+        alert1 = ticker.toUpperCase() + " " + gain + " " + toDollar(price)
         val alert2 : String
-        alert2 = price
+        alert2 = toDollar(price)
         val alert3 : String
         alert3 = ab
         alertIntent.putExtra("message1", alert1)
@@ -179,8 +239,32 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 PendingIntent.getBroadcast(ctxx, 1, alertIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT))
 
+        val v = ctxx.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val num : LongArray = longArrayOf(0,1500,1500,1500,1500,1500,1500,1500,1500,1500,1500,1500,1500)
+        v.vibrate(num, -1)
+
+
     }
     override fun onPostExecute(result: Int?) {
         //showDialog("Downloaded " + result + " bytes");
     }
+    fun toDollar(d: String): String{
+        var s = d
+        var dot = s.indexOf('.')
+        if(dot + 1 == s.length - 1) {
+            s = s + '0'
+        }
+        var sub = s.substring(0,dot)
+
+        var str = StringBuilder(sub)
+        if(sub.length>3){
+
+            str.insert(sub.length-3,',')
+        }
+
+
+
+        return '$' + str.toString() + s.substring(dot,s.length)
+    }
+
 }
