@@ -36,7 +36,7 @@ import android.app.ActivityManager
  * there should be a a thin bar separating them which can be dragged up/down to adjust view to see more or all of a preferred list.
  * ***this setting should be saved as a state so even if app is restarted the setting that was left will be what is shown
  * **this is important because someone who only trades in cryptos will not want to have to adjust everytime they open the app so that
- * they only see the crypto list.
+ * they only see the crypto list. --
  *
  * --when a stock was removed from the momentum check list, perhaps the user wanted to detect for +10% price in 2 hour timespan, by
  *       intervals of 20 seconds. suppose it rose 10% in 20 seconds, then immidiatly dropped, so the notification goes off but the
