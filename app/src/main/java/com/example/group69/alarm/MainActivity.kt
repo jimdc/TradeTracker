@@ -14,13 +14,14 @@ import android.widget.Button
 import android.util.Log
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.*
+import android.widget.ListView;
 
 import java.util.GregorianCalendar
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
-import android.os.Vibrator
 import android.app.ActivityManager
+import kotlinx.android.synthetic.main.activity_main.*
 
 /* TODOyu
     Name for app? Trademaster?
@@ -41,7 +42,7 @@ import android.app.ActivityManager
  * --when a stock was removed from the momentum check list, perhaps the user wanted to detect for +10% price in 2 hour timespan, by
  *       intervals of 20 seconds. suppose it rose 10% in 20 seconds, then immidiatly dropped, so the notification goes off but the
  *       user sees they missed the chance and it was a quick change. there can be a list 'recently deleted' which it can be found so
- *       that the user can re-add the stock rapidly (not such an important feature)
+ *       that the user can re-add the sto67ck rapidly (not such an important feature)
  *    a better way to prevent this is to make the interval say 1 minute, so that less battery power is used as well as small giant
  *    changes which immidiatly fall back down.
  *
@@ -82,7 +83,7 @@ import android.app.ActivityManager
  *  to fix this:
  *    **** when scan starts: any timestamp older than one week will result in all of those rows being deleted.
  *
- *
+ *j
  *
  * for 1 hour period with 15 seconds intervals, there will be a new data point every 20 with the oldest datapoint pushed out the queue.
  * 240 checks will occur every 15 seconds (~1000 per minute, 60000 per hour, 1.4 million per 24 hours) this is not bad especially compared
@@ -105,6 +106,7 @@ class MainActivity : AppCompatActivity() {
     val addstockButton: Button by lazy { findViewById(R.id.addstockButton) as Button }
     val showstockButton: Button by lazy { findViewById(R.id.showstockButton) as Button }
     val timeDelayButton: Button by lazy { findViewById(R.id.timeDelayButton) as Button }
+    lateinit var phraseListView: ListView
     lateinit var stopNotificationBut: Button
     lateinit var alertButton: Button
     var stocksTargets : List<Stock> = ArrayList()
@@ -122,6 +124,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) { //Only called when you restore from a saved state!
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        phraseListView = findViewById(R.id.phrase_ListView) as ListView
+
+        Utility.setListViewHeightBasedOnChildren(phrase_ListView);
 
         // Initialize buttons
 //        stopNotificationBut = findViewById(R.id.stopNotificationBut) as Button
