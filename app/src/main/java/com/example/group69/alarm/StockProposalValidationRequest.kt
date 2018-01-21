@@ -34,11 +34,7 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
             val tickername = stock.ticker
             Log.d("DIB", "doInBackground for stock " + tickername)
 
-            try {
-                yahoofinance.YahooFinance.get(tickername)
-            } catch(e: java.io.IOException) {
-                return context.getResources().getString(R.string.stocknoexist, tickername)
-            }
+            //Somehow check if the stock really exists. Used to do with Yahoo Finance app
 
             val target: Double? = stock.target
             if (target == null) {
