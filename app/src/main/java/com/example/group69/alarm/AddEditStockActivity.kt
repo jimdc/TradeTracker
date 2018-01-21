@@ -33,6 +33,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val b = intent.extras
         var stockid = Calendar.getInstance().getTimeInMillis()
 
+        val EditingCrypto = b.getBoolean("EditingCrypto")
         val EditingExisting = b.getBoolean("EditingExisting")
         if (EditingExisting) {
 
@@ -51,7 +52,7 @@ class AddEditStockActivity : AppCompatActivity() {
                 var nraffected : Int = 0
 
                 database.use {
-                    nraffected = delete("Portefeuille", "_stockid=$stockid")
+                    nraffected = delete("TableView2", "_stockid=$stockid")
                 }
 
                 if (nraffected == 1) {
@@ -63,6 +64,10 @@ class AddEditStockActivity : AppCompatActivity() {
                 finish()
             }
         } else { //adding a new stock
+            if (EditingCrypto) {
+                setTitle(getResources().getString(R.string.title_activity_add_crypto))
+            }
+
             deletebutton.visibility = View.INVISIBLE
         }
 
@@ -71,7 +76,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
             val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
             var editedstock = Stock(stockid, tickerName.text.toString(),
-                    target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked)
+                    target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
             stockaddrequest.execute(editedstock)
             finish()

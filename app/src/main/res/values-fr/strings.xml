@@ -3,6 +3,7 @@
     <string name="app_name">Alarme</string>
     <string name="hotstock">Les stocks chauds</string>
     <string name="addstock">Ajouter un stock</string>
+    <string name="addcrypto">Ajouter un crypto</string>
     <string name="moar">Plus sur la notification</string>
     <string name="showstox">Afficher les stocks</string>
     <string name="shownotif">Afficher la notification</string>
@@ -33,7 +34,8 @@
     <string name="cancel">Annuler</string>
     <string name="delete">Effacer</string>
     <string name="title_activity_add_stock">Ajouter un stock</string>
-    <string name="title_activity_edit_stock">Édition du stock \"%1$s\"</string>
+    <string name="title_activity_add_crypto">Ajouter un crypto</string>
+    <string name="title_activity_edit_stock">Édition stock/crypto \"%1$s\"</string>
     <string name="stocknoexist">Le stock \"%1$s\" n\'existe pas.</string>
     <string name="NaN">\"%1$s\" n\'est pas un nombre.</string>
 </resources>

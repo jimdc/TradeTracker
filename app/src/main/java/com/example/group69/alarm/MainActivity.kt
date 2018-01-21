@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     val servRunning = true
     //val showNotificationBut: Button by lazy {  findViewById(R.id.showNotificationBut) as Button }
     val addstockButton: Button by lazy { findViewById(R.id.addstockButton) as Button }
+    val addcryptoButton: Button by lazy { findViewById(R.id.addcryptoButton) as Button }
     val showstockButton: Button by lazy { findViewById(R.id.showstockButton) as Button }
     val timeDelayButton: Button by lazy { findViewById(R.id.timeDelayButton) as Button }
     lateinit var stopNotificationBut: Button
@@ -63,13 +64,13 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             try {
                 database.use {
-                    val sresult = select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
+                    val sresult = select("TableView2", "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
                     sresult.exec() {
                         if (count > 0) {
                             val parser = rowParser {
-                                stockid: Long, ticker: String, target: Double, above: Long, phone: Long ->
-                                Stock(stockid, ticker, target, above, phone)
+                                stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                                Stock(stockid, ticker, target, above, phone, crypto)
                             }
                             stocksTargets = parseList(parser)
 
@@ -200,15 +201,17 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    fun addcrypto(view: View) {
+        val intent = Intent(this, AddEditStockActivity::class.java)
+        intent.putExtra("EditingExisting", false);
+        intent.putExtra("EditingCrypto", true)
+        startActivity(intent)
+    }
 
     fun addstock(view: View) {
         val intent = Intent(this, AddEditStockActivity::class.java)
         intent.putExtra("EditingExisting", false);
-        startActivity(intent)
-    }
-    fun timeDelay(view: View) {
-        val intent = Intent(this, TimeDelay::class.java)
-        intent.putExtra("EditingExisting", false);
+        intent.putExtra("EditingCrypto", false)
         startActivity(intent)
     }
 
@@ -216,12 +219,12 @@ class MainActivity : AppCompatActivity() {
         var stocklist : List<Stock> = ArrayList()
         try {
             database.use {
-                val sresult = select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
+                val sresult = select("TableView2", "_stockid", "ticker", "target", "ab", "phone", "crypto")
                 sresult.exec() {
                     if (count > 0) {
                         val parser = rowParser {
-                            stockid: Long, ticker: String, target: Double, above: Long, phone: Long ->
-                            Stock(stockid, ticker.toUpperCase(), target, above, phone)
+                            stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                            Stock(stockid, ticker.toUpperCase(), target, above, phone, crypto)
                         }
 
                         stocklist = parseList(parser)
@@ -246,6 +249,7 @@ class MainActivity : AppCompatActivity() {
 
                 val intent = Intent(this, AddEditStockActivity::class.java)
                 intent.putExtra("EditingExisting", true)
+                intent.putExtra("EditingCrypto", st0ck.crypto)
                 intent.putExtra("TheStock", st0ck)
 
                 startActivity(intent)

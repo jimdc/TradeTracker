@@ -6,12 +6,13 @@
     tools:context="com.example.group69.alarm.MainActivity">
 
     <Button
+        android:id="@+id/addcryptoButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Time Delay"
-        android:id="@+id/timeDelayButton"
         android:layout_alignParentStart="true"
-        android:onClick="timeDelay" />
+        android:layout_below="@+id/addstockButton"
+        android:onClick="addcrypto"
+        android:text="@string/addcrypto" />
 
     <Button
         android:layout_width="match_parent"
@@ -23,20 +24,21 @@
         android:onClick="addstock"/>
 
     <Button
+        android:id="@+id/showstockButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/showstox"
-        android:id="@+id/showstockButton"
-        android:layout_below="@+id/addstockButton"
-        android:layout_alignParentStart="true"
-        android:onClick="showstocks"/>
+        android:layout_alignEnd="@+id/button"
+        android:layout_below="@+id/addcryptoButton"
+        android:onClick="showstocks"
+        android:text="@string/showstox" />
+
     <Button
         android:id="@+id/hotStocks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
         android:layout_below="@+id/showstockButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp"
         android:onClick="openHot"
         android:text="@string/hotstock" />
 

@@ -3,6 +3,7 @@
     <string name="app_name">Alarm</string>
     <string name="hotstock">Hot Stocks</string>
     <string name="addstock">Add Stock</string>
+    <string name="addcrypto">Add Crypto</string>
     <string name="moar">More on notification</string>
     <string name="showstox">Show Stocks</string>
     <string name="shownotif">Show Notification</string>
@@ -33,7 +34,8 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="title_activity_add_stock">Add stock</string>
-    <string name="title_activity_edit_stock">Editing the stock \"%1$s\"</string>
+    <string name="title_activity_add_crypto">Add crypto</string>
+    <string name="title_activity_edit_stock">Editing stock/crypto \"%1$s\"</string>
     <string name="stocknoexist">The stock \"%1$s\" does not exist.</string>
     <string name="NaN">\"%1$s\" is not a number.</string>
 </resources>

@@ -43,7 +43,7 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
 
             var rownum: Long = 666
             database.use {
-                rownum = database.replace("Portefeuille", null, stock.ContentValues())
+                rownum = database.replace("TableView2", null, stock.ContentValues())
             }
 
             var result = context.getResources().getString(R.string.fail2edit)

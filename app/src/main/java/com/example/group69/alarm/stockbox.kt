@@ -7,12 +7,15 @@ data class Stock(val stockid: Long = 1337,
                   val ticker: String = "BABA",
                   var target: Double = 4.20,
                   var above: Long = 1,
-                  var phone: Long = 0) : Parcelable {
+                  var phone: Long = 0,
+                  var crypto: Long = 0) : Parcelable {
 
-    constructor(_stockid: Long = 1337, _ticker: String = "BABA", _target: Double = 4.20, aboveB: Boolean = true, phoneB: Boolean = false) :
+    constructor(_stockid: Long = 1337, _ticker: String = "BABA", _target: Double = 4.20,
+                aboveB: Boolean = true, phoneB: Boolean = false, crypto: Boolean = false) :
         this (_stockid, _ticker, _target,
                 when(aboveB) { true -> {1L} false -> {0L} },
-                when(phoneB) { true -> {1L} false -> {0L} }
+                when(phoneB) { true -> {1L} false -> {0L} },
+                when(crypto) { true -> {1L} false -> {0L} }
             ) {
         }
 
@@ -23,6 +26,7 @@ data class Stock(val stockid: Long = 1337,
             con.put("target", this.target)
             con.put("ab", this.above)
             con.put("phone", this.phone)
+            con.put("crypto", this.crypto)
             return con
         }
 
@@ -30,6 +34,7 @@ data class Stock(val stockid: Long = 1337,
     source.readLong(),
     source.readString(),
     source.readDouble(),
+    source.readLong(),
     source.readLong(),
     source.readLong()
     )
@@ -41,6 +46,7 @@ data class Stock(val stockid: Long = 1337,
     writeDouble(target)
     writeLong(above)
     writeLong(phone)
+    writeLong(crypto)
     }
 
     companion object { @JvmField val CREATOR: Parcelable.Creator<Stock> = object : Parcelable.Creator<Stock> {override fun createFromParcel(source: Parcel): Stock = Stock(source)

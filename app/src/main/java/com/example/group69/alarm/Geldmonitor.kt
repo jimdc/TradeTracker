@@ -14,13 +14,8 @@ import java.util.regex.Matcher;
 object Geldmonitor {
     @Throws(IOException::class)
     @JvmStatic
-    fun getPrice(ticker: String): Double {
-        //remove this once there is a separate crypto and stock adding option:
-        if(ticker.equals("eth")) {
-            return getCryptoPrice(ticker)
-        }
+    fun getStockPrice(ticker: String): Double {
         try {
-            //do a check here, if ticker is btc or any other crypto abbreviation, just get the crypto ticker
             val u = "http://www.nasdaq.com/symbol/" + ticker + "/real-time"
             val url = URL(u)
             val urlConn = url.openConnection()
@@ -62,14 +57,8 @@ object Geldmonitor {
             }
 
             Log.d("Errorlog","got -1.0 for stock")
-            //html tags may have changed OR stock does not exist on nasdaq.com, now we will check if it is a crypto
-            val crypt = getCryptoPrice(ticker)
-            if(crypt>=0){
-                return crypt
-            }
-            else{
-                return getNotLivePrice(ticker)
-            }
+            //html tags may have changed OR stock does not exist on nasdaq.com
+            return getNotLivePrice(ticker)
         }
         catch(e: Exception){
             Log.d("geldtime33","exception thrown (probably at price parsing")

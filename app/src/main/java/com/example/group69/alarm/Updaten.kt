@@ -61,15 +61,15 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
             try {
                 database.use {
                     if(alarmPlayed == true) {
-                        database.delete("Portefeuille", "_stockid=$delStock")
+                        database.delete("TableVersion2", "_stockid=$delStock")
                         alarmPlayed = false
                     }
-                    val sresult = database.select("Portefeuille", "_stockid", "ticker", "target", "ab", "phone")
+                    val sresult = database.select("TableVersion2", "_stockid", "ticker", "target", "ab", "phone", "crypto")
                     sresult.exec() {
                         if (count > 0) {
                             val parser = rowParser {
-                                stockid: Long, ticker: String, target: Double, above: Long, phone: Long ->
-                                Stock(stockid, ticker, target, above, phone)
+                                stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                                Stock(stockid, ticker, target, above, phone, crypto)
                             }
                             stocksTargets = parseList(parser)
 
@@ -100,7 +100,11 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 var currPrice = -2.0
                 try {
                     //currPrice = stock.quote.price.toDouble()
-                    currPrice = Geldmonitor.getPrice(ticker)
+                    if (stockx.crypto == 1L) {
+                        currPrice = Geldmonitor.getCryptoPrice(ticker)
+                    } else {
+                        currPrice = Geldmonitor.getStockPrice(ticker)
+                    }
                     Log.d("Errorlog", "got the symb: " + ticker)
                     Log.d("Errorlog", "got the price: " + currPrice)
                 } catch (e: Exception){
@@ -136,12 +140,6 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                             Log.d("mangracina", "playAlarm")
                             publishProgress(stockx.ticker.toString(), stockx.target.toString(),stockx.above.toString()) //return index so we know which stock to remove from database
                             delStock = stockx.stockid
-                            /*var delStock = stockx.stockid
-                            try {
-                                database.delete("Portefeuille", "_stockid=$delStock")
-                            } catch (e: android.database.sqlite.SQLiteException) {
-                                Log.d("In Updaten: ", "error onCreate: " + e.toString())
-                            } */
                         }
                     }
                 }
