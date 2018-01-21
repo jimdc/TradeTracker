@@ -55,7 +55,7 @@ object Geldmonitor {
                 }
 
 
-                //Log.d("geldtime",line)
+                //Log.d("geldtime",linhe)
                 line = buff.readLine()
 
 
