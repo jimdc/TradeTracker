@@ -61,4 +61,13 @@
         android:text="Stop Scanning"
         android:onClick="stopService"/>
 
+    <ListView
+        android:id="@+id/phrase_ListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/showstockButton"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="38dp"
+        android:layout_toStartOf="@+id/button" />
+
 </RelativeLayout>
