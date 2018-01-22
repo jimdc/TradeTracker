@@ -13,27 +13,9 @@ data class Stock(val stockid: Long = 1337,
     constructor(_stockid: Long = 1337, _ticker: String = "BABA", _target: Double = 4.20,
                 aboveB: Boolean = true, phoneB: Boolean = false, crypto: Boolean = false) :
             this(_stockid, _ticker, _target,
-                    when (aboveB) { true -> {
-                        1L
-                    }
-                        false -> {
-                            0L
-                        }
-                    },
-                    when (phoneB) { true -> {
-                        1L
-                    }
-                        false -> {
-                            0L
-                        }
-                    },
-                    when (crypto) { true -> {
-                        1L
-                    }
-                        false -> {
-                            0L
-                        }
-                    }
+                    when (aboveB) { true -> {1L} false -> {0L} },
+                    when (phoneB) { true -> {1L} false -> {0L} },
+                    when (crypto) { true -> {1L} false -> {0L} }
             ) {
     }
 

@@ -350,9 +350,9 @@ class MainActivity : AppCompatActivity() {
 
         // Define our intention of executing AlertReceiver
         val alertIntent = Intent(this, AlertReceiver::class.java)
-        val alert1: String = "ayyyy"
-        val alert2: String = "ayyyy2"
-        val alert3: String = "ayyyy3"
+        val alert1 = "ayyyy"
+        val alert2 = "ayyyy2"
+        val alert3 = "ayyyy3"
         alertIntent.putExtra("message1", alert1)
         alertIntent.putExtra("message2", alert2)
         alertIntent.putExtra("message3", alert3)

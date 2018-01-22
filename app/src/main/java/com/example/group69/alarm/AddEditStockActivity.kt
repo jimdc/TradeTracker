@@ -19,15 +19,16 @@ class AddEditStockActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_stock)
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
+
+        val toolbar = find<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        val tickerName = findViewById(R.id.tickerName) as EditText
-        val tickerPrice = findViewById(R.id.tickerPrice) as EditText
-        val aboveChecked = findViewById(R.id.rbAbove) as RadioButton
-        val phoneChecked = findViewById(R.id.phoneCallCB) as CheckBox
-        val addbutton = findViewById(R.id.fab) as FloatingActionButton
-        val deletebutton = findViewById(R.id.delbtn) as Button
+        val tickerName = find<EditText>(R.id.tickerName)
+        val tickerPrice = find<EditText>(R.id.tickerPrice)
+        val aboveChecked = find<RadioButton>(R.id.rbAbove)
+        val phoneChecked = find<CheckBox>(R.id.phoneCallCB)
+        val addbutton = find<FloatingActionButton>(R.id.fab)
+        val deletebutton = find<Button>(R.id.delbtn)
 
         val b = intent.extras
         var stockid = Calendar.getInstance().getTimeInMillis()
