@@ -273,22 +273,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openHot(view: View) {
-        val intent = Intent(this,HotStockActivity::class.java)
-        startActivity(intent)
+        startActivity<HotStockActivity>()
     }
 
     fun addcrypto(view: View) {
-        val intent = Intent(this, AddEditStockActivity::class.java)
-        intent.putExtra("EditingExisting", false);
-        intent.putExtra("EditingCrypto", true)
-        startActivity(intent)
+        startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
     }
 
     fun addstock(view: View) {
-        val intent = Intent(this, AddEditStockActivity::class.java)
-        intent.putExtra("EditingExisting", false);
-        intent.putExtra("EditingCrypto", false)
-        startActivity(intent)
+        startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
     }
 
     fun showstocks(view: View) {
@@ -322,14 +315,9 @@ class MainActivity : AppCompatActivity() {
             selector(getResources().getString(R.string.choose1), stocknamelist) {
                 i -> run {
                 val st0ck = stocklist.get(i)
-
-                val intent = Intent(this, AddEditStockActivity::class.java)
-                intent.putExtra("EditingExisting", true)
-                intent.putExtra("EditingCrypto", st0ck.crypto)
-                intent.putExtra("TheStock", st0ck)
-
-                startActivity(intent)
-            }
+                startActivity<AddEditStockActivity>("EditingExisting" to false,
+                        "EditingCrypto" to st0ck.crypto, "TheStock" to st0ck)
+                }
             }
         } else {
             toast(getResources().getString(R.string.failempty))
