@@ -110,8 +110,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var phraseListView: ListView
     lateinit var stopNotificationBut: Button
     lateinit var alertButton: Button
-    var stocksTargets : List<Stock> = ArrayList()
-    var stocksCurrent : List<Stock> = ArrayList()
+    var stocksTargets: List<Stock> = ArrayList()
+    var stocksCurrent: List<Stock> = ArrayList()
     // Allows us to notify the user that something happened in the background
     internal lateinit var notificationManager: NotificationManager
 
@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
 
 
         LocalBroadcastManager.getInstance(this).registerReceiver(resultReceiver, IntentFilter("com.example.group69.alarm"))
-        Log.d("dictionary","")
+        Log.d("dictionary", "")
         runOnUiThread {
             try {
                 database.use {
@@ -144,8 +144,7 @@ class MainActivity : AppCompatActivity() {
 
                     sresult.exec() {
                         if (count > 0) {
-                            val parser = rowParser {
-                                stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                            val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
                                 Stock(stockid, ticker, target, above, phone, crypto)
                             }
                             stocksTargets = parseList(parser)
@@ -185,8 +184,7 @@ class MainActivity : AppCompatActivity() {
         mServiceIntent = Intent(this, MainService::class.java)
         if (!isMyServiceRunning(MainService::class.java)) { //MainService::class.java used to be mMainService.getClass() but that wasnt working
             startService(mServiceIntent)
-        }
-        else{
+        } else {
             toast("scan already running")
         }
         //val intent = Intent(this, MainService::class.java)
@@ -285,14 +283,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showstocks(view: View) {
-        var stocklist : List<Stock> = ArrayList()
+        var stocklist: List<Stock> = ArrayList()
         try {
             database.use {
                 val sresult = select("TableView2", "_stockid", "ticker", "target", "ab", "phone", "crypto")
                 sresult.exec() {
                     if (count > 0) {
-                        val parser = rowParser {
-                            stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
                             Stock(stockid, ticker.toUpperCase(), target, above, phone, crypto)
                         }
 
@@ -305,22 +302,22 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (!stocklist.isEmpty()) {
-
-            var stocknamelist : List<CharSequence> = ArrayList()
-            stocklist.forEach {
-                i -> stocknamelist += i.toString()
-            }
-
-            selector(getResources().getString(R.string.choose1), stocknamelist) {
-                i -> run {
-                val st0ck = stocklist.get(i)
-                startActivity<AddEditStockActivity>("EditingExisting" to false,
-                        "EditingCrypto" to st0ck.crypto, "TheStock" to st0ck)
-                }
-            }
-        } else {
+        if (stocklist.isEmpty()) {
             toast(getResources().getString(R.string.failempty))
+            return
+        }
+
+        var stocknamelist: List<CharSequence> = ArrayList()
+        stocklist.forEach { i ->
+            stocknamelist += i.toString()
+        }
+
+        selector(getResources().getString(R.string.choose1), stocknamelist) { i ->
+            run {
+                val st0ck = stocklist.get(i)
+                startActivity<AddEditStockActivity>("EditingExisting" to true,
+                        "EditingCrypto" to st0ck.crypto, "TheStock" to st0ck)
+            }
         }
     }
 
@@ -347,18 +344,15 @@ class MainActivity : AppCompatActivity() {
 
     fun playAlarm() {
 
-        Log.d("playAlarm","playAlarm")
+        Log.d("playAlarm", "playAlarm")
         // Define a time value of 5 seconds
         val alertTime = GregorianCalendar().timeInMillis + 5
 
         // Define our intention of executing AlertReceiver
         val alertIntent = Intent(this, AlertReceiver::class.java)
-        val alert1 : String
-        alert1 = "ayyyy"
-        val alert2 : String
-        alert2 = "ayyyy2"
-        val alert3 : String
-        alert3 = "ayyyy3"
+        val alert1: String = "ayyyy"
+        val alert2: String = "ayyyy2"
+        val alert3: String = "ayyyy3"
         alertIntent.putExtra("message1", alert1)
         alertIntent.putExtra("message2", alert2)
         alertIntent.putExtra("message3", alert3)
@@ -378,8 +372,8 @@ class MainActivity : AppCompatActivity() {
     private fun createBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                Log.d("beforeAlarm","mangracina55")
-               // val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                Log.d("beforeAlarm", "mangracina55")
+                // val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                 //val num : LongArray = longArrayOf(1000,1000,1000)
                 //v.vibrate(num,3)
                 //updat.cancel(true)
@@ -401,7 +395,8 @@ class MainActivity : AppCompatActivity() {
         }
         super.onDestroy()
     }
-    fun deleteStockOfThisIndex(s : String){
+
+    fun deleteStockOfThisIndex(s: String) {
 
     }
 }

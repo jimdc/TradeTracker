@@ -19,7 +19,7 @@ import android.os.Vibrator
 import android.util.Log
 
 
-class MainService : Service{
+class MainService : Service {
     var runTargetScan = true
     private lateinit var mServiceLooper: Looper
     private lateinit var mServiceHandler: ServiceHandler
@@ -40,8 +40,8 @@ class MainService : Service{
         // To avoid cpu-blocking, we create a background handler to run our service
 
         // start the new handler thread
-        if(updat.getStatus() != AsyncTask.Status.RUNNING){
-            Log.d("got","starting!")
+        if (updat.getStatus() != AsyncTask.Status.RUNNING) {
+            Log.d("got", "starting!")
             targetScanThread.start()
 
             mServiceLooper = targetScanThread.looper
@@ -66,21 +66,21 @@ class MainService : Service{
 
     }
 
-/*    protected fun showToast(msg: String) {
-        //gets the main thread
-        val handler = Handler(Looper.getMainLooper())
-        handler.post {
-            // run this code in the main thread
-            Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
+    /*    protected fun showToast(msg: String) {
+            //gets the main thread
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
+                // run this code in the main thread
+                Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
+            }
         }
-    }
-*/
+    */
     override fun onDestroy() {
-        Log.d("geld","got destroyed")
+        Log.d("geld", "got destroyed")
         runTargetScan = false
         //this is not allowed with kotlin
         targetScanThread.interrupt()
-        if(updat.getStatus() == AsyncTask.Status.RUNNING){
+        if (updat.getStatus() == AsyncTask.Status.RUNNING) {
             updat.cancel(true)
         }
 
@@ -99,13 +99,13 @@ class MainService : Service{
 
             // Add your cpu-blocking activity here
             val v = this@MainService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            val num : LongArray = longArrayOf(0,100)
+            val num: LongArray = longArrayOf(0, 100)
             v.vibrate(num, -1)
 
             //if(updat.isRunning)
             updat.execute("hi")
             var ii = 0
-            while(!currentThread().isInterrupted()){
+            while (!currentThread().isInterrupted()) {
                 //showToast("Service, id: " + msg.arg1) //might decide to use the arg1 msg later
                 //if(ii>0 && ii%15 == 0){
                 //toast("Target scan has been running for " + ii + " seconds")
@@ -122,7 +122,6 @@ class MainService : Service{
             updat.cancel(true)
 
 
-
             // the msg.arg1 is the startId used in the onStartCommand,
             // so we can track the running sevice here.
 
@@ -132,8 +131,6 @@ class MainService : Service{
 
         }
     }
-
-
 
 
 }

@@ -36,7 +36,7 @@
             android:background="@color/colorPrimary"
             android:id="@+id/list"
             android:choiceMode="singleChoice"
-            android:listSelector="@color/colorAccent"/>
+            android:listSelector="@color/colorAccent" />
 
 
     </LinearLayout>
@@ -52,7 +52,7 @@
             android:background="@color/colorPrimary"
             android:id="@+id/list2"
             android:choiceMode="singleChoice"
-            android:listSelector="@color/colorAccent"/>
+            android:listSelector="@color/colorAccent" />
 
 
     </LinearLayout>

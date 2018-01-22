@@ -20,7 +20,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_add_stock"
+    <include
+        layout="@layout/content_add_stock"
         android:id="@+id/include" />
 
     <android.support.design.widget.FloatingActionButton

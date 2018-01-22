@@ -30,7 +30,7 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
         var manager: MySqlHelper = MySqlHelper.getInstance(context)
         val database = manager.writableDatabase
 
-        for(stock in stocks) {
+        for (stock in stocks) {
             val tickername = stock.ticker
             Log.d("DIB", "doInBackground for stock " + tickername)
 

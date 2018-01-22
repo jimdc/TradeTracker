@@ -16,7 +16,6 @@ import android.util.Log
 
 class AddEditStockActivity : AppCompatActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_stock)
@@ -37,7 +36,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val EditingExisting = b.getBoolean("EditingExisting")
         if (EditingExisting) {
 
-            val thestock : Stock = b.getParcelable("TheStock")
+            val thestock: Stock = b.getParcelable("TheStock")
             stockid = thestock.stockid
             val stockticker = thestock.ticker
 
@@ -49,7 +48,7 @@ class AddEditStockActivity : AppCompatActivity() {
             phoneChecked.setChecked(thestock.phone < 1)
 
             deletebutton.setOnClickListener { view ->
-                var nraffected : Int = 0
+                var nraffected: Int = 0
 
                 database.use {
                     nraffected = delete("TableView2", "_stockid=$stockid")

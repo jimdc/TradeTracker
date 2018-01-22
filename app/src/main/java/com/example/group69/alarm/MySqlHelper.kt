@@ -9,6 +9,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "NewCryptoDB") {
     private val mDatabase: SQLiteDatabase? = null
     private val mInstance: MySqlHelper? = null
     private val mContext: Context? = null
+
     companion object {
         private var instance: MySqlHelper? = null
         val dbVersion = 1
