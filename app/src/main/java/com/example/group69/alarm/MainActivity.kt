@@ -102,14 +102,7 @@ class MainActivity : AppCompatActivity() {
     var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
     val servRunning = true
-    //val showNotificationBut: Button by lazy {  findViewById(R.id.showNotificationBut) as Button }
-    val addstockButton: Button by lazy { findViewById(R.id.addstockButton) as Button }
-    val addcryptoButton: Button by lazy { findViewById(R.id.addcryptoButton) as Button }
-    val showstockButton: Button by lazy { findViewById(R.id.showstockButton) as Button }
-    val timeDelayButton: Button by lazy { findViewById(R.id.timeDelayButton) as Button }
     lateinit var phraseListView: ListView
-    lateinit var stopNotificationBut: Button
-    lateinit var alertButton: Button
     var stocksTargets: List<Stock> = ArrayList()
     var stocksCurrent: List<Stock> = ArrayList()
     // Allows us to notify the user that something happened in the background
@@ -128,7 +121,7 @@ class MainActivity : AppCompatActivity() {
 
         phraseListView = findViewById(R.id.phrase_ListView) as ListView
 
-        Utility.setListViewHeightBasedOnChildren(phrase_ListView);
+        Utility.setListViewHeightBasedOnChildren(phrase_ListView)
 
         // Initialize buttons
 //        stopNotificationBut = findViewById(R.id.stopNotificationBut) as Button
@@ -314,7 +307,7 @@ class MainActivity : AppCompatActivity() {
 
         selector(getResources().getString(R.string.choose1), stocknamelist) { i ->
             run {
-                val st0ck = stocklist.get(i)
+                val st0ck = stocklist[i]
                 startActivity<AddEditStockActivity>("EditingExisting" to true,
                         "EditingCrypto" to st0ck.crypto, "TheStock" to st0ck)
             }

@@ -13,22 +13,15 @@ import java.util.Calendar
 import org.jetbrains.anko.db.delete
 import java.io.IOException
 import android.util.Log
+import kotlinx.android.synthetic.main.content_add_stock.*
+import kotlinx.android.synthetic.main.activity_add_stock.*
 
 class AddEditStockActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_stock)
-
-        val toolbar = find<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        val tickerName = find<EditText>(R.id.tickerName)
-        val tickerPrice = find<EditText>(R.id.tickerPrice)
-        val aboveChecked = find<RadioButton>(R.id.rbAbove)
-        val phoneChecked = find<CheckBox>(R.id.phoneCallCB)
-        val addbutton = find<FloatingActionButton>(R.id.fab)
-        val deletebutton = find<Button>(R.id.delbtn)
+        setSupportActionBar(find<Toolbar>(R.id.toolbar))
 
         val b = intent.extras
         var stockid = Calendar.getInstance().getTimeInMillis()
@@ -45,10 +38,10 @@ class AddEditStockActivity : AppCompatActivity() {
 
             tickerName.setText(stockticker)
             tickerPrice.setText(thestock.target.toString())
-            aboveChecked.setChecked(thestock.above < 1)
-            phoneChecked.setChecked(thestock.phone < 1)
+            rbAbove.setChecked(thestock.above < 1)
+            rbBelow.setChecked(thestock.phone < 1)
 
-            deletebutton.setOnClickListener { view ->
+            delbtn.setOnClickListener { view ->
                 var nraffected: Int = 0
 
                 database.use {
@@ -68,15 +61,15 @@ class AddEditStockActivity : AppCompatActivity() {
                 setTitle(getResources().getString(R.string.title_activity_add_crypto))
             }
 
-            deletebutton.visibility = View.INVISIBLE
+            delbtn.visibility = View.INVISIBLE
         }
 
-        addbutton.setOnClickListener { view ->
+        fab.setOnClickListener { view ->
             val stockaddrequest = StockProposalValidationRequest(this)
 
             val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
             var editedstock = Stock(stockid, tickerName.text.toString(),
-                    target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
+                    target ?: 6.66, rbAbove.isChecked, phoneCallCB.isChecked, EditingCrypto)
 
             stockaddrequest.execute(editedstock)
             finish()
