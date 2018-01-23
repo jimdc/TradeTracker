@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.widget.Button
 import android.util.Log
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.*
@@ -133,7 +132,7 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             try {
                 database.use {
-                    val sresult = select("TableView2", "_stockid", "ticker", "target", "ab", "phone", "crypto")
+                    val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
                     sresult.exec() {
                         if (count > 0) {
@@ -279,7 +278,7 @@ class MainActivity : AppCompatActivity() {
         var stocklist: List<Stock> = ArrayList()
         try {
             database.use {
-                val sresult = select("TableView2", "_stockid", "ticker", "target", "ab", "phone", "crypto")
+                val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
                 sresult.exec() {
                     if (count > 0) {
                         val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->

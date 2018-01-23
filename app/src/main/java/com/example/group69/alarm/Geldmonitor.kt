@@ -153,7 +153,7 @@ object Geldmonitor {
             return -1.0
 
         } catch (e: Exception) {
-            return -3.0; //this error code means that the url is invalid
+            return -3.0 //this error code means that the url is invalid
         }
     }
 }

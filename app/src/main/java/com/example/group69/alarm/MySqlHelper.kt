@@ -5,7 +5,10 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 
-class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "NewCryptoDB") {
+val NewestDatabaseName = "NewCryptoDB"
+val NewestTableName = "TableView2"
+
+class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabaseName) {
     private val mDatabase: SQLiteDatabase? = null
     private val mInstance: MySqlHelper? = null
     private val mContext: Context? = null
@@ -24,7 +27,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "NewCryptoDB") {
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.createTable("TableView2", true,
+        db.createTable(NewestTableName, true,
                 "_stockid" to INTEGER + PRIMARY_KEY + UNIQUE,
                 "ticker" to TEXT,
                 "target" to REAL,
@@ -34,7 +37,7 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "NewCryptoDB") {
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.dropTable("TableView2", true)
+        db.dropTable(NewestTableName, true)
         onCreate(db)
     }
 

@@ -45,7 +45,7 @@ class AddEditStockActivity : AppCompatActivity() {
                 var nraffected: Int = 0
 
                 database.use {
-                    nraffected = delete("TableView2", "_stockid=$stockid")
+                    nraffected = delete(NewestTableName, "_stockid=$stockid")
                 }
 
                 if (nraffected == 1) {
