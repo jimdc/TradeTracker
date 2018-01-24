@@ -7,13 +7,11 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.widget.Toast
 import org.jetbrains.anko.toast
 import android.os.Looper
-import android.os.*;
-import android.os.Process;
+import android.os.*
+import android.os.Process
 import android.os.HandlerThread
-import com.example.group69.alarm.R.string.msg
 import java.lang.Thread.*
 import android.os.Vibrator
 import android.util.Log
@@ -40,7 +38,7 @@ class MainService : Service {
         // To avoid cpu-blocking, we create a background handler to run our service
 
         // start the new handler thread
-        if (updat.getStatus() != AsyncTask.Status.RUNNING) {
+        if (updat.status != AsyncTask.Status.RUNNING) {
             Log.d("got", "starting!")
             targetScanThread.start()
 
@@ -80,7 +78,7 @@ class MainService : Service {
         runTargetScan = false
         //this is not allowed with kotlin
         targetScanThread.interrupt()
-        if (updat.getStatus() == AsyncTask.Status.RUNNING) {
+        if (updat.status == AsyncTask.Status.RUNNING) {
             updat.cancel(true)
         }
 
@@ -105,7 +103,7 @@ class MainService : Service {
             //if(updat.isRunning)
             updat.execute("hi")
             var ii = 0
-            while (!currentThread().isInterrupted()) {
+            while (!currentThread().isInterrupted) {
                 //showToast("Service, id: " + msg.arg1) //might decide to use the arg1 msg later
                 //if(ii>0 && ii%15 == 0){
                 //toast("Target scan has been running for " + ii + " seconds")
@@ -118,7 +116,7 @@ class MainService : Service {
                 ii++
             }
 
-            toast("Scan stopped after " + ii + " seconds")
+            toast("Scan stopped after $ii seconds")
             updat.cancel(true)
 
 

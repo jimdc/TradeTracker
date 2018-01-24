@@ -1,22 +1,19 @@
 package com.example.group69.alarm
 
 import android.util.Log
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
 import java.io.Reader
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import java.net.URL
+import java.util.regex.Pattern
 
 object Geldmonitor {
     @Throws(IOException::class)
     @JvmStatic
     fun getStockPrice(ticker: String): Double {
         try {
-            val u = "http://www.nasdaq.com/symbol/" + ticker + "/real-time"
+            val u = "http://www.nasdaq.com/symbol/$ticker/real-time"
             val url = URL(u)
             val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
@@ -61,22 +58,22 @@ object Geldmonitor {
             return getNotLivePrice(ticker)
         } catch (e: Exception) {
             Log.d("geldtime33", "exception thrown (probably at price parsing")
-            return getNotLivePrice(ticker); //this error code means that the url is invalid
+            return getNotLivePrice(ticker) //this error code means that the url is invalid
         }
     }
 
     fun getCryptoPrice(ticker: String): Double {
-        var tickerU = ticker.toUpperCase()
+        val tickerU = ticker.toUpperCase()
         Log.d("geldticker", tickerU)
         try {
             //will later add option to compare crypto to any other crypto by swabpping out USD with cryptoUnits (can still be USD)
-            val u = "https://min-api.cryptocompare.com/data/price?fsym=" + tickerU + "&tsyms=USD"
+            val u = "https://min-api.cryptocompare.com/data/price?fsym=${tickerU}&tsyms=USD"
             val url = URL(u)
             val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
             val buff = BufferedReader(inStream as Reader?)
             val price = "not found"
-            var line = buff.readLine()
+            val line = buff.readLine()
             //Log.d("geldtime",line)
             while (line != null) {
                 //if (line.contains("ref_") && line.contains("_l") ) {
@@ -95,23 +92,21 @@ object Geldmonitor {
                 return i
                 //}
 
-
+                /* unreachable code
                 Log.d("geldtiime", line)
-                line = buff.readLine()
-
-
+                line = buff.readLine() */
             }
             Log.d("Errorlog", "got -1.0 for crypto")
             //html tags may have changed OR stock does not exist on nasdaq.com, now we will check if it is a crypto
             return -1.0
 
         } catch (e: Exception) {
-            return -3.0; //this error code means that the url is invalid
+            return -3.0 //this error code means that the url is invalid
         }
     }
 
     fun getNotLivePrice(ticker: String): Double {
-        var tickerU = ticker.toUpperCase()
+        val tickerU = ticker.toUpperCase()
         Log.d("geldticker", tickerU)
         try {
             val u = "http://www.nasdaq.com/symbol/" + ticker
@@ -137,8 +132,7 @@ object Geldmonitor {
                     val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
                     matcher.find()
                     Log.d("geldline", matcher.group())
-                    val i = java.lang.Double.parseDouble(matcher.group())
-                    return i
+                    return java.lang.Double.parseDouble(matcher.group())
                 }
 
 

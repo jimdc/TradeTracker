@@ -1,17 +1,9 @@
 package com.example.group69.alarm
 
-import android.os.AsyncTask
-import org.jetbrains.anko.toast
-import android.app.Activity;
 import android.content.Context;
-import android.os.Looper
 import android.util.Log
-import android.os.Handler
 import android.widget.Toast
-import org.jetbrains.anko.db.*
-import org.jetbrains.anko.*
-import android.database.sqlite.SQLiteDatabase
-import android.support.design.widget.Snackbar
+import java.lang.ref.*
 
 /**
  * Created by james on 8/28/17.
@@ -23,16 +15,13 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
 
     override fun doInBackground(vararg stocks: Stock): CharSequence? {
 
-        val tickername: String
-
         Log.d("DIB", "starting doInBackground")
 
-        var manager: MySqlHelper = MySqlHelper.getInstance(context)
+        val manager: MySqlHelper = MySqlHelper.getInstance(context)
         val database = manager.writableDatabase
 
         for (stock in stocks) {
-            val tickername = stock.ticker
-            Log.d("DIB", "doInBackground for stock " + tickername)
+            Log.d("DIB", "doInBackground for stock " + stock.ticker)
 
             //Somehow check if the stock really exists. Used to do with Yahoo Finance app
 

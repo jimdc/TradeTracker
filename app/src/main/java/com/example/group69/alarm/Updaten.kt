@@ -3,26 +3,17 @@ package com.example.group69.alarm
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.database.sqlite.SQLiteDatabase
 import android.util.Log
-import android.view.View
 import android.content.Context
 import org.jetbrains.anko.db.*
-import org.jetbrains.anko.*
-import android.support.annotation.MainThread
-import com.example.group69.alarm.MySqlHelper.Companion.getInstance
-import org.jetbrains.anko.db.ManagedSQLiteOpenHelper
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
-import org.jetbrains.anko.toast
 import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import android.os.SystemClock
 import android.os.Vibrator
 import java.util.*
-import java.lang.NullPointerException
 
 
 class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
@@ -48,12 +39,12 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         //while(!Thread.currentThread().isInterrupted()){
         var ww = 0
         while (true) {
-            if (isCancelled()) {
+            if (isCancelled) {
                 break
             }
             Log.d("updaten", "iteration #" + ww)
             ww++
-            var manager: MySqlHelper = MySqlHelper.getInstance(this.ctxx)
+            val manager: MySqlHelper = MySqlHelper.getInstance(this.ctxx)
             val database = manager.writableDatabase
             //val sqlDB = MySqlHelper(ctxx)
 
@@ -90,19 +81,18 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 Log.d("updaten ", "might be empty list: ")
             }
 
-            var a = 0
-            for (stockx in stocksTargets) { //this needs to be tweaked as now it will recheck the same stock
+            for ((a, stockx) in stocksTargets.withIndex()) { //this needs to be tweaked as now it will recheck the same stock
                 //val stock = yahoofinance.YahooFinance.get(stockx.ticker.toString()); //this will keep checking duplicates with
 
-                val ticker: String = stockx.ticker.toString()
+                val ticker: String = stockx.ticker
                 //the yahoo api when it could save time by using the saved value for that stock in a table
                 var currPrice = -2.0
                 try {
                     //currPrice = stock.quote.price.toDouble()
-                    if (stockx.crypto == 1L) {
-                        currPrice = Geldmonitor.getCryptoPrice(ticker)
+                    currPrice = if (stockx.crypto == 1L) {
+                        Geldmonitor.getCryptoPrice(ticker)
                     } else {
-                        currPrice = Geldmonitor.getStockPrice(ticker)
+                        Geldmonitor.getStockPrice(ticker)
                     }
                     Log.d("Errorlog", "got the symb: " + ticker)
                     Log.d("Errorlog", "got the price: " + currPrice)
@@ -118,14 +108,14 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                     // automatically when connection is found.
 
                     //for now just checking to see if all stocks are returning -3.0
-                    Log.d("Errorlog", "got stock " + stockx.ticker.toString() + " caused NPE!")
+                    Log.d("Errorlog", "got stock " + stockx.ticker + " caused NPE!")
                 }
 
                 if (currPrice >= 0) {
                     Log.d("Errorlog", "not null")
                     if (stockx.above == 1L) {
                         if (currPrice >= stockx.target) { //will need to DELETE THE ALARMPLAYED
-                            alarmPlayed = true;
+                            alarmPlayed = true
                             Log.d("mangracina", "mangracina")
                             publishProgress(stockx.ticker.toString(), stockx.target.toString(), stockx.above.toString()) //return index so we know which stock to remove from database
                             delStock = stockx.stockid
@@ -134,7 +124,7 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                         }
                     } else {
                         if (currPrice <= stockx.target) {
-                            alarmPlayed = true;
+                            alarmPlayed = true
                             Log.d("mangracina", "playAlarm")
                             publishProgress(stockx.ticker.toString(), stockx.target.toString(), stockx.above.toString()) //return index so we know which stock to remove from database
                             delStock = stockx.stockid
@@ -143,7 +133,6 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 } else { //if price is less than 0, we have an error from network, might be one stock. if it is all we will find out with:
                     failcount++
                 }
-                a++
             }
             if (failcount == stocksTargets.size) {
                 //TODO this is where broadcaster will send the mainActivity to
@@ -224,20 +213,6 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         LocalBroadcastManager.getInstance(this.ctxx).sendBroadcast(intent) //we can use this later on for updating the UI display
     }
 
-    inner class MyUndoListener : View.OnClickListener {
-
-        override fun onClick(v: View) {
-
-            // Code to undo the user's last action
-        }
-    }
-
-    fun pause(time: Long) {
-        SystemClock.sleep(time * 60000);
-
-        //Thread.sleep(time * 60000)
-    }
-
     fun playAlarm(ticker: String, price: String, ab: String) {
 
         Log.d("playAlarm", "" + ab)
@@ -282,21 +257,15 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         //showDialog("Downloaded " + result + " bytes");
     }
 
-    fun toDollar(d: String): String {
+    private fun toDollar(d: String): String {
         var s = d
-        var dot = s.indexOf('.')
-        if (dot + 1 == s.length - 1) {
-            s = s + '0'
-        }
+        val dot = s.indexOf('.')
+
+        if (dot + 1 == s.length - 1) s += '0'
         var sub = s.substring(0, dot)
 
         var str = StringBuilder(sub)
-        if (sub.length > 3) {
-
-            str.insert(sub.length - 3, ',')
-        }
-
-
+        if (sub.length > 3) str.insert(sub.length - 3, ',')
 
         return '$' + str.toString() + s.substring(dot, s.length)
     }

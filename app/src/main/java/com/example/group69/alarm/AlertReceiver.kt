@@ -8,9 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.NotificationCompat
-import android.util.Log
-import android.content.Intent.getIntent
-import android.os.Vibrator;
 
 class AlertReceiver : BroadcastReceiver() {
 
@@ -22,10 +19,7 @@ class AlertReceiver : BroadcastReceiver() {
                 intent.extras.getString("message1").toString(),
                 intent.extras.getString("message2").toString(),
                 intent.extras.getString("message3").toString()
-
         )
-
-
     }
 
     /* public void GenerateNotify(Context context) {
@@ -39,7 +33,7 @@ class AlertReceiver : BroadcastReceiver() {
         notification.sound = Uri.parse("android.resource://com.example.serviceproject/" + R.raw.kalimba);
         myNotificationManager.notify(NOTIFICATION_ID,notification);
     } */
-    fun createNotification(context: Context, msg: String, msgText: String, msgAlert: String) {
+    private fun createNotification(context: Context, msg: String, msgText: String, msgAlert: String) {
 
         // Define an Intent and an action to perform with it by another application
         val notificIntent = PendingIntent.getActivity(context, 0,

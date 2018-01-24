@@ -13,8 +13,7 @@ import android.view.View
 import android.util.Log
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.*
-import android.widget.ListView;
-
+import android.widget.ListView
 import java.util.GregorianCalendar
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
@@ -98,7 +97,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    var mServiceIntent: Intent? = null
+    private var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
     val servRunning = true
     lateinit var phraseListView: ListView
@@ -134,7 +133,7 @@ class MainActivity : AppCompatActivity() {
                 database.use {
                     val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
-                    sresult.exec() {
+                    sresult.exec {
                         if (count > 0) {
                             val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
                                 Stock(stockid, ticker, target, above, phone, crypto)
@@ -155,7 +154,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("yeezy stocksTargets: ", stocksTargets.toString())
 
             } else {
-                toast("error onCreate, might be empty list: " + getResources().getString(R.string.failempty))
+                toast("error onCreate, might be empty list: " + resources.getString(R.string.failempty))
             }
 
 
@@ -204,21 +203,12 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-
     fun showNotification(view: View) {
         // Builds a notification
         val notificBuilder = NotificationCompat.Builder(this)
-                .setContentTitle(getResources().getString(R.string.msg))
-                .setContentText(getResources().getString(R.string.newmsg))
-                .setTicker(getResources().getString(R.string.alnew))
+                .setContentTitle(resources.getString(R.string.msg))
+                .setContentText(resources.getString(R.string.newmsg))
+                .setTicker(resources.getString(R.string.alnew))
                 .setSmallIcon(R.drawable.ntt_logo_24_24)
 
         // Define that we have the intention of opening MoreInfoNotification
@@ -295,7 +285,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (stocklist.isEmpty()) {
-            toast(getResources().getString(R.string.failempty))
+            toast(resources.getString(R.string.failempty))
             return
         }
 
@@ -304,11 +294,10 @@ class MainActivity : AppCompatActivity() {
             stocknamelist += i.toString()
         }
 
-        selector(getResources().getString(R.string.choose1), stocknamelist) { i ->
+        selector(resources.getString(R.string.choose1), stocknamelist) { i ->
             run {
-                val st0ck = stocklist[i]
                 startActivity<AddEditStockActivity>("EditingExisting" to true,
-                        "EditingCrypto" to st0ck.crypto, "TheStock" to st0ck)
+                        "EditingCrypto" to stocklist[i].crypto, "TheStock" to stocklist[i])
             }
         }
     }
@@ -342,12 +331,9 @@ class MainActivity : AppCompatActivity() {
 
         // Define our intention of executing AlertReceiver
         val alertIntent = Intent(this, AlertReceiver::class.java)
-        val alert1 = "ayyyy"
-        val alert2 = "ayyyy2"
-        val alert3 = "ayyyy3"
-        alertIntent.putExtra("message1", alert1)
-        alertIntent.putExtra("message2", alert2)
-        alertIntent.putExtra("message3", alert3)
+        alertIntent.putExtra("message1", "ayyyy")
+        alertIntent.putExtra("message2", "ayyyy2")
+        alertIntent.putExtra("message3", "ayyyy3")
         // Allows you to schedule for your application to do something at a later date
         // even if it is in he background or isn't active
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -386,9 +372,5 @@ class MainActivity : AppCompatActivity() {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
         }
         super.onDestroy()
-    }
-
-    fun deleteStockOfThisIndex(s: String) {
-
     }
 }

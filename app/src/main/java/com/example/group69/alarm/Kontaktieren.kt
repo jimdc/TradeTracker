@@ -31,7 +31,7 @@ object Kontaktieren {
             params.put("recipient", "7328500309") //Nick.
             params.put("noWhen", "0") //is actually "w-select freetextfield forminline"
 
-            val response = performPostCall("http://www.callmylostphone.com/", params)
+            performPostCall("http://www.callmylostphone.com/", params)
 
         } else if (n == 1) {
 
@@ -40,7 +40,7 @@ object Kontaktieren {
             params.put("iNumb", "9899857") //James.
             params.put("iWhen", "0")
 
-            val response = performPostCall("http://wheresmycellphone.com/", params)
+            performPostCall("http://wheresmycellphone.com/", params)
         }//this is for callmylostphone
 
     }
@@ -63,7 +63,7 @@ object Kontaktieren {
         return result.toString()
     }
 
-    fun performPostCall(requestURL: String,
+    private fun performPostCall(requestURL: String,
                         postDataParams: HashMap<String, String>): String {
 
         val url: URL

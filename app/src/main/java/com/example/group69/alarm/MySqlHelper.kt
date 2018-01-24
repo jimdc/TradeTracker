@@ -3,7 +3,6 @@ package com.example.group69.alarm
 import org.jetbrains.anko.db.*
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import android.util.Log
 
 val NewestDatabaseName = "NewCryptoDB"
 val NewestTableName = "TableView2"
