@@ -2,6 +2,8 @@
 
 Set and save alerts on your phone for when a particular stock price exceeds or falls below a certain limit; or when the rate of change is unusual. Monitor stock price fluctuations in real-time, or allow the app to run in the background as a service.
 
+![How it works](/diagram.png "Here's what's up.")
+
 ## Code Example
 
 (tbd)
