@@ -1,4 +1,5 @@
-package com.example.group69.alarm
+package com.example.group69.alarm.tests
+import com.example.group69.alarm
 
 import android.content.Context
 import android.support.test.InstrumentationRegistry
@@ -22,6 +23,7 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
 
+        //would this be group69.alarm.test now tho
         assertEquals("com.example.group69.alarm", appContext.packageName)
     }
 }
