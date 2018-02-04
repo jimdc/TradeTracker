@@ -31,15 +31,6 @@
         android:onClick="showstocks"
         android:text="@string/showstox" />
 
-    <Button
-        android:id="@+id/hotStocks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/showstockButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="17dp"
-        android:onClick="openHot"
-        android:text="@string/hotstock" />
 
     <Button
         android:id="@+id/button"

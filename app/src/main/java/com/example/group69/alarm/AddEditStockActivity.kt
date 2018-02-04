@@ -3,19 +3,31 @@ package com.example.group69.alarm
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
+import android.widget.EditText
+import android.widget.Button
+import android.support.design.widget.FloatingActionButton
+import android.widget.RadioButton
+import android.widget.CheckBox
 import android.view.View
 import org.jetbrains.anko.*
 import java.util.Calendar
 import org.jetbrains.anko.db.delete
-import kotlinx.android.synthetic.main.content_add_stock.*
-import kotlinx.android.synthetic.main.activity_add_stock.*
 
 class AddEditStockActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_stock)
-        setSupportActionBar(find<Toolbar>(R.id.toolbar))
+
+        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+
+        val tickerName = findViewById(R.id.tickerName) as EditText
+        val tickerPrice = findViewById(R.id.tickerPrice) as EditText
+        val aboveChecked = findViewById(R.id.rbAbove) as RadioButton
+        val phoneChecked = findViewById(R.id.phoneCallCB) as CheckBox
+        val addbutton = findViewById(R.id.fab) as FloatingActionButton
+        val deletebutton = findViewById(R.id.delbtn) as Button
 
         val b = intent.extras
         var stockid = Calendar.getInstance().getTimeInMillis()
@@ -32,10 +44,10 @@ class AddEditStockActivity : AppCompatActivity() {
 
             tickerName.setText(stockticker)
             tickerPrice.setText(thestock.target.toString())
-            rbAbove.setChecked(thestock.above < 1)
-            rbBelow.setChecked(thestock.phone < 1)
+            aboveChecked.setChecked(thestock.above < 1)
+            phoneChecked.setChecked(thestock.phone < 1)
 
-            delbtn.setOnClickListener { view ->
+            deletebutton.setOnClickListener { view ->
                 var nraffected: Int = 0
 
                 database.use {
@@ -55,15 +67,15 @@ class AddEditStockActivity : AppCompatActivity() {
                 setTitle(getResources().getString(R.string.title_activity_add_crypto))
             }
 
-            delbtn.visibility = View.INVISIBLE
+            deletebutton.visibility = View.INVISIBLE
         }
 
-        fab.setOnClickListener { view ->
+        addbutton.setOnClickListener { view ->
             val stockaddrequest = StockProposalValidationRequest(this)
 
             val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
             val editedstock = Stock(stockid, tickerName.text.toString(),
-                    target ?: 6.66, rbAbove.isChecked, phoneCallCB.isChecked, EditingCrypto)
+                    target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
             stockaddrequest.execute(editedstock)
             finish()
