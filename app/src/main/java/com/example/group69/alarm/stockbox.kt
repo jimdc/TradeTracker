@@ -30,6 +30,17 @@ data class Stock(val stockid: Long = 1337,
         return con
     }
 
+    override fun toString(): String {
+        var res = ticker.toString()
+
+        when (above) { 1L -> { res += " > "} 0L -> { res += " < " } }
+        res += target.toString()
+        when (phone) { 1L -> { res += " yesPhone " } 0L -> { res += " noPhone "} }
+        when (crypto) { 1L -> { res += " yesCrypto " } 0L -> { res += " noCrypto " } }
+
+        return res
+    }
+
     constructor(source: Parcel) : this(
             source.readLong(),
             source.readString(),

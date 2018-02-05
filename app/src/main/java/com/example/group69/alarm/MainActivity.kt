@@ -7,17 +7,20 @@ import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.widget.RecyclerView
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
+import android.view.ViewGroup
 import android.util.Log
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.*
-import android.widget.ListView
 import java.util.GregorianCalendar
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
+import android.widget.ListView
 import android.app.ActivityManager
 
 ///NotificationManager : Allows us to notify the user that something happened in the background
@@ -29,9 +32,7 @@ class MainActivity : AppCompatActivity() {
     private var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
     val servRunning = true
-    lateinit var phraseListView: ListView
-    var stocksTargets: List<Stock> = ArrayList()
-    var stocksCurrent: List<Stock> = ArrayList()
+    var stocksList: List<Stock> = ArrayList()
     // Allows us to notify the user that something happened in the background
     internal lateinit var notificationManager: NotificationManager
 
@@ -42,57 +43,98 @@ class MainActivity : AppCompatActivity() {
     // Used to track if notification is active in the task bar
     internal var isNotificActive = false
     var resultReceiver = createBroadcastReceiver()
-    override fun onCreate(savedInstanceState: Bundle?) { //Only called when you restore from a saved state!
+
+    var listView: ListView? = null
+    var adapter: UserListAdapter? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //phraseListView = findViewById(R.id.phrase_ListView) as ListView
-
-        //Utility.setListViewHeightBasedOnChildren(phrase_ListView)
-
-        // Initialize buttons
-//        stopNotificationBut = findViewById(R.id.stopNotificationBut) as Button
-        //alertButton = findViewById(R.id.alertButton) as Button
-
-
         LocalBroadcastManager.getInstance(this).registerReceiver(resultReceiver, IntentFilter("com.example.group69.alarm"))
         Log.d("dictionary", "")
-        runOnUiThread {
-            try {
-                database.use {
-                    val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
-                    sresult.exec {
-                        if (count > 0) {
-                            val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                                Stock(stockid, ticker, target, above, phone, crypto)
-                            }
-                            stocksTargets = parseList(parser)
+        stocksList = getStocklistFromDB()
 
+        if (stocksList.isEmpty()) {
+            toast("error onCreate, might be empty list: " + resources.getString(R.string.failempty))
+        } else {
+
+            var stocknamelist: List<CharSequence> = ArrayList()
+            stocksList.forEach { i -> stocknamelist += i.toString() }
+            Log.d("yeezy stocksTargets: ", stocksList.toString())
+
+            listView = findViewById<ListView>(R.id.listView)
+            adapter = UserListAdapter(this, stocksList)
+
+            listView?.adapter = adapter
+            adapter?.notifyDataSetChanged()
+
+            listView?.setOnItemClickListener { parent, view, position, id ->
+                alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
+                    positiveButton("Yes") {
+                        var deleted = deletestock(position)
+
+                        if (deleted) {
+                            toast("Row " + position.toString() + " deleted.")
+                        } else {
+                            toast("Row " + position.toString() + " not deleted.")
                         }
                     }
-                }
-            } catch (e: android.database.sqlite.SQLiteException) {
-                toast("error onCreate: " + e.toString())
-
+                    negativeButton("No") {  toast("OK, nothing was deleted.") }
+                }.show()
             }
-            if (!stocksTargets.isEmpty()) {
-
-                var stocknamelist: List<CharSequence> = ArrayList()
-                stocksTargets.forEach { i -> stocknamelist += i.toString() }
-                Log.d("yeezy stocksTargets: ", stocksTargets.toString())
-
-            } else {
-                toast("error onCreate, might be empty list: " + resources.getString(R.string.failempty))
-            }
-
-
-            //updat.execute("hi")
-            //to use this to cancel if needed
-            //updat.cancel(true)
-
-            //activates doInBackground
         }
+    }
+
+    fun deletestock(position: Int) : Boolean {
+
+        val target = stocksList.get(position) as Stock
+        val id = target.stockid
+        var success: Boolean = false
+
+        database.use {
+            var rez = delete(NewestTableName, "_stockid = ?", arrayOf(id.toString()))
+
+            if (rez > 0) {
+                success = true
+            }
+        }
+
+        if (success) {
+            stocksList = getStocklistFromDB()
+            adapter?.refresh(stocksList)
+        }
+
+        return success
+    }
+
+    override fun onResume() {
+        super.onResume()
+        stocksList = getStocklistFromDB()
+        adapter?.refresh(stocksList)
+    }
+
+    fun getStocklistFromDB() : List<Stock> {
+        var results: List<Stock> = ArrayList()
+        try {
+            database.use {
+                val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+
+                sresult.exec {
+                    if (count > 0) {
+                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                            Stock(stockid, ticker, target, above, phone, crypto)
+                        }
+                        results = parseList(parser)
+                    }
+                }
+            }
+        } catch (e: android.database.sqlite.SQLiteException) {
+            Log.e("err gSlFDB: ", e.toString())
+        }
+
+        return results
     }
 
     fun startService(view: View) {
@@ -187,44 +229,6 @@ class MainActivity : AppCompatActivity() {
 
     fun addstock(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
-    }
-
-    fun showstocks(view: View) {
-        var stocklist: List<Stock> = ArrayList()
-        try {
-            database.use {
-                val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
-                sresult.exec() {
-                    if (count > 0) {
-                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                            Stock(stockid, ticker.toUpperCase(), target, above, phone, crypto)
-                        }
-
-                        stocklist = parseList(parser)
-                    }
-                }
-            }
-        } catch (e: android.database.sqlite.SQLiteException) {
-            toast(e.toString())
-            return
-        }
-
-        if (stocklist.isEmpty()) {
-            toast(resources.getString(R.string.failempty))
-            return
-        }
-
-        var stocknamelist: List<CharSequence> = ArrayList()
-        stocklist.forEach { i ->
-            stocknamelist += i.toString()
-        }
-
-        selector(resources.getString(R.string.choose1), stocknamelist) { i ->
-            run {
-                startActivity<AddEditStockActivity>("EditingExisting" to true,
-                        "EditingCrypto" to stocklist[i].crypto, "TheStock" to stocklist[i])
-            }
-        }
     }
 
     fun setAlarm(view: View) {
