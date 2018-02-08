@@ -19,6 +19,10 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
 object Kontaktieren {
+    /**
+     * Either calls Nick or calls James by [performPostCall] to wheresmycellphone.com
+     * @param[n] 1 calls Nick, 2 calls James
+     */
     @Throws(InterruptedException::class)
     fun phoneCall(n: Int) {
 
@@ -45,6 +49,11 @@ object Kontaktieren {
 
     }
 
+    /**
+     * @param[params] Unformatted data to POST
+     * @return String version of POST parameters
+     * @sample performPostCall
+     */
     @Throws(UnsupportedEncodingException::class)
     private fun getPostDataString(params: HashMap<String, String>): String {
         val result = StringBuilder()
@@ -63,6 +72,12 @@ object Kontaktieren {
         return result.toString()
     }
 
+    /**
+     * Performs a POST call with a 15 second timeout, UTF-8
+     * @param[requestURL] The URL that takes the request
+     * @param[postDataParams] The information to post
+     * @return The server's response if successful, or ""
+     */
     private fun performPostCall(requestURL: String,
                         postDataParams: HashMap<String, String>): String {
 
@@ -107,6 +122,10 @@ object Kontaktieren {
         return response
     }
 
+    /**
+     * Sends a text to Nick via "mangomailbox" and javax
+     * @param[msg] The body of the text to send in the text
+     */
     fun send(msg: String) {
 
         val username = "mangomailbot@gmail.com"
@@ -132,7 +151,6 @@ object Kontaktieren {
             message.setFrom(InternetAddress(username))
             message.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse("7328500309@vtext.com"))
-            //message.setSubject("Testing Subject"); //check if this can be removed
             message.setText(msg)
 
             Transport.send(message)

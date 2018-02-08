@@ -9,10 +9,15 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.example.group69.alarm.MainActivity
 
+/**
+ * Converts a list of Stocks to a list of Views for the ListView container
+ * @return a BaseAdapter that may be loaded into a ListView
+ */
 class UserListAdapter(private var activity: Activity, private var items: List<Stock>): BaseAdapter() {
 
-    //var list: List<Stock> = items
-
+    /**
+     * @constructor Find the listview resources for internal class use
+     */
     private class ViewHolder(row: View?) {
         var txtName: TextView? = null
         var txtComment: TextView? = null
@@ -23,6 +28,10 @@ class UserListAdapter(private var activity: Activity, private var items: List<St
         }
     }
 
+    /**
+     * Display the correct data on the view according to the position
+     * @return a View with its txtName and txtComment set
+     */
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view: View?
         val viewHolder: ViewHolder
@@ -55,6 +64,10 @@ class UserListAdapter(private var activity: Activity, private var items: List<St
         return items.size
     }
 
+    /**
+     * Synchronize's the adapter's stocklist with the parameter
+     * @param[newitems] The new stocklist reference
+     */
     fun refresh(newitems: List<Stock>) {
         items = newitems
         notifyDataSetChanged()

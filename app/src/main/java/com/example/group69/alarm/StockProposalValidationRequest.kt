@@ -6,7 +6,9 @@ import android.widget.Toast
 import java.lang.ref.*
 
 /**
- * Created by james on 8/28/17.
+ * This class would asynchronously check if a stock really exists before doing an edit.
+ * It has not been completely implemented yet.
+ * @todo Check if the stock really exists before doing the edit
  */
 class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock, Int, CharSequence>() {
     //Parameters are: param, progress, result
@@ -22,8 +24,6 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
 
         for (stock in stocks) {
             Log.d("DIB", "doInBackground for stock " + stock.ticker)
-
-            //Somehow check if the stock really exists. Used to do with Yahoo Finance app
 
             val target: Double? = stock.target
             if (target == null) {
@@ -48,13 +48,14 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
         return null
     }
 
+    /**
+     * @todo use broadcast receiver stuff, not just toast
+     */
     override fun onPostExecute(result: CharSequence?) {
         var toastmsg = "Some exotic error happened."
         if (result != null) {
             toastmsg = result.toString()
         }
-
-        //use broadcast receiver stuff
         val toast = Toast.makeText(context, toastmsg, Toast.LENGTH_SHORT)
         toast.show()
     }

@@ -15,6 +15,10 @@ import org.jetbrains.anko.db.delete
 
 class AddEditStockActivity : AppCompatActivity() {
 
+    /**
+     * Customizes the UI based on intent extras "EditingCrypto" and "EditingExisting"
+     * @todo make more modular by having database interaction in own function
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_stock)

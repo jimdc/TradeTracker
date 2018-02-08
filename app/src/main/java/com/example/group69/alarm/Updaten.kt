@@ -23,9 +23,13 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     var i = 0
     var delStock: Long = 5
     var alarmPlayed: Boolean = false
+
+    /**
+     * at very start, load from database ONCE to fill values such as time duration for the scan (market open/close)
+     * @todo break this down into modules, because there are also a lot of TODOs in here
+     */
     override fun doInBackground(vararg tickers: String): Int? {
 
-        //at very start, load from database ONCE to fill global variables with setting values, such as time duration for the scan (market open/close)
         var isSleepTime = false
         var failcount = 0
         var timeCount: Long = 0
@@ -205,21 +209,30 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         return 0
     }
 
+    /**
+     * @todo should send the stock, price, and number in Intent so we know which to delete on the UI display
+     * @todo use the LocalBroadcastManager later on to update the UI display
+     */
     override fun onProgressUpdate(vararg progress: String) {
         Log.d("mangracina", "playing alarm")
         playAlarm(progress[0], progress[1], progress[2])
         val intent = Intent("com.example.group69.alarm")
-        intent.putExtra(progress[0], progress[1]) //should send the stock, price, and number so we know which to delete on the UI display
-        LocalBroadcastManager.getInstance(this.ctxx).sendBroadcast(intent) //we can use this later on for updating the UI display
+        intent.putExtra(progress[0], progress[1])
+        LocalBroadcastManager.getInstance(this.ctxx).sendBroadcast(intent)
     }
 
+    /**
+     * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
+     * Set the system service [alarmManager] as FLAG_UPDATE_CURRENT
+     * @param[ticker] The relevant ticker
+     * @param[price] The new, noteworthy price
+     * @param[ab] "1" means above, something else like "0" means below
+     */
     fun playAlarm(ticker: String, price: String, ab: String) {
 
         Log.d("playAlarm", "" + ab)
-        // Define a time value of 5 seconds
         val alertTime = GregorianCalendar().timeInMillis + 5
         var gain: String
-        // Define our intention of executing AlertReceiver
         if (ab == "1") {
             gain = "rose to"
         } else gain = "dropped to"
@@ -235,13 +248,8 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         alertIntent.putExtra("message2", alert2)
         alertIntent.putExtra("message3", alert3)
 
-        // Allows you to schedule for your application to do something at a later date
-        // even if it is in he background or isn't active
         val alarmManager = ctxx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // set() schedules an alarm to trigger
-        // Trigger for alertIntent to fire in 5 seconds
-        // FLAG_UPDATE_CURRENT : Update the Intent if active
         alarmManager.set(AlarmManager.RTC_WAKEUP, alertTime,
                 PendingIntent.getBroadcast(ctxx, 1, alertIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT))
@@ -253,10 +261,11 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
     }
 
-    override fun onPostExecute(result: Int?) {
-        //showDialog("Downloaded " + result + " bytes");
-    }
-
+    /**
+     * Formats plain number to add dollar sign, trailing zero, and comma separators
+     * @param[d] A string from Double, unformatted except for decimal point
+     * @return transformed (lengthened) String
+     */
     private fun toDollar(d: String): String {
         var s = d
         val dot = s.indexOf('.')

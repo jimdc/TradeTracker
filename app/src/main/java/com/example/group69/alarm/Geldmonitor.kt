@@ -9,6 +9,11 @@ import java.net.URL
 import java.util.regex.Pattern
 
 object Geldmonitor {
+    /**
+     * Scrapes the NASDAQ website, parses out stock info
+     * @param[ticker] The ticker name, e.g. GOOG
+     * @return Stock price if successful
+     */
     @Throws(IOException::class)
     @JvmStatic
     fun getStockPrice(ticker: String): Double {
@@ -62,11 +67,16 @@ object Geldmonitor {
         }
     }
 
+    /**
+     * Scrapes the cryptocompare website for a particular currency
+     * @param[ticker] Name of the currency, e.g. ETH
+     * @todo add option to compare crypto to any other crypto by swapping out USD with cryptoUnits (can still be USD)
+     * @return crypto price if successful, -1 if not found in HTML, -3 if problem with connecting
+     */
     fun getCryptoPrice(ticker: String): Double {
         val tickerU = ticker.toUpperCase()
         Log.d("geldticker", tickerU)
         try {
-            //will later add option to compare crypto to any other crypto by swabpping out USD with cryptoUnits (can still be USD)
             val u = "https://min-api.cryptocompare.com/data/price?fsym=${tickerU}&tsyms=USD"
             val url = URL(u)
             val urlConn = url.openConnection()
@@ -97,14 +107,19 @@ object Geldmonitor {
                 line = buff.readLine() */
             }
             Log.d("Errorlog", "got -1.0 for crypto")
-            //html tags may have changed OR stock does not exist on nasdaq.com, now we will check if it is a crypto
             return -1.0
 
         } catch (e: Exception) {
-            return -3.0 //this error code means that the url is invalid
+            return -3.0
         }
     }
 
+    /**
+     * As a second resort, check NASDAQ's symbol site, but not the "real-time" one.
+     * @param[ticker] The ticker name, e.g. GOOG
+     * @return stock price if successful, -1 if not found in HTML, -3 if problem with connecting
+     * @sample getStockPrice
+     */
     fun getNotLivePrice(ticker: String): Double {
         val tickerU = ticker.toUpperCase()
         Log.d("geldticker", tickerU)

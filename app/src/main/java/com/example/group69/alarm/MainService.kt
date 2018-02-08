@@ -1,8 +1,5 @@
 package com.example.group69.alarm
 
-/**
- * Created by nick1_000 on 1/4/2018.
- */
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -31,37 +28,35 @@ class MainService : Service {
 
     constructor() {}
 
+    /**
+     * Avoids CPU blocking by creating background handler [mServiceHandler] for the service
+     * Starts the new handler thread [targetScanThread] and then service [mServiceLooper]
+     */
     override fun onCreate() {
         super.onCreate()
         toast("Target scanning")
 
-        // To avoid cpu-blocking, we create a background handler to run our service
-
-        // start the new handler thread
         if (updat.status != AsyncTask.Status.RUNNING) {
             Log.d("got", "starting!")
             targetScanThread.start()
 
             mServiceLooper = targetScanThread.looper
-            // start the service using the background handler
             mServiceHandler = ServiceHandler(mServiceLooper)
-
         }
     }
 
+    /**
+     * Get a message instance from [mServiceHandler] and send its message
+     * @param[startId] is used to identify the service
+     * @return START_STICKY: ask OS to restart service with null intent
+     */
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        //toast("onStartCommand")
-
-        // call a new service handler. The service ID can be used to identify the service
-
-
         val message = mServiceHandler.obtainMessage()
         message.arg1 = startId
         mServiceHandler.sendMessage(message)
 
         return Service.START_STICKY
-
     }
 
     /*    protected fun showToast(msg: String) {
@@ -73,10 +68,14 @@ class MainService : Service {
             }
         }
     */
+
+    /**
+     * Interrupts [targetScanThread] and cancels [updat]
+     * @todo Something here is not allowed with Kotlin. Is it unnecessary?
+     */
     override fun onDestroy() {
         Log.d("geld", "got destroyed")
         runTargetScan = false
-        //this is not allowed with kotlin
         targetScanThread.interrupt()
         if (updat.status == AsyncTask.Status.RUNNING) {
             updat.cancel(true)
@@ -91,10 +90,12 @@ class MainService : Service {
 
     private inner class ServiceHandler(looper: Looper) : Handler(looper) {
 
+        /**
+         * Vibrates, executes [updat], waits for an interrupt, then shuts down
+         * We are invoked when [onStartCommand] calls [mServiceHandler]'s sendMessage
+         * @todo track service using [msg.arg1], which is the same as [startId] in [onStartCommand]
+         */
         override fun handleMessage(msg: Message) {
-            // Well calling mServiceHandler.sendMessage(message);
-            // from onStartCommand this method will be called.
-
             // Add your cpu-blocking activity here
             val v = this@MainService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             val num: LongArray = longArrayOf(0, 100)
@@ -119,16 +120,10 @@ class MainService : Service {
             toast("Scan stopped after $ii seconds")
             updat.cancel(true)
 
-
-            // the msg.arg1 is the startId used in the onStartCommand,
-            // so we can track the running sevice here.
-
             //this would stop the service on it's own. we don't want that unless the user toggles scanning button to off
             stopSelf(msg.arg1)
             return
 
         }
     }
-
-
 }

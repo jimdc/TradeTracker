@@ -23,9 +23,11 @@ import android.content.IntentFilter
 import android.widget.ListView
 import android.app.ActivityManager
 
-///NotificationManager : Allows us to notify the user that something happened in the background
-// AlarmManager : Allows you to schedule for your application to do something at a later date
-// even if it is in the background
+/**
+ * @param[isNotificActive] tracks if the notification is active on the taskbar.
+ * @param[notificationManager] allows us to notify user that something happened in the backgorund.
+ * @param[notifID] is used to track notifications
+ */
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,19 +35,18 @@ class MainActivity : AppCompatActivity() {
     private var mMainService: MainService? = null
     val servRunning = true
     var stocksList: List<Stock> = ArrayList()
-    // Allows us to notify the user that something happened in the background
     internal lateinit var notificationManager: NotificationManager
 
-    // Used to track notifications
     internal var notifID = 33
-    //val updat = Updaten(this)
-
-    // Used to track if notification is active in the task bar
     internal var isNotificActive = false
     var resultReceiver = createBroadcastReceiver()
 
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
+
+    /**
+     * Registers broadcast receiver, populates stock listview.
+     */
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,6 +88,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Deletes the stock from database, from [stocksList], and refreshes UI.
+     * @param[position] the index of the stock in [stocksList]; same as in UI
+     * @return true if SQLite helper could find the stock to delete
+     * @sample onCreate
+     */
+
     fun deletestock(position: Int) : Boolean {
 
         val target = stocksList.get(position) as Stock
@@ -109,12 +117,19 @@ class MainActivity : AppCompatActivity() {
         return success
     }
 
+    /**
+     * Updates [stocksList] from database then refreshes UI
+     */
     override fun onResume() {
         super.onResume()
         stocksList = getStocklistFromDB()
         adapter?.refresh(stocksList)
     }
 
+    /**
+     * Queries database [NewestTableName] for stocks list and returns it
+     * @return the rows of stocks, or an empty list if database fails
+     */
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
@@ -137,31 +152,38 @@ class MainActivity : AppCompatActivity() {
         return results
     }
 
+    /**
+     * Start the ScannerService or notify that it's already running
+     * @param[view] The main activity view
+     * @todo Make global boolean to signal if [startService] already pressed
+     */
     fun startService(view: View) {
-        //TODO:
-        // make global boolean, it will be set default as false, becomes true here,
-        // if startService is pressed when already being active it will be ignored
         setContentView(R.layout.activity_main)
         mMainService = MainService(this)
         mServiceIntent = Intent(this, MainService::class.java)
-        if (!isMyServiceRunning(MainService::class.java)) { //MainService::class.java used to be mMainService.getClass() but that wasnt working
+        if (!isMyServiceRunning(MainService::class.java)) {
             startService(mServiceIntent)
         } else {
             toast("scan already running")
         }
-        //val intent = Intent(this, MainService::class.java)
-        //startService(intent)
-        //used these 2 lines before checking if service was on or not
     }
 
+    /**
+     * Stop the ScannerService
+     * @param[view] The main activity view
+     * @todo Make global boolean to signal if [startService] already pressed
+     */
     fun stopService(view: View) {
-        //TODO:
-        // make global boolean, it will be set default as false, becomes true here,
-        // if startService is pressed when already being active it will be ignored
         val intent = Intent(this, MainService::class.java)
         stopService(intent)
     }
 
+    /**
+     * Query the system for if a service is already running.
+     * @param[serviceClass] the service class
+     * @return true if running, false if not
+     * @sample startService
+     */
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -174,108 +196,84 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    /**
+     * Adds our notification intent to the stack
+     * FLAG_UPDATE_CURRENT: keep but update intent
+     * Obtains NotificationManger and posts it
+     * [isNotificActive] ensures us we can't double stop
+     * @param[view] current view from which to notify
+     */
     fun showNotification(view: View) {
-        // Builds a notification
         val notificBuilder = NotificationCompat.Builder(this)
                 .setContentTitle(resources.getString(R.string.msg))
                 .setContentText(resources.getString(R.string.newmsg))
                 .setTicker(resources.getString(R.string.alnew))
                 .setSmallIcon(R.drawable.ntt_logo_24_24)
 
-        // Define that we have the intention of opening MoreInfoNotification
         val moreInfoIntent = Intent(this, MoreInfoNotification::class.java)
-
-        // Used to stack tasks across activites so we go to the proper place when back is clicked
         val tStackBuilder = TaskStackBuilder.create(this)
 
-        // Add all parents of this activity to the stack
         tStackBuilder.addParentStack(MoreInfoNotification::class.java)
-
-        // Add our new Intent to the stack
         tStackBuilder.addNextIntent(moreInfoIntent)
 
-        // Define an Intent and an action to perform with it by another application
-        // FLAG_UPDATE_CURRENT : If the intent exists keep it but update it if needed
         val pendingIntent = tStackBuilder.getPendingIntent(0,
                 PendingIntent.FLAG_UPDATE_CURRENT)
-
-        // Defines the Intent to fire when the notification is clicked
         notificBuilder.setContentIntent(pendingIntent)
 
-        // Gets a NotificationManager which is used to notify the user of the background event
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        // Post the notification
         notificationManager.notify(notifID, notificBuilder.build())
 
-        // Used so that we can't stop a notification that has already been stopped
         isNotificActive = true
-
-
     }
 
+    /**
+     * Close the notification if it is still active.
+     */
     fun stopNotification(view: View) {
-
-        // If the notification is still active close it
         if (isNotificActive) {
             notificationManager.cancel(notifID)
         }
-
     }
 
+    /**
+     * Launch [AddEditStockActivity] with empty, crypto assumptions
+     */
     fun addcrypto(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
     }
 
+    /**
+     * Launch [AddEditStockActivity] with empty, noncrypto assumptions
+     */
     fun addstock(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
     }
 
-    fun setAlarm(view: View) {
-
-        // Define a time value of 5 seconds
-        val alertTime = GregorianCalendar().timeInMillis + 5 * 1000
-
-        // Define our intention of executing AlertReceiver
-        val alertIntent = Intent(this, AlertReceiver::class.java)
-
-        // Allows you to schedule for your application to do something at a later date
-        // even if it is in he background or isn't active
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        // set() schedules an alarm to trigger
-        // Trigger for alertIntent to fire in 5 seconds
-        // FLAG_UPDATE_CURRENT : Update the Intent if active
-        alarmManager.set(AlarmManager.RTC_WAKEUP, alertTime,
-                PendingIntent.getBroadcast(this, 1, alertIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT))
-
-    }
-
+    /**
+     * Schedule an alarm to fire AlertReceiver after five seconds
+     * @property[alarmManager] still fires if app is in background or inactive
+     */
     fun playAlarm() {
 
         Log.d("playAlarm", "playAlarm")
-        // Define a time value of 5 seconds
         val alertTime = GregorianCalendar().timeInMillis + 5
 
-        // Define our intention of executing AlertReceiver
         val alertIntent = Intent(this, AlertReceiver::class.java)
         alertIntent.putExtra("message1", "ayyyy")
         alertIntent.putExtra("message2", "ayyyy2")
         alertIntent.putExtra("message3", "ayyyy3")
-        // Allows you to schedule for your application to do something at a later date
-        // even if it is in he background or isn't active
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // set() schedules an alarm to trigger
-        // Trigger for alertIntent to fire in 5 seconds
-        // FLAG_UPDATE_CURRENT : Update the Intent if active
         alarmManager.set(AlarmManager.RTC_WAKEUP, alertTime,
                 PendingIntent.getBroadcast(this, 1, alertIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT))
 
     }
 
+    /**
+     * @return BroadcastReceiver that logs when it is registered
+     * @todo delete the stock after the alarm is set.
+     */
     private fun createBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -296,6 +294,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Unregister the result receiver
+     */
     override fun onDestroy() {
         if (resultReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
