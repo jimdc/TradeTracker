@@ -98,23 +98,19 @@ class MainActivity : AppCompatActivity() {
     fun deletestock(position: Int) : Boolean {
 
         val target = stocksList.get(position) as Stock
-        val id = target.stockid
-        var success: Boolean = false
+        var rez = 0
 
         database.use {
-            var rez = delete(NewestTableName, "_stockid = ?", arrayOf(id.toString()))
-
-            if (rez > 0) {
-                success = true
-            }
+            rez = delete(NewestTableName, "_stockid = ?", arrayOf(target.stockid.toString()))
         }
 
-        if (success) {
+        if (rez > 0) {
             stocksList = getStocklistFromDB()
             adapter?.refresh(stocksList)
+            return true
         }
 
-        return success
+        return false
     }
 
     /**
@@ -247,27 +243,6 @@ class MainActivity : AppCompatActivity() {
      */
     fun addstock(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
-    }
-
-    /**
-     * Schedule an alarm to fire AlertReceiver after five seconds
-     * @property[alarmManager] still fires if app is in background or inactive
-     */
-    fun playAlarm() {
-
-        Log.d("playAlarm", "playAlarm")
-        val alertTime = GregorianCalendar().timeInMillis + 5
-
-        val alertIntent = Intent(this, AlertReceiver::class.java)
-        alertIntent.putExtra("message1", "ayyyy")
-        alertIntent.putExtra("message2", "ayyyy2")
-        alertIntent.putExtra("message3", "ayyyy3")
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        alarmManager.set(AlarmManager.RTC_WAKEUP, alertTime,
-                PendingIntent.getBroadcast(this, 1, alertIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT))
-
     }
 
     /**
