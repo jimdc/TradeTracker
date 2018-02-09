@@ -56,10 +56,10 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
             try {
                 database.use {
                     if (alarmPlayed == true) {
-                        database.delete("TableVersion2", "_stockid=$delStock")
+                        database.delete(NewestTableName, "_stockid=$delStock")
                         alarmPlayed = false
                     }
-                    val sresult = database.select("TableVersion2", "_stockid", "ticker", "target", "ab", "phone", "crypto")
+                    val sresult = database.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
                     sresult.exec() {
                         if (count > 0) {
                             val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->

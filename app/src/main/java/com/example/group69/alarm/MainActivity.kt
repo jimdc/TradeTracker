@@ -224,6 +224,7 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Close the notification if it is still active.
+     * @param[view] required for onClick
      */
     fun stopNotification(view: View) {
         if (isNotificActive) {
@@ -233,6 +234,7 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Launch [AddEditStockActivity] with empty, crypto assumptions
+     * @param[view] required for onClick
      */
     fun addcrypto(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
@@ -240,6 +242,7 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Launch [AddEditStockActivity] with empty, noncrypto assumptions
+     * @param[view] required for onClick
      */
     fun addstock(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
