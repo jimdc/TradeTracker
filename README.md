@@ -1,26 +1,32 @@
-## Stock Alarm App
+## TradeTracker
 
-Set and save alerts on your phone for when a particular stock price exceeds or falls below a certain limit; or when the rate of change is unusual. Monitor stock price fluctuations in real-time, or allow the app to run in the background as a service.
+UI mockup [diagrams](https://github.com/jimdc/TradeTracker/blob/master/diagram.png) exported from http://draw.io/ on advfintech@gmail.com on Feb 9, 2018. More detailed specifications in KDocs.
 
-![How it works](/diagram.png "Here's what's up.")
+![What the home screen will look like](/MainActivity.png "Main Activity")
 
-## Code Example
+### Model
 
-(tbd)
+![Add a stock to track](/AddStock.png "Add Stock")
 
-## Motivation
+**Stock** type stored in SQLite [table](https://github.com/jimdc/TradeTracker/blob/master/app/src/main/java/com/example/group69/alarm/stockbox.kt) [`TableVersion2`]
 
-Existing apps for stock monitoring imposed impractically low limits on number of stocks to monitor (being unfit for penny stock investors); and they lacked options or customizability with regard to alert type: by phone call, email, etc.
+| Name          | Type          | Default  | 
+| ------------- |:-------------:| --------:| 
+| stockid       | Long          | 1337     |
+| ticker        | String        | "BABA"   |
+| target        | Double        | 4.20     |
+| above         | Long          | 1        |
+| phone         | Long          | 0        |
+| crypto        | Long          | 0        |
 
-## Installation
+### View
 
-The app requires internet permission from Android, but no external libraries. Localization available in Spanish and French.
+![Manage alarms for a stock](/AddAlarmExternal.png "Add Alarm External")
 
-## Tests
+Uses a listview with a custom adapter.
 
-(tbd)
+### Controller
 
-## Contributors
+![Manage alarm type](/AddAlarmInternal.png "Add Alarm Internal")
 
-* Nick Mangracina
-* James Carroll
+Creates a service which starts up an AsyncTask thread to scrape HTML from NASDAQ and CryptoCompare.
