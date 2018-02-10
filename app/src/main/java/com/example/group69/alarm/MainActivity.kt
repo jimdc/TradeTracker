@@ -96,12 +96,15 @@ class MainActivity : AppCompatActivity() {
      */
 
     fun deletestock(position: Int) : Boolean {
-
         val target = stocksList.get(position) as Stock
+        return deletestockInternal(target.stockid);
+    }
+
+    private fun deletestockInternal(stockid: Long) : Boolean {
         var rez = 0
 
         database.use {
-            rez = delete(NewestTableName, "_stockid = ?", arrayOf(target.stockid.toString()))
+            rez = delete(NewestTableName, "_stockid = ?", arrayOf(stockid.toString()))
         }
 
         if (rez > 0) {
@@ -125,6 +128,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * Queries database [NewestTableName] for stocks list and returns it
      * @return the rows of stocks, or an empty list if database fails
+     * @seealso [Updaten.getStocklistFromDB], it should be identical
      */
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()

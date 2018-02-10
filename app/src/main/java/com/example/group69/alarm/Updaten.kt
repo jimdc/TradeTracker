@@ -24,6 +24,9 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     var delStock: Long = 5
     var alarmPlayed: Boolean = false
 
+    val manager: MySqlHelper = MySqlHelper.getInstance(this.ctxx)
+    val database = manager.writableDatabase
+
     /**
      * at very start, load from database ONCE to fill values such as time duration for the scan (market open/close)
      * @todo break this down into modules, because there are also a lot of TODOs in here
@@ -31,18 +34,10 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     override fun doInBackground(vararg tickers: String): Int? {
 
         var failcount = 0
-        //while(!Thread.currentThread().isInterrupted()){
-        var ww = 0
-        while (true) {
-            if (isCancelled) {
-                break
-            }
-            Log.d("updaten", "iteration #" + ww)
-            ww++
-            val manager: MySqlHelper = MySqlHelper.getInstance(this.ctxx)
-            val database = manager.writableDatabase
-            //val sqlDB = MySqlHelper(ctxx)
+        var iterationcount = 0
 
+        while (!isCancelled) {
+            Log.d("updaten", "iteration #" + iterationcount++)
             Log.d("Attempting Updaten", "Up")
             try {
                 database.use {
@@ -50,40 +45,27 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                         database.delete(NewestTableName, "_stockid=$delStock")
                         alarmPlayed = false
                     }
-                    val sresult = database.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
-                    sresult.exec() {
-                        if (count > 0) {
-                            val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                                Stock(stockid, ticker, target, above, phone, crypto)
-                            }
-                            stocksTargets = parseList(parser)
 
-                        }
-
-                    }
-
+                    stocksTargets = getStocklistFromDB();
                 }
             } catch (e: android.database.sqlite.SQLiteException) {
                 Log.d("In Updaten: ", "sqlLite error onCreate: " + e.toString())
             }
-            if (!stocksTargets.isEmpty()) {
 
+            if (!stocksTargets.isEmpty()) {
                 var stocknamelist: List<CharSequence> = ArrayList()
                 stocksTargets.forEach { i -> stocknamelist += i.toString() }
                 Log.d("yeezy updaten ", "stocks targets: " + stocksTargets.toString())
-
             } else {
                 Log.d("updaten ", "might be empty list: ")
             }
 
             for ((a, stockx) in stocksTargets.withIndex()) { //this needs to be tweaked as now it will recheck the same stock
-                //val stock = yahoofinance.YahooFinance.get(stockx.ticker.toString()); //this will keep checking duplicates with
 
                 val ticker: String = stockx.ticker
                 //the yahoo api when it could save time by using the saved value for that stock in a table
                 var currPrice = -2.0
                 try {
-                    //currPrice = stock.quote.price.toDouble()
                     currPrice = if (stockx.crypto == 1L) {
                         Geldmonitor.getCryptoPrice(ticker)
                     } else {
@@ -108,22 +90,15 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
                 if (currPrice >= 0) {
                     Log.d("Errorlog", "not null")
-                    if (stockx.above == 1L) {
-                        if (currPrice >= stockx.target) { //will need to DELETE THE ALARMPLAYED
-                            alarmPlayed = true
-                            Log.d("mangracina", "mangracina")
-                            publishProgress(stockx.ticker.toString(), stockx.target.toString(), stockx.above.toString()) //return index so we know which stock to remove from database
-                            delStock = stockx.stockid
 
-
-                        }
-                    } else {
-                        if (currPrice <= stockx.target) {
-                            alarmPlayed = true
-                            Log.d("mangracina", "playAlarm")
-                            publishProgress(stockx.ticker.toString(), stockx.target.toString(), stockx.above.toString()) //return index so we know which stock to remove from database
-                            delStock = stockx.stockid
-                        }
+                    if (
+                            ((stockx.above == 1L) && (currPrice > stockx.target)) ||
+                            ((stockx.above == 0L) && (currPrice < stockx.target))
+                    ) {
+                        alarmPlayed = true
+                        Log.d("mangracina", "mangracina")
+                        publishProgress(stockx.ticker, stockx.target.toString(), stockx.above.toString()) //return index so we know which stock to remove from database
+                        delStock = stockx.stockid
                     }
                 } else { //if price is less than 0, we have an error from network, might be one stock. if it is all we will find out with:
                     failcount++
@@ -140,7 +115,6 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                     ie.printStackTrace()
                     Thread.currentThread().interrupt()
                 }
-
             }
             failcount = 0
             //publishProgress("alert")
@@ -153,6 +127,33 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         }
         Log.d("Errorlog", "got thread interupted")
         return 0
+    }
+
+    /**
+     * Queries database [NewestTableName] for stocks list and returns it
+     * @return the rows of stocks, or an empty list if database fails
+     * @seealso [MainActivity.getStocklistFromDB], it should be identical
+     */
+    fun getStocklistFromDB() : List<Stock> {
+        var results: List<Stock> = ArrayList()
+        try {
+            database.use {
+                val sresult = database.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+
+                sresult.exec {
+                    if (count > 0) {
+                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                            Stock(stockid, ticker, target, above, phone, crypto)
+                        }
+                        results = parseList(parser)
+                    }
+                }
+            }
+        } catch (e: android.database.sqlite.SQLiteException) {
+            Log.e("err gSlFDB: ", e.toString())
+        }
+
+        return results
     }
 
     /**
@@ -276,11 +277,16 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         var s = d
         val dot = s.indexOf('.')
 
-        if (dot + 1 == s.length - 1) s += '0'
-        var sub = s.substring(0, dot)
+        if (dot + 1 == s.length - 1) {
+            s += '0'
+        }
 
-        var str = StringBuilder(sub)
-        if (sub.length > 3) str.insert(sub.length - 3, ',')
+        val sub = s.substring(0, dot)
+        val str = StringBuilder(sub)
+
+        if (sub.length > 3) {
+            str.insert(sub.length - 3, ',')
+        }
 
         return '$' + str.toString() + s.substring(dot, s.length)
     }
