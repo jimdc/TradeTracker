@@ -158,7 +158,6 @@ class MainActivity : AppCompatActivity() {
      * @todo Make global boolean to signal if [startService] already pressed
      */
     fun startService(view: View) {
-        setContentView(R.layout.activity_main)
         mMainService = MainService(this)
         mServiceIntent = Intent(this, MainService::class.java)
         if (!isMyServiceRunning(MainService::class.java)) {
