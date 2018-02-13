@@ -13,6 +13,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import android.os.SystemClock
 import android.os.Vibrator
+import com.example.group69.alarm.Utility
 import java.util.*
 
 
@@ -246,9 +247,9 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
         val alertIntent = Intent(ctxx, AlertReceiver::class.java)
         val alert1: String
-        alert1 = ticker.toUpperCase() + " " + gain + " " + toDollar(price)
+        alert1 = ticker.toUpperCase() + " " + gain + " " + Utility.toDollar(price)
         val alert2: String
-        alert2 = toDollar(price)
+        alert2 = Utility.toDollar(price)
         val alert3: String
         alert3 = ab
         alertIntent.putExtra("message1", alert1)
@@ -267,28 +268,4 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
 
 
     }
-
-    /**
-     * Formats plain number to add dollar sign, trailing zero, and comma separators
-     * @param[d] A string from Double, unformatted except for decimal point
-     * @return transformed (lengthened) String
-     */
-    private fun toDollar(d: String): String {
-        var s = d
-        val dot = s.indexOf('.')
-
-        if (dot + 1 == s.length - 1) {
-            s += '0'
-        }
-
-        val sub = s.substring(0, dot)
-        val str = StringBuilder(sub)
-
-        if (sub.length > 3) {
-            str.insert(sub.length - 3, ',')
-        }
-
-        return '$' + str.toString() + s.substring(dot, s.length)
-    }
-
 }

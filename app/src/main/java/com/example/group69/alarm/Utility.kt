@@ -7,21 +7,27 @@ import android.widget.ListAdapter
 import android.widget.ListView
 
 object Utility {
-    fun setListViewHeightBasedOnChildren(listView: ListView) {
-        val listAdapter = listView.adapter ?: // pre-condition
-                return
+    /**
+     * Formats plain number to add dollar sign, trailing zero, and comma separators
+     * @param[d] A string from Double, unformatted except for decimal point
+     * @return transformed (lengthened) String
+     */
+    public fun toDollar(d: String): String {
+        var s = d
+        val dot = s.indexOf('.')
 
-        var totalHeight = 0
-        val desiredWidth = MeasureSpec.makeMeasureSpec(listView.width, MeasureSpec.AT_MOST)
-        for (i in 0 until listAdapter.count) {
-            val listItem = listAdapter.getView(i, null, listView)
-            listItem.measure(desiredWidth, MeasureSpec.UNSPECIFIED)
-            totalHeight += listItem.measuredHeight
+        if (dot + 1 == s.length - 1) {
+            s += '0'
         }
 
-        val params = listView.layoutParams
-        params.height = totalHeight + listView.dividerHeight * (listAdapter.count - 1)
-        listView.layoutParams = params
-        listView.requestLayout()
+        val sub = s.substring(0, dot)
+        val str = StringBuilder(sub)
+
+        if (sub.length > 3) {
+            str.insert(sub.length - 3, ',')
+        }
+
+        return '$' + str.toString() + s.substring(dot, s.length)
     }
+
 }

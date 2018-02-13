@@ -30,7 +30,7 @@ object Geldmonitor {
                 //if (line.contains("ref_") && line.contains("_l") ) {
                 //if (line.contains("itemprop=\"price\"")) {
                 if (line.contains("quotes_content_left__LastSale")) {
-                    Log.d("geldline original", line)
+                    //Log.d("geldline original", line)
                     //var target = line.indexOf("price")+5
                     //line = line.replace(",", "")
 
@@ -41,13 +41,13 @@ object Geldmonitor {
 
                     val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
                     matcher.find()
-                    Log.d("geldlineee", matcher.group())
+                    //Log.d("geldlineee", matcher.group())
                     val i = java.lang.Double.parseDouble(matcher.group())
-                    Log.d("geldlineee", "price = " + i)
-                    if (ticker.equals("dcth")) {
-                        Log.d("geldlinee", "hereee")
-                        Log.d("geldlineee", "price = " + i)
-                    }
+                    //Log.d("geldlineee", "price = " + i)
+                    //if (ticker.equals("dcth")) {
+                    //    Log.d("geldlinee", "hereee")
+                    //    Log.d("geldlineee", "price = " + i)
+                    //}
                     return i
                 }
 
@@ -58,11 +58,11 @@ object Geldmonitor {
 
             }
 
-            Log.d("Errorlog", "got -1.0 for stock")
+            //Log.d("Errorlog", "got -1.0 for stock")
             //html tags may have changed OR stock does not exist on nasdaq.com
             return getNotLivePrice(ticker)
         } catch (e: Exception) {
-            Log.d("geldtime33", "exception thrown (probably at price parsing")
+            //Log.d("geldtime33", "exception thrown (probably at price parsing")
             return getNotLivePrice(ticker) //this error code means that the url is invalid
         }
     }
@@ -75,7 +75,7 @@ object Geldmonitor {
      */
     fun getCryptoPrice(ticker: String): Double {
         val tickerU = ticker.toUpperCase()
-        Log.d("geldticker", tickerU)
+        //Log.d("geldticker", tickerU)
         try {
             val u = "https://min-api.cryptocompare.com/data/price?fsym=${tickerU}&tsyms=USD"
             val url = URL(u)
@@ -97,7 +97,7 @@ object Geldmonitor {
 
                 val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
                 matcher.find()
-                Log.d("geldtime", matcher.group())
+                //Log.d("geldtime", matcher.group())
                 val i = java.lang.Double.parseDouble(matcher.group())
                 return i
                 //}
@@ -106,7 +106,7 @@ object Geldmonitor {
                 Log.d("geldtiime", line)
                 line = buff.readLine() */
             }
-            Log.d("Errorlog", "got -1.0 for crypto")
+            //Log.d("Errorlog", "got -1.0 for crypto")
             return -1.0
 
         } catch (e: Exception) {
@@ -122,7 +122,7 @@ object Geldmonitor {
      */
     fun getNotLivePrice(ticker: String): Double {
         val tickerU = ticker.toUpperCase()
-        Log.d("geldticker", tickerU)
+        //Log.d("geldticker", tickerU)
         try {
             val u = "http://www.nasdaq.com/symbol/" + ticker
             val url = URL(u)
@@ -131,12 +131,12 @@ object Geldmonitor {
             val buff = BufferedReader(inStream as Reader?)
             val price = "not found"
             var line = buff.readLine()
-            Log.d("geldtime33", line)
+            //Log.d("geldtime33", line)
             while (line != null) {
                 //if (line.contains("ref_") && line.contains("_l") ) {
                 //if (line.contains("itemprop=\"price\"")) {
                 if (line.contains("qwidget_lastsale")) {
-                    Log.d("geldline original", line)
+                    //Log.d("geldline original", line)
                     //var target = line.indexOf("price")+5
                     //line = line.replace(",", "")
 
@@ -146,18 +146,16 @@ object Geldmonitor {
                     //Log.d("geldlinee",line)
                     val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
                     matcher.find()
-                    Log.d("geldline", matcher.group())
+                    //Log.d("geldline", matcher.group())
                     return java.lang.Double.parseDouble(matcher.group())
                 }
 
 
-                Log.d("geldtime", line)
+                //Log.d("geldtime", line)
                 line = buff.readLine()
-
-
             }
 
-            Log.d("Errorlog", "got -1.0 for stock")
+            //Log.d("Errorlog", "got -1.0 for stock")
             //html tags may have changed OR stock does not exist on nasdaq.com, now we will check if it is a crypto
             return -1.0
 
