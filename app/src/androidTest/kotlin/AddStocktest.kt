@@ -13,7 +13,8 @@ import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 
 /**
- * Instrumentation test. "Empty test suite" for now, something wrong with Gradle config
+ * Instrumentation test. If get "Empty test suite", right click run from package
+ * RuntimeException because needs to have getActivity() startActivitySync or similar called
  */
 class AddStocktest {
 
