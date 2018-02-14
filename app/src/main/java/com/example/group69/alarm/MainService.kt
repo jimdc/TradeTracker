@@ -23,7 +23,7 @@ class MainService : Service {
     val updat = Updaten(this@MainService)
 
     constructor(applicationContext: Context) : super() {
-        Log.i("HERE", "here I am!")
+        Log.i("MainService", "Constructor called")
     }
 
     constructor() {}

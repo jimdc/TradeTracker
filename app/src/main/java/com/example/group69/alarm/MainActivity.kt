@@ -22,6 +22,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.widget.ListView
 import android.app.ActivityManager
+import android.databinding.DataBindingUtil
 
 /**
  * @param[isNotificActive] tracks if the notification is active on the taskbar.
@@ -55,26 +56,23 @@ class MainActivity : AppCompatActivity() {
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
         stocksList = getStocklistFromDB()
-        if (stocksList.isEmpty()) {
-            Log.v("MainActivity", "stocksList is now empty.")
-        } else {
-            Log.d("MainActivity", "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
+        Log.v("MainActivity", if (stocksList.isEmpty()) "stocksList is now empty." else
+            "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
 
-            listView = findViewById<ListView>(R.id.listView)
-            adapter = UserListAdapter(this, stocksList)
+        listView = findViewById<ListView>(R.id.listView)
+        adapter = UserListAdapter(this, stocksList)
 
-            listView?.adapter = adapter
-            adapter?.notifyDataSetChanged()
+        listView?.adapter = adapter
+        adapter?.notifyDataSetChanged()
 
-            listView?.setOnItemClickListener { parent, view, position, id ->
-                alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
-                    positiveButton("Yes") {
-                        var deleted = deletestock(position)
-                        toast("Row " + position.toString() + if (deleted==true) (" deleted.") else "not deleted.")
-                    }
-                    negativeButton("No") {  toast("OK, nothing was deleted.") }
-                }.show()
-            }
+        listView?.setOnItemClickListener { parent, view, position, id ->
+            alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
+                positiveButton("Yes") {
+                    toast("Row " + position.toString() +
+                            if (deletestock(position)==true) (" deleted.") else "not deleted.")
+                }
+                negativeButton("No") {  toast("OK, nothing was deleted.") }
+            }.show()
         }
     }
 

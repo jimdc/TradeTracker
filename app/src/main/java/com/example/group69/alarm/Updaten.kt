@@ -5,20 +5,19 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.util.Log
 import android.content.Context
-import android.widget.ListView
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
 import android.support.v4.content.LocalBroadcastManager
+import android.view.View
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
-import android.app.Activity
 
 
-class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
-    var TutorialServiceContext = ctx
+class Updaten(CallerContext: Context) : android.os.AsyncTask<String, String, Int>() {
+    var TutorialServiceContext = CallerContext
     var delStock: Long = 5
     var alarmPlayed: Boolean = false
 
@@ -49,13 +48,14 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 } else { Geldmonitor.getStockPrice(ticker) }
 
                 if (currPrice >= 0) {
+                    publishProgress("Currprice2UIPlease", stockx.stockid.toString(), currPrice.toString())
                     Log.v("Updaten", "currPrice $currPrice is not null")
                     if (
                             ((stockx.above == 1L) && (currPrice > stockx.target)) ||
                             ((stockx.above == 0L) && (currPrice < stockx.target))
                     ) {
                         SetPendingFinishedStock(stockx.stockid)
-                        publishProgress(stockx.ticker, stockx.target.toString(), stockx.above.toString())
+                        publishProgress("AlarmPlease", stockx.ticker, stockx.target.toString(), stockx.above.toString())
                     }
                 } else {
                     Log.v("Updaten", "currPrice $currPrice < 0, netErr? ++failcount to " + ++failcount)
@@ -122,15 +122,21 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         return results
     }
 
-    /**
-     * @todo should send the stock, price, and number in Intent so we know which to delete on the UI display
-     * @todo use the LocalBroadcastManager later on to update the UI display
-     */
+
     override fun onProgressUpdate(vararg progress: String) {
-        Log.d("mangracina", "playing alarm")
-        playAlarm(progress[0], progress[1], progress[2])
+        if (progress[0].equals("AlarmPlease")) { AlarmPlease(progress[1], progress[2], progress[3]) }
+        else if (progress[0].equals("Currprice2UIPlease")) { Currprice2UIPlease(progress[1], progress[2]) }
+    }
+
+    fun Currprice2UIPlease(stockid: String, price: String) {
+
+    }
+
+    fun AlarmPlease(ticker: String, price: String, ab: String) {
+        playAlarm(ticker, price, ab)
+
         val intent = Intent("com.example.group69.alarm")
-        intent.putExtra(progress[0], progress[1])
+        intent.putExtra(ticker, price)
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
 
