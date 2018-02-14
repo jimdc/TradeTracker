@@ -3,6 +3,8 @@ package com.example.group69.alarm
 import android.util.Log
 import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStream
+import java.nio.charset.Charset
 import java.io.InputStreamReader
 import java.io.Reader
 import java.lang.NumberFormatException
@@ -20,55 +22,31 @@ object Geldmonitor {
      * @param[ticker] The ticker name, e.g. GOOG
      * @return Stock price if successful
      */
-    @Throws(IOException::class)
     @JvmStatic
     fun getStockPrice(ticker: String): Double {
-        try {
-            val urlConn = URL("http://www.nasdaq.com/symbol/$ticker/real-time").openConnection()
+
+        val tickerU = ticker.toLowerCase()
+
+        val ret = try {
+            val url = URL("https://www.nasdaq.com/symbol/$tickerU/real-time")
+            val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
-            val buff = BufferedReader(inStream as Reader?)
-
-            var line = buff.readLine()
-            //Log.v("geldtime",line)
-            while (line != null) {
-                //if (line.contains("ref_") && line.contains("_l") ) {
-                //if (line.contains("itemprop=\"price\"")) {
-                if (line.contains("quotes_content_left__LastSale")) {
-                    //Log.d("geldline original", line)
-                    //var target = line.indexOf("price")+5
-                    //line = line.replace(",", "")
-
-                    //line = line.substring(target, target+10/*line.length - 1*/)
-
-                    //line = buff.readLine()
-
-
-                    val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
-                    matcher.find()
-                    //Log.d("geldlineee", matcher.group())
-                    val i = java.lang.Double.parseDouble(matcher.group())
-                    //Log.d("geldlineee", "price = " + i)
-                    //if (ticker.equals("dcth")) {
-                    //    Log.d("geldlinee", "hereee")
-                    //    Log.d("geldlineee", "price = " + i)
-                    //}
-                    return i
-                }
-
-
-                //Log.d("geldtime",linhe)
-                line = buff.readLine()
-
-
-            }
-
-            //Log.d("Errorlog", "got -1.0 for stock")
-            //html tags may have changed OR stock does not exist on nasdaq.com
-            return getNotLivePrice(ticker)
-        } catch (e: Exception) {
-            //Log.d("geldtime33", "exception thrown (probably at price parsing")
-            return getNotLivePrice(ticker) //this error code means that the url is invalid
+            parseLiveStockPrice(BufferedReader(inStream as Reader?))
+        } catch (ie: IOException) {
+            INTERNET_EXCEPTION
         }
+
+        if ((ret == INTERNET_EXCEPTION) ||
+                (ret == SKIPPEDPARSE_ERROR) ||
+                (ret == DOUBLE_CONVERSION_ERROR))
+            return getLateStockPrice(ticker)
+
+        return ret
+    }
+
+    fun linez(url: String): String {
+        val inStream = InputStreamReader(URL(url).openConnection().getInputStream())
+        return BufferedReader(inStream).use { it.readText() } as String
     }
 
     /**
@@ -94,17 +72,47 @@ object Geldmonitor {
     }
 
     /**
-     * Looks for NUM.NUM pattern with any number of digits
+     * As a second resort, check NASDAQ's symbol site, but not the "real-time" one.
+     * @param[ticker] The ticker name, e.g. GOOG
+     * @return stock price if successful, -1 if not found in HTML, -3 if problem with connecting
+     * @sample getStockPrice
+     */
+    fun getLateStockPrice(ticker: String): Double {
+
+        val tickerU = ticker.toLowerCase()
+
+        val ret = try {
+            val url = URL("https://www.nasdaq.com/symbol/" + ticker)
+            val urlConn = url.openConnection()
+            val inStream = InputStreamReader(urlConn.getInputStream())
+            parseLateStockPrice(BufferedReader(inStream as Reader?))
+        } catch (ie: IOException) {
+            INTERNET_EXCEPTION
+        }
+
+        return ret
+    }
+
+    /**
+     * Looks for NUM.NUM pattern with any number of digits by default, or applies stricter filter
      * @param[BufferedReader] The HTML string result
+     * @param[isStock] checks only a certain line
+     * @param[isLatestock] checks only a certain line
      * @return crypto price if successful, [SKIPPEDPARSE_ERROR], [DOUBLE_CONVERSION_ERROR]
      */
-    fun parseCryptoPrice(bae: BufferedReader): Double {
+    fun parseStockCryptoPrice(bae: BufferedReader, isStock: Boolean, isLatestock: Boolean): Double {
 
         var ret = SKIPPEDPARSE_ERROR;
         val iterator = bae.lineSequence().iterator()
 
         while(iterator.hasNext()) {
-            val matcher = Pattern.compile("\\d+.\\d+").matcher(iterator.next())
+
+            val line = iterator.next()
+
+            if (isStock) { if (!line.contains("quotes_content_left__LastSale")) continue }
+            if (isLatestock) { if (!line.contains("qwidget_lastsale")) continue }
+
+            val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
             matcher.find()
 
             try { ret = java.lang.Double.parseDouble(matcher.group())
@@ -116,53 +124,15 @@ object Geldmonitor {
         return ret
     }
 
-    /**
-     * As a second resort, check NASDAQ's symbol site, but not the "real-time" one.
-     * @param[ticker] The ticker name, e.g. GOOG
-     * @return stock price if successful, -1 if not found in HTML, -3 if problem with connecting
-     * @sample getStockPrice
-     */
-    fun getNotLivePrice(ticker: String): Double {
-        val tickerU = ticker.toUpperCase()
-        //Log.d("geldticker", tickerU)
-        try {
-            val u = "http://www.nasdaq.com/symbol/" + ticker
-            val url = URL(u)
-            val urlConn = url.openConnection()
-            val inStream = InputStreamReader(urlConn.getInputStream())
-            val buff = BufferedReader(inStream as Reader?)
-            val price = "not found"
-            var line = buff.readLine()
-            //Log.d("geldtime33", line)
-            while (line != null) {
-                //if (line.contains("ref_") && line.contains("_l") ) {
-                //if (line.contains("itemprop=\"price\"")) {
-                if (line.contains("qwidget_lastsale")) {
-                    //Log.d("geldline original", line)
-                    //var target = line.indexOf("price")+5
-                    //line = line.replace(",", "")
+    fun parseCryptoPrice(bae: BufferedReader): Double {
+        return parseStockCryptoPrice(bae, false, false)
+    }
 
-                    //line = line.substring(target, target+10/*line.length - 1*/)
+    fun parseLiveStockPrice(bae: BufferedReader): Double {
+        return parseStockCryptoPrice(bae, true, false)
+    }
 
-                    //line = buff.readLine()
-                    //Log.d("geldlinee",line)
-                    val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
-                    matcher.find()
-                    //Log.d("geldline", matcher.group())
-                    return java.lang.Double.parseDouble(matcher.group())
-                }
-
-
-                //Log.d("geldtime", line)
-                line = buff.readLine()
-            }
-
-            //Log.d("Errorlog", "got -1.0 for stock")
-            //html tags may have changed OR stock does not exist on nasdaq.com, now we will check if it is a crypto
-            return -1.0
-
-        } catch (e: Exception) {
-            return -3.0 //this error code means that the url is invalid
-        }
+    fun parseLateStockPrice(bae: BufferedReader): Double {
+        return parseStockCryptoPrice(bae, false, true)
     }
 }

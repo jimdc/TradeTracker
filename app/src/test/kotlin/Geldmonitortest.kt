@@ -17,19 +17,23 @@ import org.amshove.kluent.shouldEqual
  */
 class Geldmonitortest {
 
-    /**
-     * It doesn't work yet because it needs a network connection.
-     * (Simulating that is a bit complicated.)
-     * If Geldmonitor does android.Log.d, that needs to be mocked,
-     * so I commented out all instances of logging on Geldmonitor.
-     */
     @Test
-    fun shouldReturnSomething() {
+    fun testParsing () {
         val ETH_USD_20181213 = reader("{\"USD\":846.31}")
         Geldmonitor.parseCryptoPrice(ETH_USD_20181213).shouldEqual(846.31)
 
+        val GOOG_20181213 = reader("<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>")
+        Geldmonitor.parseLiveStockPrice(GOOG_20181213).shouldEqual(1053.0)
+
+        val MSFT_20181213 = reader("<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$89.83</div>\n")
+        Geldmonitor.parseLateStockPrice(MSFT_20181213).shouldEqual(89.83)
+    }
+
+    @Test
+    fun testNetworkAndParsing() {
         Geldmonitor.getCryptoPrice("ETH").shouldBePositive()
-        Geldmonitor.getStockPrice("GOOG").shouldBePositive() //wrongly returns -1.0
+        Geldmonitor.getStockPrice("GOOG").shouldBePositive()
+        Geldmonitor.getLateStockPrice("MSFT").shouldBePositive()
     }
 
     private fun reader(s: String): BufferedReader { return BufferedReader(StringReader(s)) }
