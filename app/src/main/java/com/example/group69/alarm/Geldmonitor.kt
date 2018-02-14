@@ -25,14 +25,15 @@ object Geldmonitor {
     @JvmStatic
     fun getStockPrice(ticker: String): Double {
 
-        val tickerU = ticker.toLowerCase()
+        val tickerL = ticker.toLowerCase()
 
         val ret = try {
-            val url = URL("https://www.nasdaq.com/symbol/$tickerU/real-time")
+            val url = URL("https://www.nasdaq.com/symbol/$tickerL/real-time")
             val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
             parseLiveStockPrice(BufferedReader(inStream as Reader?))
         } catch (ie: IOException) {
+            ie.printStackTrace()
             INTERNET_EXCEPTION
         }
 
@@ -79,10 +80,10 @@ object Geldmonitor {
      */
     fun getLateStockPrice(ticker: String): Double {
 
-        val tickerU = ticker.toLowerCase()
+        val tickerL = ticker.toLowerCase()
 
         val ret = try {
-            val url = URL("https://www.nasdaq.com/symbol/" + ticker)
+            val url = URL("https://www.nasdaq.com/symbol/" + tickerL)
             val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
             parseLateStockPrice(BufferedReader(inStream as Reader?))

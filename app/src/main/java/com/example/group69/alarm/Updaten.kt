@@ -18,10 +18,7 @@ import java.util.*
 
 
 class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
-    var stocksTargets: List<Stock> = ArrayList()
-    var stocksNow: MutableList<StockNow> = mutableListOf<StockNow>()
     var ctxx = ctx
-    var i = 0
     var delStock: Long = 5
     var alarmPlayed: Boolean = false
 
@@ -29,118 +26,108 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
     val database = manager.writableDatabase
 
     /**
-     * at very start, load from database ONCE to fill values such as time duration for the scan (market open/close)
-     * @todo break this down into modules, because there are also a lot of TODOs in here
+     * @todo rewrite stocksTargets.withIndex loop so it does not recheck the same stock
      */
     override fun doInBackground(vararg tickers: String): Int? {
+        var stocksTargets: List<Stock> = ArrayList()
 
         var failcount = 0
         var iterationcount = 0
 
         while (!isCancelled) {
-            Log.d("updaten", "iteration #" + iterationcount++)
-            Log.d("Attempting Updaten", "Up")
-            try {
-                database.use {
-                    if (alarmPlayed == true) {
-                        database.delete(NewestTableName, "_stockid=$delStock")
-                        alarmPlayed = false
-                    }
+            Log.d("updaten", "iteration #" + ++iterationcount)
 
-                    stocksTargets = getStocklistFromDB();
-                }
-            } catch (e: android.database.sqlite.SQLiteException) {
-                Log.d("In Updaten: ", "sqlLite error onCreate: " + e.toString())
-            }
+            DeletePendingFinishedStock()
+            stocksTargets = getStocklistFromDB()
 
-            if (!stocksTargets.isEmpty()) {
-                var stocknamelist: List<CharSequence> = ArrayList()
-                stocksTargets.forEach { i -> stocknamelist += i.toString() }
-                Log.d("yeezy updaten ", "stocks targets: " + stocksTargets.toString())
-            } else {
-                Log.d("updaten ", "might be empty list: ")
-            }
+            Log.v("Updaten ", if (stocksTargets.isEmpty()) "might be empty list: " else
+            "stocks targets: " + stocksTargets.map { it.ticker }.joinToString(", "))
 
-            for ((a, stockx) in stocksTargets.withIndex()) {
-                //this needs to be tweaked as now it will recheck the same stock
+            for (stockx in stocksTargets) {
                 val ticker: String = stockx.ticker
-                var currPrice = -2.0
-                try {
-                    currPrice = if (stockx.crypto == 1L) {
-                        Geldmonitor.getCryptoPrice(ticker)
-                    } else {
-                        Geldmonitor.getStockPrice(ticker)
-                    }
-                    Log.d("Errorlog", "got the symb: " + ticker)
-                    Log.d("Errorlog", "got the price: " + currPrice)
-                } catch (e: Exception) {
-                    currPrice = -3.0
-                    //for now just checking to see if all stocks are returning -3.0
-                    Log.d("Errorlog", "got stock " + stockx.ticker + " caused NPE!")
-                }
+
+                var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
+                } else { Geldmonitor.getStockPrice(ticker) }
 
                 if (currPrice >= 0) {
-                    Log.d("Errorlog", "not null")
-
+                    Log.v("Updaten", "currPrice $currPrice is not null")
                     if (
                             ((stockx.above == 1L) && (currPrice > stockx.target)) ||
                             ((stockx.above == 0L) && (currPrice < stockx.target))
                     ) {
-                        alarmPlayed = true
-                        Log.d("mangracina", "mangracina")
-                        publishProgress(stockx.ticker, stockx.target.toString(), stockx.above.toString()) //return index so we know which stock to remove from database
-                        delStock = stockx.stockid
+                        SetPendingFinishedStock(stockx.stockid)
+                        publishProgress(stockx.ticker, stockx.target.toString(), stockx.above.toString())
                     }
                 } else {
-                    //if price is less than 0, we have an error from network, might be one stock.
-                    //If it is all we will find out with:
-                    failcount++
+                    Log.v("Updaten", "currPrice $currPrice < 0, netErr? ++failcount to " + ++failcount)
                 }
             }
+
             if (failcount == stocksTargets.size) {
-                Log.d("got", "network connection error, all stocks getting -3.0")
-                try {
-                    Thread.sleep(60000)
-                } catch (ie: InterruptedException) {
-                    ie.printStackTrace()
-                    Thread.currentThread().interrupt()
-                }
+                Log.e("Updaten", "All stocks below zero. Connection error?")
+                TryToSleepFor(60000)
             }
+
             failcount = 0
-            //publishProgress("alert")
-            try {
-                Thread.sleep(8000)
-            } catch (ie: InterruptedException) {
-                ie.printStackTrace()
-                Thread.currentThread().interrupt()
-            }
+            TryToSleepFor(8000)
         }
-        Log.d("Errorlog", "got thread interupted")
+
+        Log.d("Updaten", "doInBackground thread interrupted")
         return 0
+    }
+
+    fun SetPendingFinishedStock(stockid: Long) {
+        alarmPlayed = true
+        delStock = stockid
+        Log.v("Updaten", "scheduled deletion of stock $stockid")
+    }
+
+    private fun DeletePendingFinishedStock() {
+        try {
+            if (alarmPlayed == true) {
+                database.delete(NewestTableName, "_stockid=$delStock")
+                alarmPlayed = false
+                Log.v("Updaten", "deleted completed stock $delStock")
+            }
+        } catch (e: android.database.sqlite.SQLiteException) {
+            Log.e("Updaten", "could not delete $delStock: " + e.toString())
+        }
+    }
+
+    /**
+     * Reduces repetitive try-catch blocks for sleep.
+     * Prints stack trace and interrupts thread
+     */
+    private fun TryToSleepFor(milliseconds: Long) {
+        try {
+            Thread.sleep(milliseconds)
+        } catch (ie: InterruptedException) {
+            ie.printStackTrace()
+            Thread.currentThread().interrupt()
+        }
     }
 
     /**
      * Queries database [NewestTableName] for stocks list and returns it
      * @return the rows of stocks, or an empty list if database fails
-     * @seealso [MainActivity.getStocklistFromDB], it should be identical
+     * @seealso [MainActivity.getStocklistFromDB], which uses database.use that closes the DB
+     * This thread doesn't do that because it could conflict with [DeletePendingFinishedStock]
      */
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            database.use {
-                val sresult = database.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+            val sresult = database.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
-                sresult.exec {
-                    if (count > 0) {
-                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                            Stock(stockid, ticker, target, above, phone, crypto)
-                        }
-                        results = parseList(parser)
+            sresult.exec {
+                if (count > 0) {
+                    val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                        Stock(stockid, ticker, target, above, phone, crypto)
                     }
+                    results = parseList(parser)
                 }
             }
         } catch (e: android.database.sqlite.SQLiteException) {
-            Log.e("err gSlFDB: ", e.toString())
+            Log.e("Updaten", "couldn' get stock list from DB: " + e.toString())
         }
 
         return results
@@ -227,23 +214,14 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
      */
     fun playAlarm(ticker: String, price: String, ab: String) {
 
-        Log.d("playAlarm", "" + ab)
+        Log.v("Updaten", "Building alarm with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5
-        var gain: String
-        if (ab == "1") {
-            gain = "rose to"
-        } else gain = "dropped to"
 
         val alertIntent = Intent(ctxx, AlertReceiver::class.java)
-        val alert1: String
-        alert1 = ticker.toUpperCase() + " " + gain + " " + Utility.toDollar(price)
-        val alert2: String
-        alert2 = Utility.toDollar(price)
-        val alert3: String
-        alert3 = ab
-        alertIntent.putExtra("message1", alert1)
-        alertIntent.putExtra("message2", alert2)
-        alertIntent.putExtra("message3", alert3)
+        alertIntent.putExtra("message1", ticker.toUpperCase() + " " +
+                if (ab == "1") "rose to" else "dropped to" + " " + Utility.toDollar(price))
+        alertIntent.putExtra("message2", Utility.toDollar(price))
+        alertIntent.putExtra("message3", ab)
 
         val alarmManager = ctxx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -254,7 +232,5 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
         val v = ctxx.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val num: LongArray = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
         v.vibrate(num, -1)
-
-
     }
 }

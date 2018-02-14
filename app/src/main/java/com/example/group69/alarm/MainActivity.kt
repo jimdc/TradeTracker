@@ -51,19 +51,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         LocalBroadcastManager.getInstance(this).registerReceiver(resultReceiver, IntentFilter("com.example.group69.alarm"))
-        Log.d("dictionary", "")
 
         stocksList = getStocklistFromDB()
-
         if (stocksList.isEmpty()) {
-            toast("error onCreate, might be empty list: " + resources.getString(R.string.failempty))
+            Log.v("MainActivity", "stocksList is now empty.")
         } else {
-
-            var stocknamelist: List<CharSequence> = ArrayList()
-            stocksList.forEach { i -> stocknamelist += i.toString() }
-            Log.d("yeezy stocksTargets: ", stocksList.toString())
+            Log.d("MainActivity", "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
 
             listView = findViewById<ListView>(R.id.listView)
             adapter = UserListAdapter(this, stocksList)
