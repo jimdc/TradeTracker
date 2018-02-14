@@ -49,8 +49,8 @@ class MainActivity : AppCompatActivity() {
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
 
-    var manager: SQLiteSingleton? = null
-    var database: android.database.sqlite.SQLiteDatabase? = null
+    //var manager: SQLiteSingleton? = null
+    //var database: android.database.sqlite.SQLiteDatabase? = null
 
     /**
      * Registers broadcast receiver, populates stock listview.
@@ -59,8 +59,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        manager = SQLiteSingleton.getInstance(getApplicationContext())
-        database = manager?.writableDatabase
+        //manager = SQLiteSingleton.getInstance(getApplicationContext())
+        //database = manager?.writableDatabase
 
         setContentView(R.layout.activity_main)
         LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -105,11 +105,13 @@ class MainActivity : AppCompatActivity() {
         var rez = 0
 
         try {
-            var rez = database?.delete(NewestTableName, "_stockid=$stockid") ?: 0
+            database.use {
+                var rez = delete(NewestTableName, "_stockid=$stockid") ?: 0
 
-            if (rez > 0) {
-                stocksList = getStocklistFromDB()
-                adapter?.refresh(stocksList)
+                if (rez > 0) {
+                    stocksList = getStocklistFromDB()
+                    adapter?.refresh(stocksList)
+                }
             }
         } catch (e: android.database.sqlite.SQLiteException) {
             Log.e("MainActivity", "could not delete $stockid: " + e.toString())
@@ -136,14 +138,16 @@ class MainActivity : AppCompatActivity() {
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            val sresult = database?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+            database.use {
+                val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
-            sresult?.exec {
-                if (this.count > 0) {
-                    val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                        Stock(stockid, ticker, target, above, phone, crypto)
+                sresult?.exec {
+                    if (this.count > 0) {
+                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                            Stock(stockid, ticker, target, above, phone, crypto)
+                        }
+                        results = parseList(parser)
                     }
-                    results = parseList(parser)
                 }
             }
         } catch (e: android.database.sqlite.SQLiteException) {

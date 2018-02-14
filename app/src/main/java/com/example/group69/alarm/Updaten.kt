@@ -17,9 +17,9 @@ import android.os.Vibrator
 import java.util.*
 
 
-class Updaten(CallerContext: Context, ApplicationContext: Context) : android.os.AsyncTask<String, String, Int>() {
+class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Void>() {
     var TutorialServiceContext = CallerContext
-    var mac = ApplicationContext as MainActivity
+    var mac: MainActivity? = null
 
     var delStock: Long = 5
     var alarmPlayed: Boolean = false
@@ -30,10 +30,13 @@ class Updaten(CallerContext: Context, ApplicationContext: Context) : android.os.
     /**
      * @todo rewrite stocksTargets.withIndex loop so it does not recheck the same stock
      */
-    override fun doInBackground(vararg tickers: String): Int? {
+    override fun doInBackground(vararg activies : Object): Nothing? {
 
         var failcount = 0
         var iterationcount = 0
+
+        //mac = activies[0] as MainActivity
+        Log.e("Updaten", "I am in doInBackground")
 
         while (!isCancelled) {
             Log.d("updaten", "iteration #" + ++iterationcount)
@@ -74,8 +77,7 @@ class Updaten(CallerContext: Context, ApplicationContext: Context) : android.os.
             Utility.TryToSleepFor(8000)
         }
 
-        Log.d("Updaten", "doInBackground thread interrupted")
-        return 0
+        return null
     }
 
     fun SetPendingFinishedStock(stockid: Long) {
@@ -87,7 +89,6 @@ class Updaten(CallerContext: Context, ApplicationContext: Context) : android.os.
     /**
      * Just deleting it from the database doesn't update the UI.
      */
-    @Synchronized
     private fun DeletePendingFinishedStock() {
         try {
             if (alarmPlayed == true) {
@@ -106,7 +107,6 @@ class Updaten(CallerContext: Context, ApplicationContext: Context) : android.os.
      * @seealso [MainActivity.getStocklistFromDB], which uses database.use that closes the DB
      * This thread doesn't do that because it could conflict with [DeletePendingFinishedStock]
      */
-    @Synchronized
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
@@ -131,7 +131,9 @@ class Updaten(CallerContext: Context, ApplicationContext: Context) : android.os.
     override fun onProgressUpdate(vararg progress: String) {
         if (progress[0].equals("AlarmPlease")) { AlarmPlease(progress[1], progress[2], progress[3]) }
         else if (progress[0].equals("Currprice2UIPlease")) {
-            mac.adapter?.setCurrentPrice(progress[1].toLong(), progress[2].toDouble())
+            mac?.adapter?.setCurrentPrice(
+                progress[1].toLong(), progress[2].toDouble()
+            )
         }
     }
 
