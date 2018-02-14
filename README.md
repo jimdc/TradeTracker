@@ -1,6 +1,6 @@
 ## TradeTracker
 
-UI mockup [diagrams](https://github.com/jimdc/TradeTracker/blob/master/diagram.png) exported from http://draw.io/ on advfintech@gmail.com on Feb 9, 2018. More detailed specifications in KDocs.
+UI mockup diagrams exported from http://draw.io/ on advfintech@gmail.com on Feb 9, 2018. More detailed specifications in KDocs and the [wiki](https://github.com/jimdc/TradeTracker/wiki).
 
 ![What the home screen will look like](/MainActivity.png "Main Activity")
 
