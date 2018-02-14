@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-kapt'
 //apply plugin: 'org.jetbrains.dokka-android'
 
 android {
@@ -26,7 +27,7 @@ android {
         test.java.srcDirs += 'src/test/kotlin'
         androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
-    dataBinding { enabled = true }
+    //dataBinding { enabled = true }
 }
 
 dependencies {
@@ -52,7 +53,7 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     testCompile 'junit:junit:4.12'
     //classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
-    testCompile "org.mockito:mockito-core:2.+"
+    testCompile "org.mockito:mockito-core:2.15.0"
     testCompile "com.nhaarman:mockito-kotlin:1.5.0"
     testImplementation 'org.amshove.kluent:kluent:1.34'
     testImplementation 'org.amshove.kluent:kluent-android:1.34'

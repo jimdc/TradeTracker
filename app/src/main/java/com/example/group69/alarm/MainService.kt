@@ -20,10 +20,11 @@ class MainService : Service {
     private lateinit var mServiceHandler: ServiceHandler
     private val targetScanThread = HandlerThread("TutorialService",
             Process.THREAD_PRIORITY_BACKGROUND)
-    val updat = Updaten(this@MainService)
+    var updat: Updaten? = null
 
-    constructor(applicationContext: Context) : super() {
+    constructor(callerContext: Context) : super() {
         Log.i("MainService", "Constructor called")
+        updat = Updaten(this@MainService, callerContext)
     }
 
     constructor() {}
@@ -36,7 +37,7 @@ class MainService : Service {
         super.onCreate()
         toast("Target scanning")
 
-        if (updat.status != AsyncTask.Status.RUNNING) {
+        if (updat?.status != AsyncTask.Status.RUNNING) {
             Log.d("got", "starting!")
             targetScanThread.start()
 
@@ -77,8 +78,8 @@ class MainService : Service {
         Log.d("geld", "got destroyed")
         runTargetScan = false
         targetScanThread.interrupt()
-        if (updat.status == AsyncTask.Status.RUNNING) {
-            updat.cancel(true)
+        if (updat?.status == AsyncTask.Status.RUNNING) {
+            updat?.cancel(true)
         }
 
         toast("Stopping scan")
@@ -102,7 +103,8 @@ class MainService : Service {
             v.vibrate(num, -1)
 
             //if(updat.isRunning)
-            updat.execute("hi")
+            Log.v("MainService", "ServiceHandler starting")
+            updat?.execute("hi")
             var ii = 0
             while (!currentThread().isInterrupted) {
                 //showToast("Service, id: " + msg.arg1) //might decide to use the arg1 msg later
@@ -115,12 +117,11 @@ class MainService : Service {
             }
 
             toast("Scan stopped after $ii seconds")
-            updat.cancel(true)
+            updat?.cancel(true)
 
             //this would stop the service on it's own. we don't want that unless the user toggles scanning button to off
             stopSelf(msg.arg1)
             return
-
         }
     }
 }

@@ -6,6 +6,10 @@ import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
+import org.jetbrains.anko.db.*
+import org.jetbrains.anko.db.parseList
+import org.jetbrains.anko.db.rowParser
+import org.jetbrains.anko.db.select
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.support.v4.app.NotificationCompat
@@ -22,7 +26,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.widget.ListView
 import android.app.ActivityManager
-import android.databinding.DataBindingUtil
+//import android.databinding.DataBindingUtil
 
 /**
  * @param[isNotificActive] tracks if the notification is active on the taskbar.
@@ -45,12 +49,19 @@ class MainActivity : AppCompatActivity() {
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
 
+    var manager: SQLiteSingleton? = null
+    var database: android.database.sqlite.SQLiteDatabase? = null
+
     /**
      * Registers broadcast receiver, populates stock listview.
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        manager = SQLiteSingleton.getInstance(getApplicationContext())
+        database = manager?.writableDatabase
+
         setContentView(R.layout.activity_main)
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
@@ -81,6 +92,7 @@ class MainActivity : AppCompatActivity() {
      * @param[position] the index of the stock in [stocksList]; same as in UI
      * @return true if SQLite helper could find the stock to delete
      * @sample onCreate
+     * @todo just pass the stockid to the Updaten thread so it can delete it
      */
 
     fun deletestock(position: Int) : Boolean {
@@ -88,17 +100,19 @@ class MainActivity : AppCompatActivity() {
         return deletestockInternal(target.stockid);
     }
 
+    @Synchronized
     private fun deletestockInternal(stockid: Long) : Boolean {
-
         var rez = 0
 
-        database.use {
-            var rez = delete(NewestTableName, "_stockid = ?", arrayOf(stockid.toString()))
+        try {
+            var rez = database?.delete(NewestTableName, "_stockid=$stockid") ?: 0
 
             if (rez > 0) {
                 stocksList = getStocklistFromDB()
                 adapter?.refresh(stocksList)
             }
+        } catch (e: android.database.sqlite.SQLiteException) {
+            Log.e("MainActivity", "could not delete $stockid: " + e.toString())
         }
 
         return (rez > 0)
@@ -118,19 +132,18 @@ class MainActivity : AppCompatActivity() {
      * @return the rows of stocks, or an empty list if database fails
      * @seealso [Updaten.getStocklistFromDB]
      */
+    @Synchronized
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            database.use {
-                val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+            val sresult = database?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
-                sresult.exec {
-                    if (this.count > 0) {
-                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                            Stock(stockid, ticker, target, above, phone, crypto)
-                        }
-                        results = parseList(parser)
+            sresult?.exec {
+                if (this.count > 0) {
+                    val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                        Stock(stockid, ticker, target, above, phone, crypto)
                     }
+                    results = parseList(parser)
                 }
             }
         } catch (e: android.database.sqlite.SQLiteException) {

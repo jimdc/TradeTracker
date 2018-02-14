@@ -1,10 +1,13 @@
-package com.example.group69.alarm
+/*package com.example.group69.alarm
 
 import android.databinding.BaseObservable
 import android.databinding.Bindable
 
 import java.util.Observable
 
+/**
+ * Data binding will be implemented later. Too frustrating now
+ */
 class LiveStockData(private var stockid: Long, private var currPrice: Double) : BaseObservable() {
 
     @Bindable
@@ -26,4 +29,4 @@ class LiveStockData(private var stockid: Long, private var currPrice: Double) : 
         this.currPrice = newcurrPrice
         //notifyPropertyChanged(BR.currPrice)
     }
-}
+}*/

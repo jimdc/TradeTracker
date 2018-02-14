@@ -8,13 +8,14 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import com.example.group69.alarm.MainActivity
+//import android.databinding.DataBindingUtil
 
 /**
  * Converts a list of Stocks to a list of Views for the ListView container
  * @return a BaseAdapter that may be loaded into a ListView
  */
 class UserListAdapter(private var activity: Activity, private var items: List<Stock>): BaseAdapter() {
-    var currentPrices: MutableMap<Stock, Double> = mutableMapOf()
+    var currentPrices: MutableMap<Long, Double> = mutableMapOf()
 
     /**
      * @constructor Find the listview resources for internal class use
@@ -38,7 +39,11 @@ class UserListAdapter(private var activity: Activity, private var items: List<St
         val viewHolder: ViewHolder
         if (convertView == null) {
             val inflater = activity?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+            //val binding = DataBindingUtil.inflate(inflater, R.layout.user_list_row, null, false) as UserListRowBinding
+
             view = inflater.inflate(R.layout.user_list_row, null)
+
             viewHolder = ViewHolder(view)
             view?.tag = viewHolder
         } else {
@@ -48,13 +53,13 @@ class UserListAdapter(private var activity: Activity, private var items: List<St
 
         var stock = items[position]
         viewHolder.txtName?.text = stock.toString()
-        viewHolder.txtComment?.text = "Click to delete row # " + position.toString() + " @" + currentPrices[stock]
+        viewHolder.txtComment?.text = "Click to delete row # " + position.toString() + " @" + currentPrices[stock.stockid]
 
         return view as View
     }
 
-    fun setCurrentPrice(of: Stock, price: Double) {
-        currentPrices[of] = price
+    fun setCurrentPrice(stockid: Long, price: Double) {
+        currentPrices[stockid] = price
         notifyDataSetChanged()
     }
 

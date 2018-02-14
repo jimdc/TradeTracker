@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="livestockdat" type="com.example.group69.alarm.LiveStockData" />
+    </data>-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-
-    <!--<data>
-        <variable android:name="livestockdat"
-            android:type="com.example.group69.alarm.LiveStockData" />
-    </data>-->
-
     <ImageView
         android:id="@+id/imgAvatar"
         android:layout_width="48dp"
@@ -47,7 +46,8 @@
             android:id="@+id/txtComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Comment"/>
-            <!--android:text="@={livestockdat.currPrice}"-->
+            android:text="@={livestockdat.currPrice}"/>
+            <!--android:text="Comment"/>-->
     </LinearLayout>
 </RelativeLayout>
+<!--</layout>-->

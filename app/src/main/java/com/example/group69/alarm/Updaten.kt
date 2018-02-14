@@ -1,6 +1,7 @@
 package com.example.group69.alarm
 
 
+import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.util.Log
@@ -16,8 +17,10 @@ import android.os.Vibrator
 import java.util.*
 
 
-class Updaten(CallerContext: Context) : android.os.AsyncTask<String, String, Int>() {
+class Updaten(CallerContext: Context, ApplicationContext: Context) : android.os.AsyncTask<String, String, Int>() {
     var TutorialServiceContext = CallerContext
+    var mac = ApplicationContext as MainActivity
+
     var delStock: Long = 5
     var alarmPlayed: Boolean = false
 
@@ -84,6 +87,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<String, String, Int
     /**
      * Just deleting it from the database doesn't update the UI.
      */
+    @Synchronized
     private fun DeletePendingFinishedStock() {
         try {
             if (alarmPlayed == true) {
@@ -102,6 +106,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<String, String, Int
      * @seealso [MainActivity.getStocklistFromDB], which uses database.use that closes the DB
      * This thread doesn't do that because it could conflict with [DeletePendingFinishedStock]
      */
+    @Synchronized
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
@@ -125,11 +130,9 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<String, String, Int
 
     override fun onProgressUpdate(vararg progress: String) {
         if (progress[0].equals("AlarmPlease")) { AlarmPlease(progress[1], progress[2], progress[3]) }
-        else if (progress[0].equals("Currprice2UIPlease")) { Currprice2UIPlease(progress[1], progress[2]) }
-    }
-
-    fun Currprice2UIPlease(stockid: String, price: String) {
-
+        else if (progress[0].equals("Currprice2UIPlease")) {
+            mac.adapter?.setCurrentPrice(progress[1].toLong(), progress[2].toDouble())
+        }
     }
 
     fun AlarmPlease(ticker: String, price: String, ab: String) {
