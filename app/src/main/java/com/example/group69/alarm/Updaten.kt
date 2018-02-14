@@ -61,10 +61,9 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                 Log.d("updaten ", "might be empty list: ")
             }
 
-            for ((a, stockx) in stocksTargets.withIndex()) { //this needs to be tweaked as now it will recheck the same stock
-
+            for ((a, stockx) in stocksTargets.withIndex()) {
+                //this needs to be tweaked as now it will recheck the same stock
                 val ticker: String = stockx.ticker
-                //the yahoo api when it could save time by using the saved value for that stock in a table
                 var currPrice = -2.0
                 try {
                     currPrice = if (stockx.crypto == 1L) {
@@ -76,15 +75,6 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                     Log.d("Errorlog", "got the price: " + currPrice)
                 } catch (e: Exception) {
                     currPrice = -3.0
-                    //TODO
-                    //when returning the stock's current price to update the gui (which will only happen when gui is opened or remains opened)
-                    //we will show the current price of the stock (updates minimum every 10 seconds, more than that will drain battery)
-                    //if we get back -3.0 as the error code, we will display 'failed to obtain price, alert paused',
-                    // if ALL stocks in stock list have this problem, but cryptos work: (or vise-versa): we will let user know that there is an error
-                    // connecting to the stock/crypto exchange server
-                    // if both are not working simultaneously: we will display that there is no data connection/wifi found, scanning will resume
-                    // automatically when connection is found.
-
                     //for now just checking to see if all stocks are returning -3.0
                     Log.d("Errorlog", "got stock " + stockx.ticker + " caused NPE!")
                 }
@@ -101,14 +91,13 @@ class Updaten(ctx: Context) : android.os.AsyncTask<String, String, Int>() {
                         publishProgress(stockx.ticker, stockx.target.toString(), stockx.above.toString()) //return index so we know which stock to remove from database
                         delStock = stockx.stockid
                     }
-                } else { //if price is less than 0, we have an error from network, might be one stock. if it is all we will find out with:
+                } else {
+                    //if price is less than 0, we have an error from network, might be one stock.
+                    //If it is all we will find out with:
                     failcount++
                 }
             }
             if (failcount == stocksTargets.size) {
-                //TODO this is where broadcaster will send the mainActivity to
-                // update stock prices as ERROR and give a single notification about network connection being lost.
-                //we dont want to spam network connection lost every minute!!!
                 Log.d("got", "network connection error, all stocks getting -3.0")
                 try {
                     Thread.sleep(60000)

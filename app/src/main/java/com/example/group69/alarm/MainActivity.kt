@@ -75,12 +75,7 @@ class MainActivity : AppCompatActivity() {
                 alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
                     positiveButton("Yes") {
                         var deleted = deletestock(position)
-
-                        if (deleted) {
-                            toast("Row " + position.toString() + " deleted.")
-                        } else {
-                            toast("Row " + position.toString() + " not deleted.")
-                        }
+                        toast("Row " + position.toString() + if (deleted==true) (" deleted.") else "not deleted.")
                     }
                     negativeButton("No") {  toast("OK, nothing was deleted.") }
                 }.show()
