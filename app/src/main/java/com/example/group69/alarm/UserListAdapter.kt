@@ -14,6 +14,7 @@ import com.example.group69.alarm.MainActivity
  * @return a BaseAdapter that may be loaded into a ListView
  */
 class UserListAdapter(private var activity: Activity, private var items: List<Stock>): BaseAdapter() {
+    var currentPrices: MutableMap<Stock, Double> = mutableMapOf()
 
     /**
      * @constructor Find the listview resources for internal class use
@@ -47,9 +48,14 @@ class UserListAdapter(private var activity: Activity, private var items: List<St
 
         var stock = items[position]
         viewHolder.txtName?.text = stock.toString()
-        viewHolder.txtComment?.text = "Click to delete row # " + position.toString()
+        viewHolder.txtComment?.text = "Click to delete row # " + position.toString() + " @" + currentPrices[stock]
 
         return view as View
+    }
+
+    fun setCurrentPrice(of: Stock, price: Double) {
+        currentPrices[of] = price
+        notifyDataSetChanged()
     }
 
     override fun getItem(i: Int): Stock {

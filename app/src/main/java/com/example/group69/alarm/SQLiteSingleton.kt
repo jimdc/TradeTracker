@@ -11,19 +11,19 @@ val NewestTableName = "TableView2"
  * Anko class to avoid having to manually open, close, try, catch.
  * Enables worry-free use of <code>database.use { }</code>
  */
-class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabaseName) {
+class SQLiteSingleton(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabaseName) {
     private val mDatabase: SQLiteDatabase? = null
-    private val mInstance: MySqlHelper? = null
+    private val mInstance: SQLiteSingleton? = null
     private val mContext: Context? = null
 
     companion object {
-        private var instance: MySqlHelper? = null
+        private var instance: SQLiteSingleton? = null
         val dbVersion = 1
 
         @Synchronized
-        fun getInstance(ctx: Context): MySqlHelper {
+        fun getInstance(ctx: Context): SQLiteSingleton {
             if (instance == null) {
-                instance = MySqlHelper(ctx.applicationContext)
+                instance = SQLiteSingleton(ctx.applicationContext)
             }
             return instance!!
         }
@@ -47,6 +47,6 @@ class MySqlHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabaseNam
 }
 
 // Access property for Context
-val Context.database: MySqlHelper
-    get() = MySqlHelper.getInstance(applicationContext)
+val Context.database: SQLiteSingleton
+    get() = SQLiteSingleton.getInstance(applicationContext)
 

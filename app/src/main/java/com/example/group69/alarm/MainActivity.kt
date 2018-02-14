@@ -51,7 +51,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        LocalBroadcastManager.getInstance(this).registerReceiver(resultReceiver, IntentFilter("com.example.group69.alarm"))
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                resultReceiver, IntentFilter("com.example.group69.alarm"))
 
         stocksList = getStocklistFromDB()
         if (stocksList.isEmpty()) {
@@ -90,19 +91,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deletestockInternal(stockid: Long) : Boolean {
+
         var rez = 0
 
         database.use {
-            rez = delete(NewestTableName, "_stockid = ?", arrayOf(stockid.toString()))
+            var rez = delete(NewestTableName, "_stockid = ?", arrayOf(stockid.toString()))
+
+            if (rez > 0) {
+                stocksList = getStocklistFromDB()
+                adapter?.refresh(stocksList)
+            }
         }
 
-        if (rez > 0) {
-            stocksList = getStocklistFromDB()
-            adapter?.refresh(stocksList)
-            return true
-        }
-
-        return false
+        return (rez > 0)
     }
 
     /**
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * Queries database [NewestTableName] for stocks list and returns it
      * @return the rows of stocks, or an empty list if database fails
-     * @seealso [Updaten.getStocklistFromDB], it should be identical
+     * @seealso [Updaten.getStocklistFromDB]
      */
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
@@ -126,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                 val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
                 sresult.exec {
-                    if (count > 0) {
+                    if (this.count > 0) {
                         val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
                             Stock(stockid, ticker, target, above, phone, crypto)
                         }
@@ -242,7 +243,6 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * @return BroadcastReceiver that logs when it is registered
-     * @todo delete the stock after the alarm is set.
      */
     private fun createBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {

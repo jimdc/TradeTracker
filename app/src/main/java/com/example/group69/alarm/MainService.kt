@@ -109,11 +109,8 @@ class MainService : Service {
                 //if(ii>0 && ii%15 == 0){
                 //toast("Target scan has been running for " + ii + " seconds")
                 //}
-                try {
-                    sleep(5000)
-                } catch (e: InterruptedException) {
-                    currentThread().interrupt()
-                }
+
+                Utility.TryToSleepFor(5000)
                 ii++
             }
 

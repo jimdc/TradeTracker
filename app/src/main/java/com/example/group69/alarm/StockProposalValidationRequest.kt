@@ -3,7 +3,6 @@ package com.example.group69.alarm
 import android.content.Context;
 import android.util.Log
 import android.widget.Toast
-import java.lang.ref.*
 
 /**
  * This class would asynchronously check if a stock really exists before doing an edit.
@@ -19,7 +18,7 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
 
         Log.d("DIB", "starting doInBackground")
 
-        val manager: MySqlHelper = MySqlHelper.getInstance(context)
+        val manager: SQLiteSingleton = SQLiteSingleton.getInstance(context)
         val database = manager.writableDatabase
 
         for (stock in stocks) {
