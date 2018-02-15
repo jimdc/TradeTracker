@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/addstockButton"
-        android:onClick="addcrypto"
+        android:onClick="LaunchAddCryptoActivity"
         android:text="@string/addcrypto" />
 
     <Button
@@ -19,7 +19,7 @@
         android:text="@string/addstock"
         android:id="@+id/addstockButton"
         android:layout_alignParentStart="true"
-        android:onClick="addstock" />
+        android:onClick="LaunchAddStockActivity" />
 
     <ListView
         android:id="@+id/listView"

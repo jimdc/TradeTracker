@@ -44,6 +44,19 @@ class SQLiteSingleton(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabas
         onCreate(db)
     }
 
+    /**
+     * @todo implement for [SQLiteSingletontest]
+     */
+    fun clearDbAndRecreate() {
+
+    }
+
+    /**
+     * @todo implement for [SQLiteSingletontest]
+     */
+    fun clearDb() {
+
+    }
 }
 
 // Access property for Context

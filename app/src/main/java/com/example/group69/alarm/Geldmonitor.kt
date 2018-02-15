@@ -45,6 +45,11 @@ object Geldmonitor {
         return ret
     }
 
+    /**
+     * Debug function
+     * @param[url] The webpage you want to open
+     * @return A string of the HTML output
+     */
     fun linez(url: String): String {
         val inStream = InputStreamReader(URL(url).openConnection().getInputStream())
         return BufferedReader(inStream).use { it.readText() } as String

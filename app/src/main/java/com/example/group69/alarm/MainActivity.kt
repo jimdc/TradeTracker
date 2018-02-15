@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
+import android.database.sqlite.SQLiteException
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.view.ViewGroup
@@ -97,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
     fun deletestock(position: Int) : Boolean {
         val target = stocksList.get(position) as Stock
-        return deletestockInternal(target.stockid);
+        return deletestockInternal(target.stockid)
     }
 
     @Synchronized
@@ -113,7 +114,7 @@ class MainActivity : AppCompatActivity() {
                     adapter?.refresh(stocksList)
                 }
             }
-        } catch (e: android.database.sqlite.SQLiteException) {
+        } catch (e: SQLiteException) {
             Log.e("MainActivity", "could not delete $stockid: " + e.toString())
         }
 
@@ -150,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-        } catch (e: android.database.sqlite.SQLiteException) {
+        } catch (e: SQLiteException) {
             Log.e("err gSlFDB: ", e.toString())
         }
 
@@ -244,7 +245,7 @@ class MainActivity : AppCompatActivity() {
      * Launch [AddEditStockActivity] with empty, crypto assumptions
      * @param[view] required for onClick
      */
-    fun addcrypto(view: View) {
+    fun LaunchAddCryptoActivity(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
     }
 
@@ -252,7 +253,7 @@ class MainActivity : AppCompatActivity() {
      * Launch [AddEditStockActivity] with empty, noncrypto assumptions
      * @param[view] required for onClick
      */
-    fun addstock(view: View) {
+    fun LaunchAddStockActivity(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
     }
 

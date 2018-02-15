@@ -1,7 +1,6 @@
 package com.example.group69.alarm
 
 
-import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.util.Log
@@ -11,7 +10,7 @@ import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
 import android.support.v4.content.LocalBroadcastManager
-import android.view.View
+import android.database.sqlite.SQLiteException
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
@@ -21,14 +20,18 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
     var TutorialServiceContext = CallerContext
     var mac: MainActivity? = null
 
-    var delStock: Long = 5
+    var IdOfStockToDelete: Long = 5
     var alarmPlayed: Boolean = false
 
     val manager: SQLiteSingleton = SQLiteSingleton.getInstance(this.TutorialServiceContext)
     val database = manager.writableDatabase
 
     /**
-     * @todo rewrite stocksTargets.withIndex loop so it does not recheck the same stock
+     * Iterates through the stocks found by querying [getStocklistFromDB]
+     * If current price meets criteria, send to [onProgressUpdate] for alarm
+     * If [Geldmonitor] functions return negative (error) for all stocks, err
+     * @todo send current price to [onProgressUpdate] to update the UI as well
+     * @todo Reduce calls to [getStocklistFromDB] by signalling if DB changed
      */
     override fun doInBackground(vararg activies : Object): Nothing? {
 
@@ -36,8 +39,6 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         var iterationcount = 0
 
         //mac = activies[0] as MainActivity
-        Log.e("Updaten", "I am in doInBackground")
-
         while (!isCancelled) {
             Log.d("updaten", "iteration #" + ++iterationcount)
 
@@ -80,24 +81,28 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         return null
     }
 
+    /**
+     * @param[stockid] The stock you want to mark for [DeletePendingFinishedStock]
+     */
     fun SetPendingFinishedStock(stockid: Long) {
         alarmPlayed = true
-        delStock = stockid
+        IdOfStockToDelete = stockid
         Log.v("Updaten", "scheduled deletion of stock $stockid")
     }
 
     /**
-     * Just deleting it from the database doesn't update the UI.
+     * If [alarmPlayed] is true, delete [IdOfStockToDelete] from database.
+     * @todo Update the UI as well, perhaps through [OnProgressUpdate] ?
      */
     private fun DeletePendingFinishedStock() {
         try {
             if (alarmPlayed == true) {
-                database.delete(NewestTableName, "_stockid=$delStock")
+                database.delete(NewestTableName, "_stockid=$IdOfStockToDelete")
                 alarmPlayed = false
-                Log.v("Updaten", "deleted completed stock $delStock")
+                Log.v("Updaten", "deleted completed stock $IdOfStockToDelete")
             }
-        } catch (e: android.database.sqlite.SQLiteException) {
-            Log.e("Updaten", "could not delete $delStock: " + e.toString())
+        } catch (e: SQLiteException) {
+            Log.e("Updaten", "could not delete $IdOfStockToDelete: " + e.toString())
         }
     }
 
@@ -120,14 +125,19 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
                     results = parseList(parser)
                 }
             }
-        } catch (e: android.database.sqlite.SQLiteException) {
+        } catch (e: SQLiteException) {
             Log.e("Updaten", "couldn' get stock list from DB: " + e.toString())
         }
 
         return results
     }
 
-
+    /**
+     * Depending on first element of [progress], either:
+     * 1. Sends a broadcast to notify, alarm, and vibrate
+     * 2. Somehow sets the UI to the current price.
+     * @param[progress] "AlarmPlease" or "Currprice2UIPlease"
+     */
     override fun onProgressUpdate(vararg progress: String) {
         if (progress[0].equals("AlarmPlease")) { AlarmPlease(progress[1], progress[2], progress[3]) }
         else if (progress[0].equals("Currprice2UIPlease")) {
@@ -138,7 +148,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
     }
 
     fun AlarmPlease(ticker: String, price: String, ab: String) {
-        playAlarm(ticker, price, ab)
+        BroadcastSystemAlarm(ticker, price, ab)
 
         val intent = Intent("com.example.group69.alarm")
         intent.putExtra(ticker, price)
@@ -152,7 +162,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
      * @param[price] The new, noteworthy price
      * @param[ab] "1" means above, something else like "0" means below
      */
-    fun playAlarm(ticker: String, price: String, ab: String) {
+    fun BroadcastSystemAlarm(ticker: String, price: String, ab: String) {
 
         Log.v("Updaten", "Building alarm with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5

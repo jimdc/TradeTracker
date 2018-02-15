@@ -38,7 +38,7 @@ class MainService : Service {
         super.onCreate()
         toast("Target scanning")
 
-        if (updat?.status != AsyncTask.Status.RUNNING) {
+        if (updat.status != AsyncTask.Status.RUNNING) {
             Log.d("got", "starting!")
             targetScanThread.start()
 
@@ -79,8 +79,8 @@ class MainService : Service {
         Log.d("geld", "got destroyed")
         runTargetScan = false
         targetScanThread.interrupt()
-        if (updat?.status == AsyncTask.Status.RUNNING) {
-            updat?.cancel(true)
+        if (updat.status == AsyncTask.Status.RUNNING) {
+            updat.cancel(true)
         }
 
         toast("Stopping scan")
@@ -99,9 +99,12 @@ class MainService : Service {
          */
         override fun handleMessage(msg: Message) {
             // Add your cpu-blocking activity here
-            val v = this@MainService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            val num: LongArray = longArrayOf(0, 100)
-            v.vibrate(num, -1)
+            val VibratorService = this@MainService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+            val VibratorWaitDuration: LongArray = longArrayOf(0, //Millisecond of vibrator duration
+                    100) //Milliseconds before turning the vibrator on
+
+            VibratorService.vibrate(VibratorWaitDuration, -1)
 
             //if(updat.isRunning)
             Log.v("MainService", "ServiceHandler starting")
@@ -109,7 +112,8 @@ class MainService : Service {
             //mMainActivity did not initialize at this point, even though log from constructor is called
             //updat.execute(mMainActivity as Object)
             updat.execute()
-            var ii = 0
+            var SecondsSinceScanStarted = 0
+
             while (!currentThread().isInterrupted) {
                 //showToast("Service, id: " + msg.arg1) //might decide to use the arg1 msg later
                 //if(ii>0 && ii%15 == 0){
@@ -117,10 +121,10 @@ class MainService : Service {
                 //}
 
                 Utility.TryToSleepFor(5000)
-                ii++
+                SecondsSinceScanStarted++
             }
 
-            toast("Scan stopped after $ii seconds")
+            toast("Scan stopped after $SecondsSinceScanStarted seconds")
             updat.cancel(true)
 
             //this would stop the service on it's own. we don't want that unless the user toggles scanning button to off

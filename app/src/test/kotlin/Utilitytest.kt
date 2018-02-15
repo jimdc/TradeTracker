@@ -7,9 +7,6 @@ import org.mockito.Mockito.*;
 import com.example.group69.alarm.Utility
 import org.amshove.kluent.shouldEqual
 
-/**
- * Only working unit test. Woo!
- */
 class Utilitytest {
 
     @Test
