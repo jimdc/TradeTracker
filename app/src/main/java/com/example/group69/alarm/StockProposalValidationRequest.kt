@@ -28,9 +28,9 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
             }
 
             var rownum: Long? = 666
-            Datenbank?.use {
+            //Datenbank?.use {
                 rownum = Datenbank?.replace(NewestTableName, null, stock.ContentValues())
-            }
+            //}
 
             var result = context.getResources().getString(R.string.fail2edit)
             if (rownum != -1L) {

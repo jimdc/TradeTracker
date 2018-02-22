@@ -100,14 +100,14 @@ class MainActivity : AppCompatActivity() {
         var rez = 0
 
         try {
-            Datenbank.use {
+            //Datenbank.use {
                 var rez = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
 
                 if (rez!! > 0) {
                     stocksList = getStocklistFromDB()
                     adapter?.refresh(stocksList)
                 }
-            }
+            //}
         } catch (e: SQLiteException) {
             Log.e("MainActivity", "could not delete $stockid: " + e.toString())
         }
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            Datenbank.use {
+            //Datenbank.use {
                 val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
                 sresult?.exec {
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                         results = parseList(parser)
                     }
                 }
-            }
+            //}
         } catch (e: SQLiteException) {
             Log.e("err gSlFDB: ", e.toString())
         }

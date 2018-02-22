@@ -98,9 +98,9 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
     private fun DeletePendingFinishedStock() {
         try {
                 if (alarmPlayed == true) {
-                    Datenbank.use {
+                    //Datenbank.use {
                         Datenbank?.delete(NewestTableName, "_stockid=$IdOfStockToDelete")
-                    }
+                    //}
                     alarmPlayed = false
                     Log.v("Updaten", "deleted completed stock $IdOfStockToDelete")
                 }
@@ -118,7 +118,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            Datenbank.use {
+            //Datenbank.use {
                 val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
                 sresult?.exec {
@@ -129,7 +129,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
                         results = parseList(parser)
                     }
                 }
-            }
+            //}
         } catch (e: SQLiteException) {
             Log.e("Updaten", "couldn' get stock list from DB: " + e.toString())
         }
