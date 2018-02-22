@@ -17,7 +17,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
     /**
      * Customizes the UI based on intent extras "EditingCrypto" and "EditingExisting"
-     * @todo make more modular by having database interaction in own function
+     * @todo make more modular by having Datenbank interaction in own function
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -25,8 +25,9 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/addcryptoButton"
-        android:layout_alignParentStart="true">
+        android:layout_above="@+id/button"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/addcryptoButton">
 
     </ListView>
 
@@ -48,5 +49,16 @@
         android:layout_alignParentEnd="true"
         android:text="Stop Scanning"
         android:onClick="stopService" />
+
+    <Switch
+        android:id="@+id/ScanningSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/button2"
+        android:layout_marginStart="32dp"
+        android:text="Not scanning"
+        android:textOff="Service off"
+        android:textOn="Service on" />
 
 </RelativeLayout>

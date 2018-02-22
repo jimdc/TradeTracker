@@ -1,6 +1,5 @@
 package com.example.group69.alarm
 
-import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
@@ -11,22 +10,19 @@ import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.database.sqlite.SQLiteException
-import android.support.v7.widget.LinearLayoutManager
 import android.view.View
-import android.view.ViewGroup
 import android.util.Log
-import org.jetbrains.anko.db.*
 import org.jetbrains.anko.*
-import java.util.GregorianCalendar
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.widget.ListView
 import android.app.ActivityManager
+import android.database.sqlite.SQLiteDatabase
+
 //import android.databinding.DataBindingUtil
 
 /**
@@ -34,6 +30,9 @@ import android.app.ActivityManager
  * @param[notificationManager] allows us to notify user that something happened in the backgorund.
  * @param[notifID] is used to track notifications
  */
+
+lateinit var manager: ManagedSQLiteOpenHelper
+lateinit var Datenbank: SQLiteDatabase
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,9 +49,6 @@ class MainActivity : AppCompatActivity() {
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
 
-    //var manager: SQLiteSingleton? = null
-    //var database: android.database.sqlite.SQLiteDatabase? = null
-
     /**
      * Registers broadcast receiver, populates stock listview.
      */
@@ -60,16 +56,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //manager = SQLiteSingleton.getInstance(getApplicationContext())
-        //database = manager?.writableDatabase
+        manager = SQLiteSingleton.getInstance(getApplicationContext())
+        com.example.group69.alarm.Datenbank = manager.writableDatabase
 
         setContentView(R.layout.activity_main)
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
-        stocksList = getStocklistFromDB()
-        Log.v("MainActivity", if (stocksList.isEmpty()) "stocksList is now empty." else
-            "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
+        //stocksList = getStocklistFromDB()
+        //Log.v("MainActivity", if (stocksList.isEmpty()) "stocksList is now empty." else
+        //    "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
 
         listView = findViewById<ListView>(R.id.listView)
         adapter = UserListAdapter(this, stocksList)
@@ -81,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
                 positiveButton("Yes") {
                     toast("Row " + position.toString() +
-                            if (deletestock(position)==true) (" deleted.") else "not deleted.")
+                            if (deletestock(position)==true) (" deleted.") else " not deleted.")
                 }
                 negativeButton("No") {  toast("OK, nothing was deleted.") }
             }.show()
@@ -89,7 +85,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Deletes the stock from database, from [stocksList], and refreshes UI.
+     * Deletes the stock from Datenbank, from [stocksList], and refreshes UI.
      * @param[position] the index of the stock in [stocksList]; same as in UI
      * @return true if SQLite helper could find the stock to delete
      * @sample onCreate
@@ -106,8 +102,8 @@ class MainActivity : AppCompatActivity() {
         var rez = 0
 
         try {
-            database.use {
-                var rez = delete(NewestTableName, "_stockid=$stockid") ?: 0
+            Datenbank.use {
+                var rez = Datenbank.delete(NewestTableName, "_stockid=$stockid")
 
                 if (rez > 0) {
                     stocksList = getStocklistFromDB()
@@ -122,7 +118,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Updates [stocksList] from database then refreshes UI
+     * Updates [stocksList] from Datenbank then refreshes UI
      */
     override fun onResume() {
         super.onResume()
@@ -131,16 +127,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Queries database [NewestTableName] for stocks list and returns it
-     * @return the rows of stocks, or an empty list if database fails
+     * Queries Datenbank [NewestTableName] for stocks list and returns it
+     * @return the rows of stocks, or an empty list if Datenbank fails
      * @seealso [Updaten.getStocklistFromDB]
      */
     @Synchronized
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            database.use {
-                val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+            Datenbank.use {
+                val sresult = Datenbank.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
                 sresult?.exec {
                     if (this.count > 0) {

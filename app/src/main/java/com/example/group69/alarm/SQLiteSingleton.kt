@@ -9,7 +9,7 @@ val NewestTableName = "TableView2"
 
 /**
  * Anko class to avoid having to manually open, close, try, catch.
- * Enables worry-free use of <code>database.use { }</code>
+ * Enables worry-free use of <code>Datenbank.use { }</code>
  */
 class SQLiteSingleton(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabaseName) {
     private val mDatabase: SQLiteDatabase? = null

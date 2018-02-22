@@ -5,6 +5,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.util.Log
 import android.content.Context
+import org.jetbrains.anko.*
 import org.jetbrains.anko.db.*
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
@@ -22,9 +23,6 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
 
     var IdOfStockToDelete: Long = 5
     var alarmPlayed: Boolean = false
-
-    val manager: SQLiteSingleton = SQLiteSingleton.getInstance(this.TutorialServiceContext)
-    val database = manager.writableDatabase
 
     /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
@@ -91,38 +89,42 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
     }
 
     /**
-     * If [alarmPlayed] is true, delete [IdOfStockToDelete] from database.
+     * If [alarmPlayed] is true, delete [IdOfStockToDelete] from Datenbank.
      * @todo Update the UI as well, perhaps through [OnProgressUpdate] ?
      */
     private fun DeletePendingFinishedStock() {
         try {
-            if (alarmPlayed == true) {
-                database.delete(NewestTableName, "_stockid=$IdOfStockToDelete")
-                alarmPlayed = false
-                Log.v("Updaten", "deleted completed stock $IdOfStockToDelete")
-            }
+                if (alarmPlayed == true) {
+                    Datenbank.use {
+                        Datenbank.delete(NewestTableName, "_stockid=$IdOfStockToDelete")
+                    }
+                    alarmPlayed = false
+                    Log.v("Updaten", "deleted completed stock $IdOfStockToDelete")
+                }
         } catch (e: SQLiteException) {
             Log.e("Updaten", "could not delete $IdOfStockToDelete: " + e.toString())
         }
     }
 
     /**
-     * Queries database [NewestTableName] for stocks list and returns it
-     * @return the rows of stocks, or an empty list if database fails
-     * @seealso [MainActivity.getStocklistFromDB], which uses database.use that closes the DB
+     * Queries Datenbank [NewestTableName] for stocks list and returns it
+     * @return the rows of stocks, or an empty list if Datenbank fails
+     * @seealso [MainActivity.getStocklistFromDB], which uses Datenbank.use that closes the DB
      * This thread doesn't do that because it could conflict with [DeletePendingFinishedStock]
      */
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            val sresult = database.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+            Datenbank.use {
+                val sresult = Datenbank.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
-            sresult.exec {
-                if (count > 0) {
-                    val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                        Stock(stockid, ticker, target, above, phone, crypto)
+                sresult.exec {
+                    if (count > 0) {
+                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
+                            Stock(stockid, ticker, target, above, phone, crypto)
+                        }
+                        results = parseList(parser)
                     }
-                    results = parseList(parser)
                 }
             }
         } catch (e: SQLiteException) {
