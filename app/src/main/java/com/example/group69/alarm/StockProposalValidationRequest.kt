@@ -6,20 +6,18 @@ import android.widget.Toast
 
 /**
  * This class would asynchronously check if a stock really exists before doing an edit.
- * It has not been completely implemented yet.
+ * @see it used in the onclick listener in [AddEditStockActivity]
  * @todo Check if the stock really exists before doing the edit
  */
 class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock, Int, CharSequence>() {
     //Parameters are: param, progress, result
 
+    val Datenbank = DatabaseManager.getInstance().database
     private val context: Context = ctx
 
     override fun doInBackground(vararg stocks: Stock): CharSequence? {
 
         Log.d("DIB", "starting doInBackground")
-
-        val manager: SQLiteSingleton = SQLiteSingleton.getInstance(context)
-        val database = manager.writableDatabase
 
         for (stock in stocks) {
             Log.d("DIB", "doInBackground for stock " + stock.ticker)
@@ -29,9 +27,9 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
                 return context.getResources().getString(R.string.NaN, "NaN") //It's a Double, so... fix later
             }
 
-            var rownum: Long = 666
-            database.use {
-                rownum = database.replace(NewestTableName, null, stock.ContentValues())
+            var rownum: Long? = 666
+            Datenbank?.use {
+                rownum = Datenbank?.replace(NewestTableName, null, stock.ContentValues())
             }
 
             var result = context.getResources().getString(R.string.fail2edit)
@@ -41,6 +39,7 @@ class StockProposalValidationRequest(ctx: Context) : android.os.AsyncTask<Stock,
                         "#${rownum}: " + stock.toString()
             }
 
+            DatabaseManager.getInstance().database.close()
             return result
         }
 

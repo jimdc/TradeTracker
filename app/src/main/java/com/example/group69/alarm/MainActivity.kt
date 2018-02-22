@@ -1,6 +1,7 @@
 package com.example.group69.alarm
 
 import android.app.NotificationManager
+import android.database.sqlite.SQLiteOpenHelper
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
@@ -31,9 +32,6 @@ import android.database.sqlite.SQLiteDatabase
  * @param[notifID] is used to track notifications
  */
 
-lateinit var manager: ManagedSQLiteOpenHelper
-lateinit var Datenbank: SQLiteDatabase
-
 class MainActivity : AppCompatActivity() {
 
     private var mServiceIntent: Intent? = null
@@ -48,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
-
+    var Datenbank: SQLiteDatabase? = null
     /**
      * Registers broadcast receiver, populates stock listview.
      */
@@ -56,8 +54,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        manager = SQLiteSingleton.getInstance(getApplicationContext())
-        com.example.group69.alarm.Datenbank = manager.writableDatabase
+        DatabaseManager.initializeInstance(DatabaseHelper(this.applicationContext))
+        Datenbank = DatabaseManager.getInstance().database
 
         setContentView(R.layout.activity_main)
         LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -103,9 +101,9 @@ class MainActivity : AppCompatActivity() {
 
         try {
             Datenbank.use {
-                var rez = Datenbank.delete(NewestTableName, "_stockid=$stockid")
+                var rez = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
 
-                if (rez > 0) {
+                if (rez!! > 0) {
                     stocksList = getStocklistFromDB()
                     adapter?.refresh(stocksList)
                 }
@@ -136,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         var results: List<Stock> = ArrayList()
         try {
             Datenbank.use {
-                val sresult = Datenbank.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+                val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
                 sresult?.exec {
                     if (this.count > 0) {
@@ -283,6 +281,7 @@ class MainActivity : AppCompatActivity() {
         if (resultReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
         }
+        DatabaseManager.getInstance().database.close()
         super.onDestroy()
     }
 }

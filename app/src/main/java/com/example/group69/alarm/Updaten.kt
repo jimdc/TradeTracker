@@ -24,6 +24,8 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
     var IdOfStockToDelete: Long = 5
     var alarmPlayed: Boolean = false
 
+    val Datenbank = DatabaseManager.getInstance().database
+
     /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
      * If current price meets criteria, send to [onProgressUpdate] for alarm
@@ -76,6 +78,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
             Utility.TryToSleepFor(8000)
         }
 
+        DatabaseManager.getInstance().database.close()
         return null
     }
 
@@ -96,7 +99,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         try {
                 if (alarmPlayed == true) {
                     Datenbank.use {
-                        Datenbank.delete(NewestTableName, "_stockid=$IdOfStockToDelete")
+                        Datenbank?.delete(NewestTableName, "_stockid=$IdOfStockToDelete")
                     }
                     alarmPlayed = false
                     Log.v("Updaten", "deleted completed stock $IdOfStockToDelete")
@@ -116,9 +119,9 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         var results: List<Stock> = ArrayList()
         try {
             Datenbank.use {
-                val sresult = Datenbank.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+                val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
-                sresult.exec {
+                sresult?.exec {
                     if (count > 0) {
                         val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
                             Stock(stockid, ticker, target, above, phone, crypto)

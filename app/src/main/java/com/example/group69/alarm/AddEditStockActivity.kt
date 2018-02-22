@@ -52,10 +52,11 @@ class AddEditStockActivity : AppCompatActivity() {
             phoneChecked.setChecked(thestock.phone < 1)
 
             deletebutton.setOnClickListener { view ->
-                var nraffected: Int = 0
+                val Datenbank = DatabaseManager.getInstance().database
+                var nraffected: Int? = 0
 
-                database.use {
-                    nraffected = delete(NewestTableName, "_stockid=$stockid")
+                Datenbank?.use {
+                    nraffected = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
                 }
 
                 if (nraffected == 1) {
@@ -63,7 +64,7 @@ class AddEditStockActivity : AppCompatActivity() {
                 } else if (nraffected == 0) {
                     toast(resources.getString(R.string.delfail))
                 }
-
+                DatabaseManager.getInstance().database.close()
                 finish()
             }
         } else { //adding a new stock
