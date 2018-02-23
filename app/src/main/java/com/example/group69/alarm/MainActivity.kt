@@ -62,6 +62,8 @@ class MainActivity : AppCompatActivity() {
             dbService = binder.service
             dbsBound = true
             Log.d("MainActivity", "dbService connected")
+            stocksList = dbService.getStocklistFromDB()
+            adapter?.refresh(stocksList)
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -83,11 +85,6 @@ class MainActivity : AppCompatActivity() {
         var intent = Intent(this, DatabaseService::class.java)
         if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
             Log.e("MainActivity", "onCreate: not able to bind dbConnection")
-
-        //DatabaseService isn't bound until after onCreate
-        //stocksList = getStocklistFromDB()
-        //Log.v("MainActivity", if (stocksList.isEmpty()) "stocksList is now empty." else
-        //    "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
 
         listView = findViewById<ListView>(R.id.listView)
         adapter = UserListAdapter(this, stocksList)
