@@ -23,6 +23,11 @@ import android.content.IntentFilter
 import android.widget.ListView
 import android.app.ActivityManager
 import android.database.sqlite.SQLiteDatabase
+import android.app.Service
+import android.content.ServiceConnection
+import android.content.ComponentName
+import android.os.IBinder
+import android.os.Binder
 
 //import android.databinding.DataBindingUtil
 
@@ -31,6 +36,9 @@ import android.database.sqlite.SQLiteDatabase
  * @param[notificationManager] allows us to notify user that something happened in the backgorund.
  * @param[notifID] is used to track notifications
  */
+
+lateinit var dbService: DatabaseService
+var dbsBound: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,7 +54,21 @@ class MainActivity : AppCompatActivity() {
 
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
-    var Datenbank: SQLiteDatabase? = null
+
+    var dbConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as DatabaseService.LocalBinder
+            dbService = binder.service
+            dbsBound = true
+            Log.d("MainActivity", "dbService connected")
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            dbsBound = false
+        }
+    }
+
     /**
      * Registers broadcast receiver, populates stock listview.
      */
@@ -54,13 +76,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        DatabaseManager.initializeInstance(DatabaseHelper(this.applicationContext))
-        Datenbank = DatabaseManager.getInstance().database
-
         setContentView(R.layout.activity_main)
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
+        var intent = Intent(this, DatabaseService::class.java)
+        if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
+            Log.e("MainActivity", "onCreate: not able to bind dbConnection")
+
+        //DatabaseService isn't bound until after onCreate
         //stocksList = getStocklistFromDB()
         //Log.v("MainActivity", if (stocksList.isEmpty()) "stocksList is now empty." else
         //    "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
@@ -92,27 +116,11 @@ class MainActivity : AppCompatActivity() {
 
     fun deletestock(position: Int) : Boolean {
         val target = stocksList.get(position) as Stock
-        return deletestockInternal(target.stockid)
-    }
-
-    @Synchronized
-    private fun deletestockInternal(stockid: Long) : Boolean {
-        var rez = 0
-
-        try {
-            //Datenbank.use {
-                var rez = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
-
-                if (rez!! > 0) {
-                    stocksList = getStocklistFromDB()
-                    adapter?.refresh(stocksList)
-                }
-            //}
-        } catch (e: SQLiteException) {
-            Log.e("MainActivity", "could not delete $stockid: " + e.toString())
+        if (dbsBound) {
+            return dbService.deletestockInternal(target.stockid)
         }
-
-        return (rez > 0)
+        Log.e("MainActivity", "deletestock: dbsBound = false, so did nothing.")
+        return false
     }
 
     /**
@@ -131,25 +139,11 @@ class MainActivity : AppCompatActivity() {
      */
     @Synchronized
     fun getStocklistFromDB() : List<Stock> {
-        var results: List<Stock> = ArrayList()
-        try {
-            //Datenbank.use {
-                val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
-
-                sresult?.exec {
-                    if (this.count > 0) {
-                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                            Stock(stockid, ticker, target, above, phone, crypto)
-                        }
-                        results = parseList(parser)
-                    }
-                }
-            //}
-        } catch (e: SQLiteException) {
-            Log.e("err gSlFDB: ", e.toString())
+        if (dbsBound) {
+            return dbService.getStocklistFromDB()
         }
-
-        return results
+        Log.e("MainActivity", "getStocklistFromDB: dbsBound = false, so did nothing.")
+        return emptyList()
     }
 
     /**
@@ -281,7 +275,8 @@ class MainActivity : AppCompatActivity() {
         if (resultReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
         }
-        DatabaseManager.getInstance().database.close()
+        unbindService(dbConnection)
+        dbsBound = false
         super.onDestroy()
     }
 }

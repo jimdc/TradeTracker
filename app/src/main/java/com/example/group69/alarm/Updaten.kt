@@ -24,8 +24,6 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
     var IdOfStockToDelete: Long = 5
     var alarmPlayed: Boolean = false
 
-    val Datenbank = DatabaseManager.getInstance().database
-
     /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
      * If current price meets criteria, send to [onProgressUpdate] for alarm
@@ -96,16 +94,13 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
      * @todo Update the UI as well, perhaps through [OnProgressUpdate] ?
      */
     private fun DeletePendingFinishedStock() {
-        try {
-                if (alarmPlayed == true) {
-                    //Datenbank.use {
-                        Datenbank?.delete(NewestTableName, "_stockid=$IdOfStockToDelete")
-                    //}
-                    alarmPlayed = false
-                    Log.v("Updaten", "deleted completed stock $IdOfStockToDelete")
-                }
-        } catch (e: SQLiteException) {
-            Log.e("Updaten", "could not delete $IdOfStockToDelete: " + e.toString())
+        if (alarmPlayed == true) {
+            if (dbsBound) {
+                dbService.deletestockInternal(IdOfStockToDelete)
+                Log.v("Updaten", "DeletePendingFinishedStock: requested DBS delete of $IdOfStockToDelete")
+            } else {
+                Log.e("Updaten", "DeletePendingFinishedStock: dbsBound = false, so did nothing.")
+            }
         }
     }
 
@@ -116,25 +111,11 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
      * This thread doesn't do that because it could conflict with [DeletePendingFinishedStock]
      */
     fun getStocklistFromDB() : List<Stock> {
-        var results: List<Stock> = ArrayList()
-        try {
-            //Datenbank.use {
-                val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
-
-                sresult?.exec {
-                    if (count > 0) {
-                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                            Stock(stockid, ticker, target, above, phone, crypto)
-                        }
-                        results = parseList(parser)
-                    }
-                }
-            //}
-        } catch (e: SQLiteException) {
-            Log.e("Updaten", "couldn' get stock list from DB: " + e.toString())
+        if (dbsBound) {
+            return dbService.getStocklistFromDB()
         }
-
-        return results
+        Log.e("Updaten", "getStocklistFromDB: dbsBound = false, so did nothing.")
+        return emptyList()
     }
 
     /**

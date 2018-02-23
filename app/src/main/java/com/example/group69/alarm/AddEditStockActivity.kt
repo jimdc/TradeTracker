@@ -6,6 +6,7 @@ import android.support.v7.widget.Toolbar
 import android.widget.EditText
 import android.widget.Button
 import android.support.design.widget.FloatingActionButton
+import android.util.Log
 import android.widget.RadioButton
 import android.widget.CheckBox
 import android.view.View
@@ -76,13 +77,13 @@ class AddEditStockActivity : AppCompatActivity() {
         }
 
         addbutton.setOnClickListener { view ->
-            val stockaddrequest = StockProposalValidationRequest(this)
-
             val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
             val editedstock = Stock(stockid, tickerName.text.toString(),
                     target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
-            stockaddrequest.execute(editedstock)
+            if (dbsBound) { dbService.addeditstock(editedstock) }
+            else { Log.e("AddButton", "OnClickListener: dbsBound = false, so did nothing.") }
+
             finish()
         }
 
