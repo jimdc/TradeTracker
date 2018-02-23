@@ -1,7 +1,7 @@
 package com.example.group69.alarm
 
-import android.app.AlarmManager
 import android.app.NotificationManager
+import android.database.sqlite.SQLiteOpenHelper
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
@@ -11,22 +11,24 @@ import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.database.sqlite.SQLiteException
-import android.support.v7.widget.LinearLayoutManager
 import android.view.View
-import android.view.ViewGroup
 import android.util.Log
-import org.jetbrains.anko.db.*
 import org.jetbrains.anko.*
-import java.util.GregorianCalendar
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.widget.ListView
 import android.app.ActivityManager
+import android.database.sqlite.SQLiteDatabase
+import android.app.Service
+import android.content.ServiceConnection
+import android.content.ComponentName
+import android.os.IBinder
+import android.os.Binder
+
 //import android.databinding.DataBindingUtil
 
 /**
@@ -34,6 +36,9 @@ import android.app.ActivityManager
  * @param[notificationManager] allows us to notify user that something happened in the backgorund.
  * @param[notifID] is used to track notifications
  */
+
+lateinit var dbService: DatabaseService
+var dbsBound: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,8 +55,21 @@ class MainActivity : AppCompatActivity() {
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
 
-    //var manager: SQLiteSingleton? = null
-    //var database: android.database.sqlite.SQLiteDatabase? = null
+    var dbConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as DatabaseService.LocalBinder
+            dbService = binder.service
+            dbsBound = true
+            Log.d("MainActivity", "dbService connected")
+            stocksList = dbService.getStocklistFromDB()
+            adapter?.refresh(stocksList)
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            dbsBound = false
+        }
+    }
 
     /**
      * Registers broadcast receiver, populates stock listview.
@@ -60,16 +78,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //manager = SQLiteSingleton.getInstance(getApplicationContext())
-        //database = manager?.writableDatabase
-
         setContentView(R.layout.activity_main)
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
-        stocksList = getStocklistFromDB()
-        Log.v("MainActivity", if (stocksList.isEmpty()) "stocksList is now empty." else
-            "stocksTargets: " + stocksList.map { it.ticker }.joinToString(", "))
+        var intent = Intent(this, DatabaseService::class.java)
+        if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
+            Log.e("MainActivity", "onCreate: not able to bind dbConnection")
 
         listView = findViewById<ListView>(R.id.listView)
         adapter = UserListAdapter(this, stocksList)
@@ -81,7 +96,7 @@ class MainActivity : AppCompatActivity() {
             alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
                 positiveButton("Yes") {
                     toast("Row " + position.toString() +
-                            if (deletestock(position)==true) (" deleted.") else "not deleted.")
+                            if (deletestock(position)==true) (" deleted.") else " not deleted.")
                 }
                 negativeButton("No") {  toast("OK, nothing was deleted.") }
             }.show()
@@ -89,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Deletes the stock from database, from [stocksList], and refreshes UI.
+     * Deletes the stock from Datenbank, from [stocksList], and refreshes UI.
      * @param[position] the index of the stock in [stocksList]; same as in UI
      * @return true if SQLite helper could find the stock to delete
      * @sample onCreate
@@ -98,31 +113,15 @@ class MainActivity : AppCompatActivity() {
 
     fun deletestock(position: Int) : Boolean {
         val target = stocksList.get(position) as Stock
-        return deletestockInternal(target.stockid)
-    }
-
-    @Synchronized
-    private fun deletestockInternal(stockid: Long) : Boolean {
-        var rez = 0
-
-        try {
-            database.use {
-                var rez = delete(NewestTableName, "_stockid=$stockid") ?: 0
-
-                if (rez > 0) {
-                    stocksList = getStocklistFromDB()
-                    adapter?.refresh(stocksList)
-                }
-            }
-        } catch (e: SQLiteException) {
-            Log.e("MainActivity", "could not delete $stockid: " + e.toString())
+        if (dbsBound) {
+            return dbService.deletestockInternal(target.stockid)
         }
-
-        return (rez > 0)
+        Log.e("MainActivity", "deletestock: dbsBound = false, so did nothing.")
+        return false
     }
 
     /**
-     * Updates [stocksList] from database then refreshes UI
+     * Updates [stocksList] from Datenbank then refreshes UI
      */
     override fun onResume() {
         super.onResume()
@@ -131,31 +130,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Queries database [NewestTableName] for stocks list and returns it
-     * @return the rows of stocks, or an empty list if database fails
+     * Queries Datenbank [NewestTableName] for stocks list and returns it
+     * @return the rows of stocks, or an empty list if Datenbank fails
      * @seealso [Updaten.getStocklistFromDB]
      */
     @Synchronized
     fun getStocklistFromDB() : List<Stock> {
-        var results: List<Stock> = ArrayList()
-        try {
-            database.use {
-                val sresult = select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
-
-                sresult?.exec {
-                    if (this.count > 0) {
-                        val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                            Stock(stockid, ticker, target, above, phone, crypto)
-                        }
-                        results = parseList(parser)
-                    }
-                }
-            }
-        } catch (e: SQLiteException) {
-            Log.e("err gSlFDB: ", e.toString())
+        if (dbsBound) {
+            return dbService.getStocklistFromDB()
         }
-
-        return results
+        Log.e("MainActivity", "getStocklistFromDB: dbsBound = false, so did nothing.")
+        return emptyList()
     }
 
     /**
@@ -287,6 +272,8 @@ class MainActivity : AppCompatActivity() {
         if (resultReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
         }
+        unbindService(dbConnection)
+        dbsBound = false
         super.onDestroy()
     }
 }

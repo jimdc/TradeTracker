@@ -3,27 +3,27 @@ package com.example.group69.alarm
 import org.jetbrains.anko.db.*
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+import kotlin.Number
+import java.util.concurrent.atomic.AtomicInteger
+
 
 val NewestDatabaseName = "NewCryptoDB"
 val NewestTableName = "TableView2"
 
-/**
- * Anko class to avoid having to manually open, close, try, catch.
- * Enables worry-free use of <code>database.use { }</code>
- */
-class SQLiteSingleton(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabaseName) {
+class DatabaseHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabaseName) {
     private val mDatabase: SQLiteDatabase? = null
-    private val mInstance: SQLiteSingleton? = null
+    private val mInstance: DatabaseHelper? = null
     private val mContext: Context? = null
 
     companion object {
-        private var instance: SQLiteSingleton? = null
+        private var instance: DatabaseHelper? = null
         val dbVersion = 1
 
         @Synchronized
-        fun getInstance(ctx: Context): SQLiteSingleton {
+        fun getInstance(ctx: Context): DatabaseHelper {
             if (instance == null) {
-                instance = SQLiteSingleton(ctx.applicationContext)
+                instance = DatabaseHelper(ctx.applicationContext)
             }
             return instance!!
         }
@@ -47,19 +47,14 @@ class SQLiteSingleton(ctx: Context) : ManagedSQLiteOpenHelper(ctx, NewestDatabas
     /**
      * @todo implement for [SQLiteSingletontest]
      */
-    fun clearDbAndRecreate() {
-
-    }
+    fun clearDbAndRecreate() { }
 
     /**
      * @todo implement for [SQLiteSingletontest]
      */
-    fun clearDb() {
-
-    }
+    fun clearDb() { }
 }
 
 // Access property for Context
-val Context.database: SQLiteSingleton
-    get() = SQLiteSingleton.getInstance(applicationContext)
-
+val Context.database: DatabaseHelper
+    get() = DatabaseHelper.getInstance(applicationContext)

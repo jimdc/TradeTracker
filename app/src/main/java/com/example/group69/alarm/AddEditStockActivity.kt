@@ -6,6 +6,7 @@ import android.support.v7.widget.Toolbar
 import android.widget.EditText
 import android.widget.Button
 import android.support.design.widget.FloatingActionButton
+import android.util.Log
 import android.widget.RadioButton
 import android.widget.CheckBox
 import android.view.View
@@ -17,7 +18,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
     /**
      * Customizes the UI based on intent extras "EditingCrypto" and "EditingExisting"
-     * @todo make more modular by having database interaction in own function
+     * @todo make more modular by having Datenbank interaction in own function
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +53,11 @@ class AddEditStockActivity : AppCompatActivity() {
             phoneChecked.setChecked(thestock.phone < 1)
 
             deletebutton.setOnClickListener { view ->
-                var nraffected: Int = 0
+                val Datenbank = DatabaseManager.getInstance().database
+                var nraffected: Int? = 0
 
-                database.use {
-                    nraffected = delete(NewestTableName, "_stockid=$stockid")
+                Datenbank?.use {
+                    nraffected = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
                 }
 
                 if (nraffected == 1) {
@@ -63,7 +65,7 @@ class AddEditStockActivity : AppCompatActivity() {
                 } else if (nraffected == 0) {
                     toast(resources.getString(R.string.delfail))
                 }
-
+                DatabaseManager.getInstance().database.close()
                 finish()
             }
         } else { //adding a new stock
@@ -75,13 +77,13 @@ class AddEditStockActivity : AppCompatActivity() {
         }
 
         addbutton.setOnClickListener { view ->
-            val stockaddrequest = StockProposalValidationRequest(this)
-
             val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
             val editedstock = Stock(stockid, tickerName.text.toString(),
                     target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
-            stockaddrequest.execute(editedstock)
+            if (dbsBound) { dbService.addeditstock(editedstock) }
+            else { Log.e("AddButton", "OnClickListener: dbsBound = false, so did nothing.") }
+
             finish()
         }
 
