@@ -6,12 +6,7 @@ import android.app.PendingIntent
 import android.util.Log
 import android.content.Context
 import org.jetbrains.anko.*
-import org.jetbrains.anko.db.*
-import org.jetbrains.anko.db.parseList
-import org.jetbrains.anko.db.rowParser
-import org.jetbrains.anko.db.select
 import android.support.v4.content.LocalBroadcastManager
-import android.database.sqlite.SQLiteException
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
@@ -48,14 +43,14 @@ class Updaten(CallerContext: Context) {
             } else { Geldmonitor.getStockPrice(ticker) }
 
             if (currPrice >= 0) {
-                mac?.adapter?.setCurrentPrice(stockx.stockid, stockx.target)
+                PriceBroadcastLocal(stockx.stockid, currPrice)
                 Log.v("Updaten", "currPrice $currPrice is not null")
                 if (
                         ((stockx.above == 1L) && (currPrice > stockx.target)) ||
                         ((stockx.above == 0L) && (currPrice < stockx.target))
                 ) {
                     SetPendingFinishedStock(stockx.stockid)
-                    AlarmPlease(stockx.ticker, stockx.target.toString(), stockx.above.toString())
+                    AlarmBroadcastGlobal(stockx.ticker, stockx.target.toString(), stockx.above.toString())
                 }
             } else {
                 Log.v("Updaten", "currPrice $currPrice < 0, netErr? ++failcount to " + ++failcount)
@@ -107,11 +102,10 @@ class Updaten(CallerContext: Context) {
         return emptyList()
     }
 
-    fun AlarmPlease(ticker: String, price: String, ab: String) {
-        BroadcastSystemAlarm(ticker, price, ab)
-
+    fun PriceBroadcastLocal(stockid: Long, currentprice: Double) {
         val intent = Intent("com.example.group69.alarm")
-        intent.putExtra(ticker, price)
+        intent.putExtra("stockid", stockid)
+        intent.putExtra("currentprice", currentprice)
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
 
@@ -122,7 +116,7 @@ class Updaten(CallerContext: Context) {
      * @param[price] The new, noteworthy price
      * @param[ab] "1" means above, something else like "0" means below
      */
-    fun BroadcastSystemAlarm(ticker: String, price: String, ab: String) {
+    fun AlarmBroadcastGlobal(ticker: String, price: String, ab: String) {
 
         Log.v("Updaten", "Building alarm with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5

@@ -7,8 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import android.content.BroadcastReceiver
+import android.content.Intent
 import com.example.group69.alarm.MainActivity
-//import android.databinding.DataBindingUtil
 
 /**
  * Converts a list of Stocks to a list of Views for the ListView container
