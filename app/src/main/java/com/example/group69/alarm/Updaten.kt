@@ -86,7 +86,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         }
         Log.d("updaten","service killed, finishing updaten")
         /*
-        DatabaseManager.getInstance().database.close() //getting rid of this makes stopping scan and restarting not crash
+        DatabaseManager.getInstance().database.close()  //getting rid of this makes stopping scan and restarting not crash
         */
         return null
     }
