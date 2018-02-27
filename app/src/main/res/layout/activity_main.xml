@@ -7,7 +7,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Time Delay"
+        android:text="Snooze"
         android:id="@+id/timeDelayButton"
         android:layout_alignParentStart="true"
         android:onClick="timeDelay" />
