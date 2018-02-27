@@ -5,6 +5,13 @@
     tools:context="com.example.group69.alarm.MainActivity">
 
     <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time Delay"
+        android:id="@+id/timeDelayButton"
+        android:layout_alignParentStart="true"
+        android:onClick="timeDelay" />
+    <Button
         android:id="@+id/addcryptoButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,8 +26,8 @@
         android:text="@string/addstock"
         android:id="@+id/addstockButton"
         android:layout_alignParentStart="true"
-        android:onClick="LaunchAddStockActivity" />
-
+        android:onClick="LaunchAddStockActivity"
+        android:layout_below="@+id/timeDelayButton"/>
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
