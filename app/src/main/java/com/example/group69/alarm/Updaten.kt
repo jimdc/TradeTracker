@@ -17,12 +17,13 @@ import android.os.Vibrator
 import java.util.*
 
 
-class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Void>() {
+class Updaten(CallerContext: Context) {
     var TutorialServiceContext = CallerContext
     var mac: MainActivity? = null
 
     var IdOfStockToDelete: Long = 5
     var alarmPlayed: Boolean = false
+    var running: Boolean = false
 
     /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
@@ -31,53 +32,41 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
      * @todo send current price to [onProgressUpdate] to update the UI as well
      * @todo Reduce calls to [getStocklistFromDB] by signalling if DB changed
      */
-    override fun doInBackground(vararg activies : Object): Nothing? {
+    fun scannetwork(): Int {
 
         var failcount = 0
-        var iterationcount = 0
 
-        //mac = activies[0] as MainActivity
-        while (!isCancelled) {
-            Log.d("updaten", "iteration #" + ++iterationcount)
+        DeletePendingFinishedStock()
+        var stocksTargets = getStocklistFromDB()
 
-            DeletePendingFinishedStock()
-            var stocksTargets = getStocklistFromDB()
+        Log.v("Updaten ", if (stocksTargets.isEmpty()) "might be empty list: " else "stocks targets: " + stocksTargets.map { it.ticker }.joinToString(", "))
 
-            Log.v("Updaten ", if (stocksTargets.isEmpty()) "might be empty list: " else
-            "stocks targets: " + stocksTargets.map { it.ticker }.joinToString(", "))
+        for (stockx in stocksTargets) {
+            val ticker: String = stockx.ticker
 
-            for (stockx in stocksTargets) {
-                val ticker: String = stockx.ticker
+            var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
+            } else { Geldmonitor.getStockPrice(ticker) }
 
-                var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
-                } else { Geldmonitor.getStockPrice(ticker) }
-
-                if (currPrice >= 0) {
-                    publishProgress("Currprice2UIPlease", stockx.stockid.toString(), currPrice.toString())
-                    Log.v("Updaten", "currPrice $currPrice is not null")
-                    if (
-                            ((stockx.above == 1L) && (currPrice > stockx.target)) ||
-                            ((stockx.above == 0L) && (currPrice < stockx.target))
-                    ) {
-                        SetPendingFinishedStock(stockx.stockid)
-                        publishProgress("AlarmPlease", stockx.ticker, stockx.target.toString(), stockx.above.toString())
-                    }
-                } else {
-                    Log.v("Updaten", "currPrice $currPrice < 0, netErr? ++failcount to " + ++failcount)
+            if (currPrice >= 0) {
+                mac?.adapter?.setCurrentPrice(stockx.stockid, stockx.target)
+                Log.v("Updaten", "currPrice $currPrice is not null")
+                if (
+                        ((stockx.above == 1L) && (currPrice > stockx.target)) ||
+                        ((stockx.above == 0L) && (currPrice < stockx.target))
+                ) {
+                    SetPendingFinishedStock(stockx.stockid)
+                    AlarmPlease(stockx.ticker, stockx.target.toString(), stockx.above.toString())
                 }
+            } else {
+                Log.v("Updaten", "currPrice $currPrice < 0, netErr? ++failcount to " + ++failcount)
             }
-
-            if (failcount == stocksTargets.size) {
-                Log.e("Updaten", "All stocks below zero. Connection error?")
-                Utility.TryToSleepFor(60000)
-            }
-
-            failcount = 0
-            Utility.TryToSleepFor(8000)
         }
 
-        DatabaseManager.getInstance().database.close()
-        return null
+        if (failcount == stocksTargets.size) {
+            Log.e("Updaten", "All stocks below zero. Connection error?")
+        }
+
+        return failcount
     }
 
     /**
@@ -116,21 +105,6 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         }
         Log.e("Updaten", "getStocklistFromDB: dbsBound = false, so did nothing.")
         return emptyList()
-    }
-
-    /**
-     * Depending on first element of [progress], either:
-     * 1. Sends a broadcast to notify, alarm, and vibrate
-     * 2. Somehow sets the UI to the current price.
-     * @param[progress] "AlarmPlease" or "Currprice2UIPlease"
-     */
-    override fun onProgressUpdate(vararg progress: String) {
-        if (progress[0].equals("AlarmPlease")) { AlarmPlease(progress[1], progress[2], progress[3]) }
-        else if (progress[0].equals("Currprice2UIPlease")) {
-            mac?.adapter?.setCurrentPrice(
-                progress[1].toLong(), progress[2].toDouble()
-            )
-        }
     }
 
     fun AlarmPlease(ticker: String, price: String, ab: String) {
