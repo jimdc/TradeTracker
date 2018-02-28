@@ -15,7 +15,6 @@ import java.util.*
 
 class Updaten(CallerContext: Context) {
     var TutorialServiceContext = CallerContext
-    var mac: MainActivity? = null
 
     var IdOfStockToDelete: Long = 5
     var alarmPlayed: Boolean = false
@@ -25,53 +24,14 @@ class Updaten(CallerContext: Context) {
      * Iterates through the stocks found by querying [getStocklistFromDB]
      * If current price meets criteria, send to [onProgressUpdate] for alarm
      * If [Geldmonitor] functions return negative (error) for all stocks, err
+     * @return 0 on success, more is the amount of milliseconds to sleep
      * @todo send current price to [onProgressUpdate] to update the UI as well
      * @todo Reduce calls to [getStocklistFromDB] by signalling if DB changed
      */
   
-    override fun doInBackground(vararg activies : Object): Nothing? {
-        Log.d("updaten","updaten start")
+    fun scannetwork(vararg activies : Object): Long {
+        Log.d("Updaten","scannetwork start")
         var failcount = 0
-        var iterationcount = 0
-
-        //mac = activies[0] as MainActivity
-
-        while (!isCancelled) {
-            Log.d("updaten", "iteration #" + ++iterationcount)
-
-            DeletePendingFinishedStock()
-            Log.d("updaten", "1") //fails right here when trying to get from database
-            var stocksTargets = getStocklistFromDB()
-            Log.d("updaten", "2")
-            Log.v("Updaten ", if (stocksTargets.isEmpty()) "might be empty list: " else
-            "stocks targets: " + stocksTargets.map { it.ticker }.joinToString(", "))
-
-            for (stockx in stocksTargets) {
-                val ticker: String = stockx.ticker
-                if (ticker.equals("snoozee")) {
-                    Log.d("snooze","snoozin")
-                    SetPendingFinishedStock(stockx.stockid)
-                    Thread.sleep(1000 * stockx.target.toLong())
-                    continue
-                }
-
-                var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
-                } else { Geldmonitor.getStockPrice(ticker) }
-
-                if (currPrice >= 0) {
-                    publishProgress("Currprice2UIPlease", stockx.stockid.toString(), currPrice.toString())
-                    Log.v("Updaten", "currPrice $currPrice is not null")
-                    if (
-                            ((stockx.above == 1L) && (currPrice > stockx.target)) ||
-                            ((stockx.above == 0L) && (currPrice < stockx.target))
-                    ) {
-                        SetPendingFinishedStock(stockx.stockid)
-                        publishProgress("AlarmPlease", stockx.ticker, stockx.target.toString(), stockx.above.toString())
-                    }
-                } else {
-                    Log.v("Updaten", "currPrice $currPrice < 0, netErr? ++failcount to " + ++failcount)
-                }
-            }
 
         DeletePendingFinishedStock()
         var stocksTargets = getStocklistFromDB()
@@ -80,6 +40,13 @@ class Updaten(CallerContext: Context) {
 
         for (stockx in stocksTargets) {
             val ticker: String = stockx.ticker
+
+            if (ticker.equals("snoozee")) {
+                SetPendingFinishedStock(stockx.stockid)
+                val snoozems = 1000*stockx.target.toLong()
+                Log.d("Updaten","Snoozing for $snoozems milliseconds.")
+                return snoozems
+            }
 
             var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
             } else { Geldmonitor.getStockPrice(ticker) }
@@ -103,12 +70,7 @@ class Updaten(CallerContext: Context) {
             Log.e("Updaten", "All stocks below zero. Connection error?")
         }
 
-        return failcount
-        Log.d("updaten","service killed, finishing updaten")
-        /*
-        DatabaseManager.getInstance().database.close()  //getting rid of this makes stopping scan and restarting not crash
-        */
-        return null
+        return 0
     }
 
     /**

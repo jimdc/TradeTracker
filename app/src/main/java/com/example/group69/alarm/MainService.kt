@@ -104,19 +104,19 @@ class MainService : Service {
 
             VibratorService.vibrate(VibratorWaitDuration, -1)
 
-            //if(updat.isRunning)
             Log.v("MainService", "ServiceHandler starting")
 
-            //mMainActivity did not initialize at this point, even though log from constructor is called
-            //updat.execute(mMainActivity as Object)
             var SecondsSinceScanStarted = 0
             var iteration = 0
             updat.running = true
 
             while (!currentThread().isInterrupted) {
-                updat.scannetwork()
                 Log.d("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
-                Utility.TryToSleepFor(8000)
+                val ms = updat.scannetwork()
+
+                if (ms > 0) Utility.TryToSleepFor(ms)
+                else Utility.TryToSleepFor(8000)
+
                 SecondsSinceScanStarted++
             }
 
