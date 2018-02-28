@@ -93,6 +93,9 @@ class MainActivity : AppCompatActivity() {
             }.show()
         }
     }
+    fun timeDelay(view: View) {
+        startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true,"snooze" to true)
+    }
 
     /**
      * Deletes the stock from Datenbank, from [stocksList], and refreshes UI.
@@ -158,6 +161,8 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, MainService::class.java)
         stopService(intent)
     }
+
+
 
     /**
      * Query the system for if a service is already running.

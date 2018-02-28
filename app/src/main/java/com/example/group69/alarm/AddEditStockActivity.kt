@@ -39,7 +39,12 @@ class AddEditStockActivity : AppCompatActivity() {
 
         val EditingCrypto = b.getBoolean("EditingCrypto")
         val EditingExisting = b.getBoolean("EditingExisting")
-        if (EditingExisting) {
+        val Snooze = b.getBoolean("snooze")
+        if (Snooze) {
+            setTitle("Enter minutes for snooze for price")
+            deletebutton.visibility = View.INVISIBLE
+        }
+        else if (EditingExisting) {
 
             val thestock: Stock = b.getParcelable("TheStock")
             stockid = thestock.stockid
@@ -78,8 +83,14 @@ class AddEditStockActivity : AppCompatActivity() {
 
         addbutton.setOnClickListener { view ->
             val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
-            val editedstock = Stock(stockid, tickerName.text.toString(),
-                    target ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
+
+            val editedstock = if(Snooze) { Stock(stockid, "snoozee", target
+                        ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto) } else {
+                Stock(stockid, tickerName.text.toString(), target
+                        ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
+            }
+
+
 
             if (dbsBound) { dbService.addeditstock(editedstock) }
             else { Log.e("AddButton", "OnClickListener: dbsBound = false, so did nothing.") }
