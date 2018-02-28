@@ -11,6 +11,7 @@ import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
 import android.support.v4.content.LocalBroadcastManager
+import android.content.BroadcastReceiver
 import android.database.sqlite.SQLiteException
 import android.content.Intent
 import android.os.Vibrator
@@ -32,22 +33,30 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
      * @todo Reduce calls to [getStocklistFromDB] by signalling if DB changed
      */
     override fun doInBackground(vararg activies : Object): Nothing? {
-
+        Log.d("updaten","updaten start")
         var failcount = 0
         var iterationcount = 0
 
         //mac = activies[0] as MainActivity
+
         while (!isCancelled) {
             Log.d("updaten", "iteration #" + ++iterationcount)
 
             DeletePendingFinishedStock()
+            Log.d("updaten", "1") //fails right here when trying to get from database
             var stocksTargets = getStocklistFromDB()
-
+            Log.d("updaten", "2")
             Log.v("Updaten ", if (stocksTargets.isEmpty()) "might be empty list: " else
             "stocks targets: " + stocksTargets.map { it.ticker }.joinToString(", "))
 
             for (stockx in stocksTargets) {
                 val ticker: String = stockx.ticker
+                if (ticker.equals("snoozee")) {
+                    Log.d("snooze","snoozin")
+                    SetPendingFinishedStock(stockx.stockid)
+                    Thread.sleep(1000 * stockx.target.toLong())
+                    continue
+                }
 
                 var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
                 } else { Geldmonitor.getStockPrice(ticker) }
@@ -75,8 +84,10 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
             failcount = 0
             Utility.TryToSleepFor(8000)
         }
-
-        DatabaseManager.getInstance().database.close()
+        Log.d("updaten","service killed, finishing updaten")
+        /*
+        DatabaseManager.getInstance().database.close()  //getting rid of this makes stopping scan and restarting not crash
+        */
         return null
     }
 
@@ -140,7 +151,25 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         intent.putExtra(ticker, price)
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
+    private fun createBroadcastReceiver(): BroadcastReceiver {
+        return object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                Log.d("beforeAlarm","mangracina55")
+                // val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                //val num : LongArray = longArrayOf(1000,1000,1000)
+                //v.vibrate(num,3)
+                //updat.cancel(true)
+                //updat.pause(intent.getStringExtra("delay").toLong())
+                //Log.d("slept","canceled " + intent.getStringExtra("delay"))
 
+                //Thread.sleep(intent.getStringExtra("delay").toLong() * 6000)
+                //Log.d("slept",intent.getStringExtra("delay"))
+                //updat.execute("h")
+
+                //deleteStockOfThisIndex(intent.getStringExtra("result"))
+            }
+        }
+    }
     /**
      * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
      * Set the system service [alarmManager] as FLAG_UPDATE_CURRENT
