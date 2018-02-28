@@ -1,19 +1,13 @@
 package com.example.group69.alarm
 
 import android.app.NotificationManager
-import android.database.sqlite.SQLiteOpenHelper
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
-import org.jetbrains.anko.db.*
-import org.jetbrains.anko.db.parseList
-import org.jetbrains.anko.db.rowParser
-import org.jetbrains.anko.db.select
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
-import android.database.sqlite.SQLiteException
 import android.view.View
 import android.util.Log
 import org.jetbrains.anko.*
@@ -22,12 +16,9 @@ import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.widget.ListView
 import android.app.ActivityManager
-import android.database.sqlite.SQLiteDatabase
-import android.app.Service
 import android.content.ServiceConnection
 import android.content.ComponentName
 import android.os.IBinder
-import android.os.Binder
 
 //import android.databinding.DataBindingUtil
 
@@ -50,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     internal var notifID = 33
     internal var isNotificActive = false
-    var resultReceiver = createBroadcastReceiver()
+    var resultReceiver = createPriceBroadcastReceiver()
 
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
@@ -247,25 +238,18 @@ class MainActivity : AppCompatActivity() {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
     }
 
+    final val BROADCAST_PRICE_UPDATE = "BROADCAST_PRICE_UPDATE"
     /**
      * @return BroadcastReceiver that logs when it is registered
      */
-    private fun createBroadcastReceiver(): BroadcastReceiver {
+    private fun createPriceBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                Log.d("beforeAlarm", "mangracina55")
-                // val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                //val num : LongArray = longArrayOf(1000,1000,1000)
-                //v.vibrate(num,3)
-                //updat.cancel(true)
-                //updat.pause(intent.getStringExtra("delay").toLong())
-                //Log.d("slept","canceled " + intent.getStringExtra("delay"))
-
-                //Thread.sleep(intent.getStringExtra("delay").toLong() * 6000)
-                //Log.d("slept",intent.getStringExtra("delay"))
-                //updat.execute("h")
-
-                //deleteStockOfThisIndex(intent.getStringExtra("result"))
+                val rStockid = intent.getLongExtra("stockid", -666)
+                val rPrice = intent.getDoubleExtra("currentprice", -666.0)
+                when(intent?.action) {
+                    "com.example.group69.alarm" -> adapter?.setCurrentPrice(rStockid, rPrice)
+                }
             }
         }
     }

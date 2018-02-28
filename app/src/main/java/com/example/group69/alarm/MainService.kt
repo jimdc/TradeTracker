@@ -38,8 +38,9 @@ class MainService : Service {
         super.onCreate()
         toast("Target scanning")
 
-        if (updat.status != AsyncTask.Status.RUNNING) {
+        if (!updat.running) {
             Log.d("got", "starting!")
+            updat.running = true
             targetScanThread.start()
 
             mServiceLooper = targetScanThread.looper
@@ -79,10 +80,7 @@ class MainService : Service {
         Log.d("geld", "got destroyed")
         runTargetScan = false
         targetScanThread.interrupt()
-        if (updat.status == AsyncTask.Status.RUNNING) {
-            updat.cancel(true)
-        }
-
+        if (updat.running) updat.running = false
         toast("Stopping scan")
     }
 
@@ -111,21 +109,19 @@ class MainService : Service {
 
             //mMainActivity did not initialize at this point, even though log from constructor is called
             //updat.execute(mMainActivity as Object)
-            updat.execute()
             var SecondsSinceScanStarted = 0
+            var iteration = 0
+            updat.running = true
 
             while (!currentThread().isInterrupted) {
-                //showToast("Service, id: " + msg.arg1) //might decide to use the arg1 msg later
-                //if(ii>0 && ii%15 == 0){
-                //toast("Target scan has been running for " + ii + " seconds")
-                //}
-
-                Utility.TryToSleepFor(5000)
+                updat.scannetwork()
+                Log.d("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
+                Utility.TryToSleepFor(8000)
                 SecondsSinceScanStarted++
             }
 
             toast("Scan stopped after $SecondsSinceScanStarted seconds")
-            updat.cancel(true)
+            updat.running = false
 
             //this would stop the service on it's own. we don't want that unless the user toggles scanning button to off
             stopSelf(msg.arg1)

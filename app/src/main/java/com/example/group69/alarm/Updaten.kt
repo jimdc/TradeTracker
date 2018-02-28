@@ -1,15 +1,10 @@
 package com.example.group69.alarm
 
-
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.util.Log
 import android.content.Context
 import org.jetbrains.anko.*
-import org.jetbrains.anko.db.*
-import org.jetbrains.anko.db.parseList
-import org.jetbrains.anko.db.rowParser
-import org.jetbrains.anko.db.select
 import android.support.v4.content.LocalBroadcastManager
 import android.content.BroadcastReceiver
 import android.database.sqlite.SQLiteException
@@ -18,12 +13,13 @@ import android.os.Vibrator
 import java.util.*
 
 
-class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Void>() {
+class Updaten(CallerContext: Context) {
     var TutorialServiceContext = CallerContext
     var mac: MainActivity? = null
 
     var IdOfStockToDelete: Long = 5
     var alarmPlayed: Boolean = false
+    var running: Boolean = false
 
     /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
@@ -32,6 +28,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
      * @todo send current price to [onProgressUpdate] to update the UI as well
      * @todo Reduce calls to [getStocklistFromDB] by signalling if DB changed
      */
+  
     override fun doInBackground(vararg activies : Object): Nothing? {
         Log.d("updaten","updaten start")
         var failcount = 0
@@ -76,14 +73,37 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
                 }
             }
 
-            if (failcount == stocksTargets.size) {
-                Log.e("Updaten", "All stocks below zero. Connection error?")
-                Utility.TryToSleepFor(60000)
-            }
+        DeletePendingFinishedStock()
+        var stocksTargets = getStocklistFromDB()
 
-            failcount = 0
-            Utility.TryToSleepFor(8000)
+        Log.v("Updaten ", if (stocksTargets.isEmpty()) "might be empty list: " else "stocks targets: " + stocksTargets.map { it.ticker }.joinToString(", "))
+
+        for (stockx in stocksTargets) {
+            val ticker: String = stockx.ticker
+
+            var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
+            } else { Geldmonitor.getStockPrice(ticker) }
+
+            if (currPrice >= 0) {
+                PriceBroadcastLocal(stockx.stockid, currPrice)
+                Log.v("Updaten", "currPrice $currPrice is not null")
+                if (
+                        ((stockx.above == 1L) && (currPrice > stockx.target)) ||
+                        ((stockx.above == 0L) && (currPrice < stockx.target))
+                ) {
+                    SetPendingFinishedStock(stockx.stockid)
+                    AlarmBroadcastGlobal(stockx.ticker, stockx.target.toString(), stockx.above.toString())
+                }
+            } else {
+                Log.v("Updaten", "currPrice $currPrice < 0, netErr? ++failcount to " + ++failcount)
+            }
         }
+
+        if (failcount == stocksTargets.size) {
+            Log.e("Updaten", "All stocks below zero. Connection error?")
+        }
+
+        return failcount
         Log.d("updaten","service killed, finishing updaten")
         /*
         DatabaseManager.getInstance().database.close()  //getting rid of this makes stopping scan and restarting not crash
@@ -129,26 +149,10 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
         return emptyList()
     }
 
-    /**
-     * Depending on first element of [progress], either:
-     * 1. Sends a broadcast to notify, alarm, and vibrate
-     * 2. Somehow sets the UI to the current price.
-     * @param[progress] "AlarmPlease" or "Currprice2UIPlease"
-     */
-    override fun onProgressUpdate(vararg progress: String) {
-        if (progress[0].equals("AlarmPlease")) { AlarmPlease(progress[1], progress[2], progress[3]) }
-        else if (progress[0].equals("Currprice2UIPlease")) {
-            mac?.adapter?.setCurrentPrice(
-                progress[1].toLong(), progress[2].toDouble()
-            )
-        }
-    }
-
-    fun AlarmPlease(ticker: String, price: String, ab: String) {
-        BroadcastSystemAlarm(ticker, price, ab)
-
+    fun PriceBroadcastLocal(stockid: Long, currentprice: Double) {
         val intent = Intent("com.example.group69.alarm")
-        intent.putExtra(ticker, price)
+        intent.putExtra("stockid", stockid)
+        intent.putExtra("currentprice", currentprice)
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
     private fun createBroadcastReceiver(): BroadcastReceiver {
@@ -177,7 +181,7 @@ class Updaten(CallerContext: Context) : android.os.AsyncTask<Object, String, Voi
      * @param[price] The new, noteworthy price
      * @param[ab] "1" means above, something else like "0" means below
      */
-    fun BroadcastSystemAlarm(ticker: String, price: String, ab: String) {
+    fun AlarmBroadcastGlobal(ticker: String, price: String, ab: String) {
 
         Log.v("Updaten", "Building alarm with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5
