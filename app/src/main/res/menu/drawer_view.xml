@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item android:icon="@drawable/stocklogo" android:id="@+id/menu_add_stock" android:title="@string/addstock" />
+        <item android:id="@+id/menu_add_crypto" android:title="@string/addcrypto" />
+        <item android:id="@+id/menu_snooze" android:title="@string/snooze" />
+    </group>
+</menu>

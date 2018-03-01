@@ -41,23 +41,15 @@ class AddEditStockActivity : AppCompatActivity() {
         aboveChecked = findViewById(R.id.rbAbove)
         phoneChecked = findViewById(R.id.phoneCallCB)
 
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolbar)
-
-        val addbutton = findViewById(R.id.fab) as FloatingActionButton
         val deletebutton = findViewById(R.id.delbtn) as Button
-
         val b = intent.extras
-
         EditingCrypto = b.getBoolean("EditingCrypto")
         EditingExisting = b.getBoolean("EditingExisting")
         Snooze = b.getBoolean("snooze")
         if (Snooze) {
             setTitle("Enter minutes for snooze for price")
             deletebutton.visibility = View.INVISIBLE
-        }
-        else if (EditingExisting) {
-
+        } else if (EditingExisting) {
             val thestock: Stock = b.getParcelable("TheStock")
             stockid = thestock.stockid
             val stockticker = thestock.ticker
@@ -70,25 +62,27 @@ class AddEditStockActivity : AppCompatActivity() {
             phoneChecked.setChecked(thestock.phone < 1)
 
             deletebutton.setOnClickListener(DeleteStockClickListener)
-        } else { //adding a new stock
+        } else if (!EditingExisting) { //adding a new stock
             if (EditingCrypto) { setTitle(getResources().getString(R.string.title_activity_add_crypto)) }
             deletebutton.visibility = View.INVISIBLE
         }
 
+        val addbutton = findViewById(R.id.fab) as FloatingActionButton
         addbutton.setOnClickListener(AddStockClickListener)
 
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        var actionBar = supportActionBar
+        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val inflater = actionBar?.themedContext?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as? LayoutInflater
+        val inflater = supportActionBar?.themedContext?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as? LayoutInflater
         val customActionBarView = inflater?.inflate(R.layout.actionbar_custom_view_done_cancel, null)
 
         customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_done)?.setOnClickListener(AddStockClickListener) //"Done"
         customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_cancel)?.setOnClickListener(View.OnClickListener { finish() }) // "Cancel"
 
         // Show the custom action bar view and hide the normal Home icon and title.
-        actionBar?.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM or ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE)
-        actionBar?.setCustomView(customActionBarView, Toolbar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        supportActionBar?.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM or ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE)
+        supportActionBar?.setCustomView(customActionBarView, Toolbar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
     }
 
     /**
@@ -122,6 +116,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
             if (delsuccess) toast(resources.getString(R.string.numdeleted, stockticker))
             else toast(resources.getString(R.string.delfail))
+
             finish()
         }
     }

@@ -19,7 +19,12 @@ import android.app.ActivityManager
 import android.content.ServiceConnection
 import android.content.ComponentName
 import android.os.IBinder
+import android.support.design.widget.NavigationView
+import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
+import android.view.MenuItem
+import android.widget.Toolbar
 
 //import android.databinding.DataBindingUtil
 
@@ -46,6 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     var listView: ListView? = null
     var adapter: UserListAdapter? = null
+    var mDrawerLayout: DrawerLayout? = null
 
     var dbConnection = object : ServiceConnection {
 
@@ -98,7 +104,43 @@ class MainActivity : AppCompatActivity() {
             refreshULA()
             mSwipeRefreshLayout.setRefreshing(false)
         }
+
+        val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
+        setSupportActionBar(toolbar)
+        val actionbar = supportActionBar
+        actionbar?.setDisplayHomeAsUpEnabled(true)
+        actionbar?.setHomeAsUpIndicator(R.drawable.ic_menu)
+
+        mDrawerLayout = findViewById(R.id.drawer_layout)
+        val navigationView = findViewById(R.id.nav_view) as NavigationView
+        navigationView.setNavigationItemSelectedListener {
+            it.setChecked(true)
+            mDrawerLayout?.closeDrawers()
+
+            //@todo Add code here to update the UI based on the item selected
+            //For example, swap UI fragments here
+
+            true
+        }
     }
+
+    /**
+     * For navigation drawer in toolbar
+     */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            android.R.id.home -> {
+                mDrawerLayout?.openDrawer(GravityCompat.START)
+                return true
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    /**
+     * Snooze button.
+     */
     fun timeDelay(view: View) {
         startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true,"snooze" to true)
     }
