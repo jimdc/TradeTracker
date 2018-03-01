@@ -22,7 +22,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
@@ -51,7 +50,8 @@ class MainActivity : AppCompatActivity() {
     var resultReceiver = createPriceBroadcastReceiver()
 
     var listView: ListView? = null
-    var adapter: UserListAdapter? = null
+    lateinit var fragment: RecyclerViewFragment
+    val adapter: RecyclingStockAdapter by lazy { fragment.mAdapter }
     var mDrawerLayout: DrawerLayout? = null
 
     var dbConnection = object : ServiceConnection {
@@ -74,8 +74,6 @@ class MainActivity : AppCompatActivity() {
      * Registers broadcast receiver, populates stock listview.
      */
 
-    var SnoozeButton: Button? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -86,14 +84,6 @@ class MainActivity : AppCompatActivity() {
         var intent = Intent(this, DatabaseService::class.java)
         if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
             Log.e("MainActivity", "onCreate: not able to bind dbConnection")
-
-
-        SnoozeButton = findViewById(R.id.timeDelayButton)
-        listView = findViewById<ListView>(R.id.listView)
-        adapter = UserListAdapter(this, stocksList)
-
-        listView?.adapter = adapter
-        listView?.setOnItemClickListener(StockviewClickListener)
 
         val mSwipeRefreshLayout = findViewById(R.id.swiperefresh) as SwipeRefreshLayout
         mSwipeRefreshLayout?.setOnRefreshListener {
@@ -119,29 +109,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.menu_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
                 R.id.menu_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
             }
-
             true
         }
-    }
 
-    private val StockviewClickListener = object : AdapterView.OnItemClickListener {
-        override fun onItemClick(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
-
-            /**
-             * Wrong way to do this. the ImageViews within this view have their own click listener
-             * https://stackoverflow.com/questions/8571166/click-imageview-within-a-listview-listitem-and-get-the-position
-            when(view.) {
-                R.id.imgEditStock -> toast("Edit")
-                R.id.imgDeleteStock -> toast("Delete")
-            }*/
-
-            alert("Are you sure you want to delete row " + pos.toString(), "Confirm") {
-                positiveButton("Yes") {
-                    toast("Row " + pos.toString() +
-                            if (deletestock(pos) == true) (" deleted.") else " not deleted.")
-                }
-                negativeButton("No") { toast("OK, nothing was deleted.") }
-            }.show()
+        if (savedInstanceState == null) {
+            val transaction = supportFragmentManager.beginTransaction()
+            fragment = RecyclerViewFragment()
+            transaction.replace(R.id.stock_content_fragment, fragment)
+            transaction.commit()
         }
     }
 
@@ -191,13 +166,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    /**
-     * Snooze button.
-     */
-    fun timeDelay(view: View) {
-        startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true,"snooze" to true)
     }
 
     /**
@@ -300,22 +268,6 @@ class MainActivity : AppCompatActivity() {
         if (isNotificActive) {
             notificationManager.cancel(notifID)
         }
-    }
-
-    /**
-     * Launch [AddEditStockActivity] with empty, crypto assumptions
-     * @param[view] required for onClick
-     */
-    fun LaunchAddCryptoActivity(view: View) {
-        startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
-    }
-
-    /**
-     * Launch [AddEditStockActivity] with empty, noncrypto assumptions
-     * @param[view] required for onClick
-     */
-    fun LaunchAddStockActivity(view: View) {
-        startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
     }
 
     final val BROADCAST_PRICE_UPDATE = "BROADCAST_PRICE_UPDATE"
