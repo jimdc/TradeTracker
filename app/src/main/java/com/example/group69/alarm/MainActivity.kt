@@ -19,6 +19,7 @@ import android.app.ActivityManager
 import android.content.ServiceConnection
 import android.content.ComponentName
 import android.os.IBinder
+import android.support.v4.widget.SwipeRefreshLayout
 
 //import android.databinding.DataBindingUtil
 
@@ -81,8 +82,6 @@ class MainActivity : AppCompatActivity() {
         adapter = UserListAdapter(this, stocksList)
 
         listView?.adapter = adapter
-        adapter?.notifyDataSetChanged()
-
         listView?.setOnItemClickListener { parent, view, position, id ->
             alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
                 positiveButton("Yes") {
@@ -91,6 +90,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 negativeButton("No") {  toast("OK, nothing was deleted.") }
             }.show()
+        }
+
+        val mSwipeRefreshLayout = findViewById(R.id.swiperefresh) as SwipeRefreshLayout
+        mSwipeRefreshLayout?.setOnRefreshListener {
+            Log.i("MainActivity", "onRefresh called from SwipeRefreshLayout")
+            refreshULA()
+            mSwipeRefreshLayout.setRefreshing(false)
         }
     }
     fun timeDelay(view: View) {
@@ -114,11 +120,15 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshULA()
+    }
+
     /**
      * Updates [stocksList] from Datenbank then refreshes UI
      */
-    override fun onResume() {
-        super.onResume()
+    fun refreshULA() {
         stocksList = getStocklistFromDB()
         adapter?.refresh(stocksList)
     }
