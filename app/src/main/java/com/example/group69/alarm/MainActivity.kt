@@ -1,6 +1,7 @@
 package com.example.group69.alarm
 
 import android.app.NotificationManager
+import android.arch.lifecycle.ViewModelProviders
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
@@ -15,6 +16,7 @@ import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.app.ActivityManager
+import android.arch.lifecycle.Observer
 import android.content.ServiceConnection
 import android.content.ComponentName
 import android.os.IBinder
@@ -35,6 +37,7 @@ import android.widget.*
  */
 
 lateinit var dbService: DatabaseService
+lateinit var mModel: StockViewModel
 var dbsBound: Boolean = false
 
 class MainActivity : AppCompatActivity() {
@@ -42,16 +45,15 @@ class MainActivity : AppCompatActivity() {
     private var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
     val servRunning = true
-    var stocksList: List<Stock> = ArrayList()
+
     internal lateinit var notificationManager: NotificationManager
 
     internal var notifID = 33
     internal var isNotificActive = false
     var resultReceiver = createPriceBroadcastReceiver()
 
-    var listView: ListView? = null
     lateinit var fragment: RecyclerViewFragment
-    val adapter: RecyclingStockAdapter by lazy { fragment.mAdapter }
+    private val adapter: RecyclingStockAdapter by lazy { fragment.mAdapter }
     var mDrawerLayout: DrawerLayout? = null
 
     var dbConnection = object : ServiceConnection {
@@ -61,8 +63,7 @@ class MainActivity : AppCompatActivity() {
             dbService = binder.service
             dbsBound = true
             Log.d("MainActivity", "dbService connected")
-            stocksList = dbService.getStocklistFromDB()
-            adapter?.refresh(stocksList)
+            refreshULA()
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -81,6 +82,13 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
+        mMainService = MainService(this)
+        mServiceIntent = Intent(this, MainService::class.java)
+        if (isMyServiceRunning(MainService::class.java)) {
+            toast("Service already running, shutting it down.")
+            val intent = Intent(this, MainService::class.java)
+            stopService(intent)
+        }
         var intent = Intent(this, DatabaseService::class.java)
         if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
             Log.e("MainActivity", "onCreate: not able to bind dbConnection")
@@ -118,6 +126,13 @@ class MainActivity : AppCompatActivity() {
             transaction.replace(R.id.stock_content_fragment, fragment)
             transaction.commit()
         }
+
+        mModel = ViewModelProviders.of(this).get(StockViewModel::class.java)
+        val stockObserverForRecycler = Observer<List<Stock>> {
+            Log.v("MainActivity", "Observer refreshing adapter")
+            adapter?.refresh(it!!)
+        }
+        mModel.stocks.observe(this, stockObserverForRecycler)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -125,14 +140,6 @@ class MainActivity : AppCompatActivity() {
         inflater.inflate(R.menu.main_activity_action_menu, menu)
 
         val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.getActionView()?.findViewById(R.id.show_scanning_switch) as? ToggleButton
-
-        mMainService = MainService(this)
-        mServiceIntent = Intent(this, MainService::class.java)
-        if (isMyServiceRunning(MainService::class.java)) {
-            toast("Service already running, shutting it down.")
-            val intent = Intent(this, MainService::class.java)
-            stopService(intent)
-        }
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
                 true -> {
@@ -158,9 +165,9 @@ class MainActivity : AppCompatActivity() {
      * For navigation drawer in toolbar
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             android.R.id.home -> mDrawerLayout?.openDrawer(GravityCompat.START)
-            R.id.action_snooze -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true,"snooze" to true)
+            R.id.action_snooze -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true, "snooze" to true)
             R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
             R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
         }
@@ -169,33 +176,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Deletes the stock from Datenbank, from [stocksList], and refreshes UI.
-     * @param[position] the index of the stock in [stocksList]; same as in UI
-     * @return true if SQLite helper could find the stock to delete
-     * @sample onCreate
-     * @todo just pass the stockid to the Updaten thread so it can delete it
-     */
-
-    fun deletestock(position: Int) : Boolean {
-        val target = stocksList.get(position) as Stock
-        if (dbsBound) {
-            return dbService.deletestockInternal(target.stockid)
-        }
-        Log.e("MainActivity", "deletestock: dbsBound = false, so did nothing.")
-        return false
-    }
-
-    override fun onResume() {
-        super.onResume()
-        refreshULA()
-    }
-
-    /**
      * Updates [stocksList] from Datenbank then refreshes UI
      */
     fun refreshULA() {
-        stocksList = getStocklistFromDB()
-        adapter?.refresh(stocksList)
+        Log.v("MainActivity", "refreshULA() called")
+        mModel.stocks.setValue(getStocklistFromDB())
     }
 
     /**
@@ -279,7 +264,7 @@ class MainActivity : AppCompatActivity() {
             override fun onReceive(context: Context, intent: Intent) {
                 val rStockid = intent.getLongExtra("stockid", -666)
                 val rPrice = intent.getDoubleExtra("currentprice", -666.0)
-                when(intent?.action) {
+                when(intent.action) {
                     "com.example.group69.alarm" -> adapter?.setCurrentPrice(rStockid, rPrice)
                 }
             }

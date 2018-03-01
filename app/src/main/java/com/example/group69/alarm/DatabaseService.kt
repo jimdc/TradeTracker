@@ -55,21 +55,23 @@ class DatabaseService : Service() {
         var rez: Int? = 0
 
         try {
-            //Datenbank.use {
-                rez = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
-            //}
+            rez = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
         } catch (e: SQLiteException) {
             Log.e("MainActivity", "could not delete $stockid: " + e.toString())
         }
 
-        return (rez!! > 0)
+        if (rez!! > 0) {
+            mModel.stocks.postValue(getStocklistFromDB()) //Synchronize
+            return true
+        }
+
+        return false
     }
 
     @Synchronized
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock> = ArrayList()
         try {
-            //Datenbank.use {
             val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
 
             sresult?.exec {
@@ -80,7 +82,6 @@ class DatabaseService : Service() {
                     results = parseList(parser)
                 }
             }
-            //}
         } catch (e: SQLiteException) {
             Log.e("DatabaseService", "getStocklistFromDB exception: " + e.toString())
         }
@@ -92,10 +93,12 @@ class DatabaseService : Service() {
     fun addeditstock(stock: Stock): Boolean {
         val target: Double? = stock.target
         var rownum: Long? = 666
-        //Datenbank?.use {
-            rownum = Datenbank?.replace(NewestTableName, null, stock.ContentValues())
-        //}
+        rownum = Datenbank?.replace(NewestTableName, null, stock.ContentValues())
 
-        return (rownum != -1L)
+        if (rownum == -1L) return false
+        else {
+            mModel.stocks.postValue(getStocklistFromDB()) //Synchronize
+            return true
+        }
     }
 }
