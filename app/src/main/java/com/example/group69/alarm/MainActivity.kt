@@ -93,15 +93,7 @@ class MainActivity : AppCompatActivity() {
         adapter = UserListAdapter(this, stocksList)
 
         listView?.adapter = adapter
-        listView?.setOnItemClickListener { parent, view, position, id ->
-            alert("Are you sure you want to delete row " + position.toString(), "Confirm") {
-                positiveButton("Yes") {
-                    toast("Row " + position.toString() +
-                            if (deletestock(position)==true) (" deleted.") else " not deleted.")
-                }
-                negativeButton("No") {  toast("OK, nothing was deleted.") }
-            }.show()
-        }
+        listView?.setOnItemClickListener(StockviewClickListener)
 
         val mSwipeRefreshLayout = findViewById(R.id.swiperefresh) as SwipeRefreshLayout
         mSwipeRefreshLayout?.setOnRefreshListener {
@@ -129,6 +121,27 @@ class MainActivity : AppCompatActivity() {
             }
 
             true
+        }
+    }
+
+    private val StockviewClickListener = object : AdapterView.OnItemClickListener {
+        override fun onItemClick(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
+
+            /**
+             * Wrong way to do this. the ImageViews within this view have their own click listener
+             * https://stackoverflow.com/questions/8571166/click-imageview-within-a-listview-listitem-and-get-the-position
+            when(view.) {
+                R.id.imgEditStock -> toast("Edit")
+                R.id.imgDeleteStock -> toast("Delete")
+            }*/
+
+            alert("Are you sure you want to delete row " + pos.toString(), "Confirm") {
+                positiveButton("Yes") {
+                    toast("Row " + pos.toString() +
+                            if (deletestock(pos) == true) (" deleted.") else " not deleted.")
+                }
+                negativeButton("No") { toast("OK, nothing was deleted.") }
+            }.show()
         }
     }
 
