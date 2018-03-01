@@ -32,6 +32,7 @@
     <string name="above">Above</string>
     <string name="below">Below</string>
     <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
     <string name="delete">Delete</string>
     <string name="title_activity_add_stock">Add stock</string>
     <string name="title_activity_add_crypto">Add crypto</string>

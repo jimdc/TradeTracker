@@ -32,6 +32,7 @@
     <string name="above">ci-dessus</string>
     <string name="below">ci-dessous</string>
     <string name="cancel">Annuler</string>
+    <string name="done">Accompli</string>
     <string name="delete">Effacer</string>
     <string name="title_activity_add_stock">Ajouter un stock</string>
     <string name="title_activity_add_crypto">Ajouter un crypto</string>
