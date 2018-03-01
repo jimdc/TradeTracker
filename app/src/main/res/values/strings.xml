@@ -34,6 +34,10 @@
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
     <string name="snooze">Snooze</string>
+    <string name="action_settings">Settings</string>
+    <string name="addstockcrypto">Add stock or crypto</string>
+    <string name="scanning">Now scanning</string>
+    <string name="notscanning">Not scanning</string>
     <string name="delete">Delete</string>
     <string name="title_activity_add_stock">Add stock</string>
     <string name="title_activity_add_crypto">Add crypto</string>

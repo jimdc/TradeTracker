@@ -14,7 +14,6 @@ import org.jetbrains.anko.*
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
-import android.widget.ListView
 import android.app.ActivityManager
 import android.content.ServiceConnection
 import android.content.ComponentName
@@ -23,8 +22,10 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
+import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toolbar
+import android.widget.*
 
 //import android.databinding.DataBindingUtil
 
@@ -73,6 +74,8 @@ class MainActivity : AppCompatActivity() {
      * Registers broadcast receiver, populates stock listview.
      */
 
+    var SnoozeButton: Button? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -84,6 +87,8 @@ class MainActivity : AppCompatActivity() {
         if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
             Log.e("MainActivity", "onCreate: not able to bind dbConnection")
 
+
+        SnoozeButton = findViewById(R.id.timeDelayButton)
         listView = findViewById<ListView>(R.id.listView)
         adapter = UserListAdapter(this, stocksList)
 
@@ -117,11 +122,48 @@ class MainActivity : AppCompatActivity() {
             it.setChecked(true)
             mDrawerLayout?.closeDrawers()
 
-            //@todo Add code here to update the UI based on the item selected
-            //For example, swap UI fragments here
+            when(it.itemId) {
+                R.id.menu_snooze -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true,"snooze" to true)
+                R.id.menu_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
+                R.id.menu_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
+            }
 
             true
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.main_activity_action_menu, menu)
+
+        val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.getActionView()?.findViewById(R.id.show_scanning_switch) as? ToggleButton
+
+        mMainService = MainService(this)
+        mServiceIntent = Intent(this, MainService::class.java)
+        if (isMyServiceRunning(MainService::class.java)) {
+            toast("Service already running, shutting it down.")
+            val intent = Intent(this, MainService::class.java)
+            stopService(intent)
+        }
+
+        mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
+                true -> {
+                    mMainService = MainService(this)
+                    mServiceIntent = Intent(this, MainService::class.java)
+                    if (!isMyServiceRunning(MainService::class.java)) {
+                        startService(mServiceIntent)
+                    } else {
+                        toast("scan already running")
+                    }
+                }
+                false -> {
+                    val intent = Intent(this, MainService::class.java)
+                    stopService(intent)
+                }
+            }
+        }
+
+        return super.onCreateOptionsMenu(menu)
     }
 
     /**
@@ -129,10 +171,10 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
-            android.R.id.home -> {
-                mDrawerLayout?.openDrawer(GravityCompat.START)
-                return true
-            }
+            android.R.id.home -> mDrawerLayout?.openDrawer(GravityCompat.START)
+            R.id.action_snooze -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true,"snooze" to true)
+            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
+            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
         }
 
         return super.onOptionsItemSelected(item)
@@ -188,33 +230,6 @@ class MainActivity : AppCompatActivity() {
         Log.e("MainActivity", "getStocklistFromDB: dbsBound = false, so did nothing.")
         return emptyList()
     }
-
-    /**
-     * Start the ScannerService or notify that it's already running
-     * @param[view] The main activity view
-     * @todo Make global boolean to signal if [startService] already pressed
-     */
-    fun startService(view: View) {
-        mMainService = MainService(this)
-        mServiceIntent = Intent(this, MainService::class.java)
-        if (!isMyServiceRunning(MainService::class.java)) {
-            startService(mServiceIntent)
-        } else {
-            toast("scan already running")
-        }
-    }
-
-    /**
-     * Stop the ScannerService
-     * @param[view] The main activity view
-     * @todo Make global boolean to signal if [startService] already pressed
-     */
-    fun stopService(view: View) {
-        val intent = Intent(this, MainService::class.java)
-        stopService(intent)
-    }
-
-
 
     /**
      * Query the system for if a service is already running.
