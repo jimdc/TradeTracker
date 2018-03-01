@@ -264,8 +264,9 @@ class MainActivity : AppCompatActivity() {
             override fun onReceive(context: Context, intent: Intent) {
                 val rStockid = intent.getLongExtra("stockid", -666)
                 val rPrice = intent.getDoubleExtra("currentprice", -666.0)
+                val rTime = intent.getStringExtra("time") ?: "not found"
                 when(intent.action) {
-                    "com.example.group69.alarm" -> adapter?.setCurrentPrice(rStockid, rPrice)
+                    "com.example.group69.alarm" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
                 }
             }
         }

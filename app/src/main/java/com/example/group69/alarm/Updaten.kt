@@ -115,6 +115,7 @@ class Updaten(CallerContext: Context) {
         val intent = Intent("com.example.group69.alarm")
         intent.putExtra("stockid", stockid)
         intent.putExtra("currentprice", currentprice)
+        intent.putExtra("time", GregorianCalendar().time.toLocaleString())
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
     private fun createBroadcastReceiver(): BroadcastReceiver {

@@ -49,6 +49,11 @@ class DatabaseService : Service() {
         DatabaseManager.getInstance().database.close()
     }
 
+    fun deletestock(position: Int) : Boolean {
+        val stocks: List<Stock> = getStocklistFromDB()
+        val stockid = stocks[position].stockid
+        return deletestockInternal(stockid)
+    }
 
     @Synchronized
     fun deletestockInternal(stockid: Long) : Boolean {
