@@ -28,6 +28,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
 
+
 //import android.databinding.DataBindingUtil
 
 /**
@@ -39,6 +40,9 @@ import android.widget.*
 lateinit var dbService: DatabaseService
 lateinit var mModel: StockViewModel
 var dbsBound: Boolean = false
+var isSnooze: Boolean = false
+var snoozeTime: Double = 0.0;
+var scanRunning: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -79,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
@@ -99,6 +104,7 @@ class MainActivity : AppCompatActivity() {
             refreshULA()
             mSwipeRefreshLayout.setRefreshing(false)
         }
+
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
         setSupportActionBar(toolbar)
@@ -135,6 +141,7 @@ class MainActivity : AppCompatActivity() {
         mModel.stocks.observe(this, stockObserverForRecycler)
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.main_activity_action_menu, menu)
@@ -159,6 +166,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         return super.onCreateOptionsMenu(menu)
+
     }
 
     /**
@@ -198,6 +206,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
+
      * Query the system for if a service is already running.
      * @param[serviceClass] the service class
      * @return true if running, false if not

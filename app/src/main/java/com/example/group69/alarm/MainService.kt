@@ -112,15 +112,24 @@ class MainService : Service {
 
             while (!currentThread().isInterrupted) {
                 Log.d("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
-                val ms = updat.scannetwork()
+                val t = updat.scannetwork()
 
-                if (ms > 0) Utility.TryToSleepFor(ms)
+                if (isSnooze) {  //a return code of 2 means that snooze was activated and the sleep value was loaded into snoozeTime from mainActivity
+                    Log.d("Main","snoozetime")
+                    scanRunning = false  //scan refers to updaten, not the service
+                    toast("sleeping!" + snoozeTime)
+                    Utility.TryToSleepFor(snoozeTime.toLong()*1000)
+                    toast("scan resuming")
+                    scanRunning = true
+                    isSnooze = false
+                }
                 else Utility.TryToSleepFor(8000)
+
 
                 SecondsSinceScanStarted++
             }
 
-            toast("Scan stopped after $SecondsSinceScanStarted seconds")
+            toast("Scan stopped after $SecondsSinceScanStarted iterations")
             updat.running = false
 
             //this would stop the service on it's own. we don't want that unless the user toggles scanning button to off
