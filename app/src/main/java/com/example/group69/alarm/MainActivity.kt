@@ -1,8 +1,6 @@
 package com.example.group69.alarm
 
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.TaskStackBuilder
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -15,10 +13,14 @@ import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.widget.ListView
-import android.app.ActivityManager
 import android.content.ServiceConnection
 import android.content.ComponentName
 import android.os.IBinder
+import android.widget.Button
+import android.widget.Toast
+import android.widget.EditText
+import java.util.*
+
 
 //import android.databinding.DataBindingUtil
 
@@ -30,6 +32,9 @@ import android.os.IBinder
 
 lateinit var dbService: DatabaseService
 var dbsBound: Boolean = false
+var isSnooze: Boolean = false
+var snoozeTime: Double = 0.0;
+var scanRunning: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -70,6 +75,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
@@ -77,6 +83,10 @@ class MainActivity : AppCompatActivity() {
         if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
             Log.e("MainActivity", "onCreate: not able to bind dbConnection")
 
+        if (isMyServiceRunning(MainService::class.java)) {
+            scanRunning = true
+            toast("scan still running")
+        }
         listView = findViewById<ListView>(R.id.listView)
         adapter = UserListAdapter(this, stocksList)
 
@@ -93,8 +103,55 @@ class MainActivity : AppCompatActivity() {
             }.show()
         }
     }
-    fun timeDelay(view: View) {
-        startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true,"snooze" to true)
+    fun snooze(view: View) {
+        Log.d("snoozeee","snoozin")
+        if (scanRunning) {
+            val mBuilder = AlertDialog.Builder(this@MainActivity)
+            val mView = layoutInflater.inflate(R.layout.snooze_dialogue, null)
+            val iHour = mView.findViewById(R.id.inputHour) as EditText
+            val iMinute = mView.findViewById(R.id.inputMinute) as EditText
+            val mLogin = mView.findViewById(R.id.btnSnooze) as Button
+
+            mBuilder.setView(mView)
+            val dialog = mBuilder.create()
+            dialog.show()
+            mLogin.setOnClickListener(View.OnClickListener {
+                if (!dbsBound) {
+                    toast("Scan isn't even running dude")
+                    Log.d("ayyy111","ayyy111")
+                }
+                if (!(iHour.text.toString().isEmpty() && iMinute.text.toString().isEmpty())) {
+                    /* if(iHour.text.toString().isEmpty())
+                        snoozeTime = iMinute.text.toString().toDouble() * 60
+                    if(iMinute.text.toString().isEmpty())
+                        snoozeTime = iHour.text.toString().toDouble() * 3600
+                    if(!iHour.text.toString().isEmpty() && !iMinute.text.toString().isEmpty())
+                        snoozeTime = iHour.text.toString().toDouble() * 3600 + iMinute.text.toString().toDouble() * 60 */
+
+                    Log.d("main","scan pausing")
+                    var stockid = Calendar.getInstance().getTimeInMillis()
+                    snoozeTime = iHour.text.toString().toDouble() * 3600 + iMinute.text.toString().toDouble() * 60
+                    isSnooze = true
+                    val seconds = iHour.text.toString().toDouble() * 3600 + iMinute.text.toString().toDouble() * 60
+                  /*  val snoozeEntry = Stock(stockid, "snoozee", seconds
+                            ?: 6.66, false, false, false)
+                    if (dbsBound) {
+                        dbService.addeditstock(snoozeEntry)
+                    } else {
+                        Log.e("AddButton", "OnClickListener: dbsBound = false, so did nothing.")
+                    } */
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(this@MainActivity,
+                            getString(R.string.invalid_entry),
+                            Toast.LENGTH_SHORT).show()
+                }
+            })
+
+        }
+        else {
+            toast("scan isn't even running, can't snooze")
+        }
     }
 
     /**
@@ -150,6 +207,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             toast("scan already running")
         }
+        scanRunning = true
     }
 
     /**
@@ -160,6 +218,7 @@ class MainActivity : AppCompatActivity() {
     fun stopService(view: View) {
         val intent = Intent(this, MainService::class.java)
         stopService(intent)
+        scanRunning = false
     }
 
 

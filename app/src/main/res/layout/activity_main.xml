@@ -10,7 +10,7 @@
         android:text="Snooze"
         android:id="@+id/timeDelayButton"
         android:layout_alignParentStart="true"
-        android:onClick="timeDelay" />
+        android:onClick="snooze" />
     <Button
         android:id="@+id/addcryptoButton"
         android:layout_width="match_parent"

@@ -45,11 +45,11 @@ class Updaten(CallerContext: Context) {
                 SetPendingFinishedStock(stockx.stockid)
                 val snoozems = 1000*stockx.target.toLong()
                 Log.d("Updaten","Snoozing for $snoozems milliseconds.")
-                return snoozems
+                return 0
             }
 
             var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
-            } else { Geldmonitor.getStockPrice(ticker) }
+            } else { Geldmonitor.getLateStockPrice(ticker) } //changed from getStockPrice
 
             if (currPrice >= 0) {
                 PriceBroadcastLocal(stockx.stockid, currPrice)
