@@ -115,7 +115,7 @@ class MainService : Service {
                 val t = updat.scannetwork()
 
                 if (isSnooze) {  //a return code of 2 means that snooze was activated and the sleep value was loaded into snoozeTime from mainActivity
-                    Log.d("Main","snoozetime")
+                    Log.d("Main","snoozetimee")
                     scanRunning = false  //scan refers to updaten, not the service
                     toast("sleeping!" + snoozeTime)
                     Utility.TryToSleepFor(snoozeTime.toLong()*1000)
