@@ -49,7 +49,7 @@ class Updaten(CallerContext: Context) {
             }
 
             var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
-            } else { Geldmonitor.getLateStockPrice(ticker) } //changed from getStockPrice
+            } else { Geldmonitor.getLateStockPrice(ticker) } //changed from getStockPrice, the livestockprice is often non-existent and doesnt round as well for penny stocks
 
             if (currPrice >= 0) {
                 PriceBroadcastLocal(stockx.stockid, currPrice)
