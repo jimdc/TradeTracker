@@ -9,30 +9,30 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <ImageView
-        android:id="@+id/imgAvatar"
+        android:id="@+id/imgDeleteStock"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
         android:contentDescription="delete"
-        android:src="@drawable/ic_delete_black_48dp" />
+        android:src="@drawable/ic_delete" />
 
     <ImageView
-        android:id="@+id/imgEdit"
+        android:id="@+id/imgEditStock"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
         android:contentDescription="edit"
-        android:layout_toLeftOf="@id/imgAvatar"
-        android:src="@drawable/ic_perm_data_setting_black_48dp" />
+        android:layout_toLeftOf="@id/imgDeleteStock"
+        android:src="@drawable/ic_mode_edit" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/imgEdit"
+        android:layout_toLeftOf="@id/imgEditStock"
         android:orientation="vertical">
 
         <TextView

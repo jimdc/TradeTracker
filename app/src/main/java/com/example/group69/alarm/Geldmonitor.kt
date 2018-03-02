@@ -121,10 +121,10 @@ object Geldmonitor {
             val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
             matcher.find()
 
+
             try { ret = java.lang.Double.parseDouble(matcher.group())
             } catch (ne: NumberFormatException) { ret = DOUBLE_CONVERSION_ERROR }
-
-            if (ret != DOUBLE_CONVERSION_ERROR) return ret
+            catch (me: IllegalStateException) { ret = SKIPPEDPARSE_ERROR }
         }
 
         return ret

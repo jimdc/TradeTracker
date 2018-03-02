@@ -16,10 +16,16 @@ import android.support.test.runner.AndroidJUnit4
  * Instrumentation test. If get "Empty test suite", right click run from package
  * RuntimeException because needs to have getActivity() startActivitySync or similar called
  */
+@RunWith(AndroidJUnit4::class)
 class AddStocktest {
 
     private val mStringToBeTyped: String = "Espresso"
     public val mActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+
+    @Test
+    public fun testsnooze() {
+        onView(withId(R.id.timeDelayButton)).perform(click())
+    }
 
     @Test
     public fun clickclack() {

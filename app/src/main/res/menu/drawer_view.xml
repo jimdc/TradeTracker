@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item android:icon="@drawable/ic_notifications_paused" android:id="@+id/menu_snooze" android:title="@string/snooze" />
+        <item android:icon="@drawable/ic_library_add_black" android:id="@+id/menu_add_stock" android:title="@string/addstock" />
+        <item android:icon="@drawable/ic_toll_black" android:id="@+id/menu_add_crypto" android:title="@string/addcrypto" />
+    </group>
+</menu>

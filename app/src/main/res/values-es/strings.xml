@@ -32,6 +32,12 @@
     <string name="above">por encima</string>
     <string name="below">por abajo</string>
     <string name="cancel">Anular</string>
+    <string name="done">Hecho</string>
+    <string name="snooze">Dormitar</string>
+    <string name="action_settings">Preferencias</string>
+    <string name="addstockcrypto">Añadir stock o cripto</string>
+    <string name="scanning">Ya escaneando</string>
+    <string name="notscanning">No escaneando</string>
     <string name="delete">Borrar</string>
     <string name="title_activity_add_stock">Añadir stock</string>
     <string name="title_activity_add_crypto">Añadir cripto</string>

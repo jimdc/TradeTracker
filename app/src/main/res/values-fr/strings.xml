@@ -32,7 +32,12 @@
     <string name="above">ci-dessus</string>
     <string name="below">ci-dessous</string>
     <string name="cancel">Annuler</string>
-    <string name="delete">Effacer</string>
+    <string name="done">Accompli</string>
+    <string name="snooze">Roupillon</string>
+    <string name="settings">Paramètres</string>
+    <string name="addstockcrypto">Ajouter un stock ou crypto</string>
+    <string name="scanning">Scan en cours</string>
+    <string name="notscanning">Ne scan pas</string>
     <string name="title_activity_add_stock">Ajouter un stock</string>
     <string name="title_activity_add_crypto">Ajouter un crypto</string>
     <string name="title_activity_edit_stock">Édition stock/crypto \"%1$s\"</string>
