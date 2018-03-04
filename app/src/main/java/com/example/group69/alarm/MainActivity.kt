@@ -36,6 +36,7 @@ import android.widget.*
 
 lateinit var dbService: DatabaseService
 lateinit var mModel: StockViewModel
+lateinit var stockObserverForRecycler: Observer<List<Stock>>
 var dbsBound: Boolean = false
 var isSnooze: Boolean = false
 var snoozeTime: Double = 0.0;
@@ -84,17 +85,6 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
-        mMainService = MainService(this)
-        mServiceIntent = Intent(this, MainService::class.java)
-        if (isMyServiceRunning(MainService::class.java)) {
-            toast("Service already running, shutting it down.")
-            val intent = Intent(this, MainService::class.java)
-            stopService(intent)
-        }
-        var intent = Intent(this, DatabaseService::class.java)
-        if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
-            Log.e("MainActivity", "onCreate: not able to bind dbConnection")
-
         val mSwipeRefreshLayout = findViewById(R.id.swiperefresh) as SwipeRefreshLayout
         mSwipeRefreshLayout?.setOnRefreshListener {
             Log.i("MainActivity", "onRefresh called from SwipeRefreshLayout")
@@ -124,6 +114,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState == null) {
+            var intent = Intent(this, DatabaseService::class.java)
+            if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
+                Log.e("MainActivity", "onCreate: not able to bind dbConnection")
+
             val transaction = supportFragmentManager.beginTransaction()
             fragment = RecyclerViewFragment()
             transaction.replace(R.id.stock_content_fragment, fragment)
@@ -131,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mModel = ViewModelProviders.of(this).get(StockViewModel::class.java)
-        val stockObserverForRecycler = Observer<List<Stock>> {
+        stockObserverForRecycler = Observer<List<Stock>> {
             Log.v("MainActivity", "Observer refreshing adapter")
             adapter?.refresh(it!!)
         }
@@ -339,6 +333,8 @@ class MainActivity : AppCompatActivity() {
         }
         unbindService(dbConnection)
         dbsBound = false
+
+        mModel.stocks.removeObserver(stockObserverForRecycler)
         super.onDestroy()
     }
 }

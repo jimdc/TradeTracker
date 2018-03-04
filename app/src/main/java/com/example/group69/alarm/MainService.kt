@@ -51,7 +51,7 @@ class MainService : Service {
     /**
      * Get a message instance from [mServiceHandler] and send its message
      * @param[startId] is used to identify the service
-     * @return START_STICKY: ask OS to restart service with null intent
+     * @return START_NOT_STICKY: if the system has to kill it b/c of low memory (or app killed), OK.
      */
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -59,7 +59,7 @@ class MainService : Service {
         message.arg1 = startId
         mServiceHandler.sendMessage(message)
 
-        return Service.START_STICKY
+        return Service.START_NOT_STICKY
     }
 
     /*    protected fun showToast(msg: String) {
