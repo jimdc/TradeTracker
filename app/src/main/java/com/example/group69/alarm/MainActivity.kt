@@ -138,6 +138,7 @@ class MainActivity : AppCompatActivity() {
         inflater.inflate(R.menu.main_activity_action_menu, menu)
 
         val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.getActionView()?.findViewById(R.id.show_scanning_switch) as? ToggleButton
+        mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
                 true -> {

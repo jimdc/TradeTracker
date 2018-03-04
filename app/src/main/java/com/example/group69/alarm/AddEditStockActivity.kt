@@ -22,7 +22,6 @@ class AddEditStockActivity : AppCompatActivity() {
      * Customizes the UI based on intent extras "EditingCrypto" and "EditingExisting"
      * @todo make more modular by having Datenbank interaction in own function
      */
-    var Snooze: Boolean = false
     var EditingCrypto: Boolean = false
     var EditingExisting: Boolean = false
     var stockid = Calendar.getInstance().getTimeInMillis() //@todo use autoincrement
@@ -45,11 +44,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val b = intent.extras
         EditingCrypto = b.getBoolean("EditingCrypto")
         EditingExisting = b.getBoolean("EditingExisting")
-        Snooze = b.getBoolean("snooze")
-        if (Snooze) {
-            setTitle("Enter minutes for snooze for price")
-            deletebutton.visibility = View.INVISIBLE
-        } else if (EditingExisting) {
+        if (EditingExisting) {
             val thestock: Stock = b.getParcelable("TheStock")
             stockid = thestock.stockid
             val stockticker = thestock.ticker
@@ -93,11 +88,8 @@ class AddEditStockActivity : AppCompatActivity() {
         override fun onClick(v: View) {
             val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
 
-            val editedstock = if(Snooze) { Stock(stockid, "snoozee", target
-                    ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto) } else {
-                Stock(stockid, tickerName.text.toString(), target
+            val editedstock = Stock(stockid, tickerName.text.toString(), target
                         ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
-            }
 
             if (dbsBound) { dbService.addeditstock(editedstock) }
             else { Log.e("AddButton", "OnClickListener: dbsBound = false, so did nothing.") }
