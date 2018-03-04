@@ -12,6 +12,9 @@ import android.widget.ImageView
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
+import android.support.v7.util.DiffUtil
+
+
 
 /**
  * Provide views to RecyclerView with data from RSAstocklist.
@@ -87,11 +90,17 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
 
     fun setCurrentPrice(stockid: Long, price: Double, time: String) {
         currentPrices[stockid] = Pair(price, time)
-        notifyDataSetChanged()
+        val poschanged = RSAstocklist.indexOf(RSAstocklist.find{it.stockid == stockid})
+        notifyItemChanged(poschanged)
     }
 
     fun refresh(newitems: List<Stock>) {
         RSAstocklist = newitems
+
+        //Doesn't work, idk why
+        //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.RSAstocklist, newitems))
+        //diffResult.dispatchUpdatesTo(this)
+
         notifyDataSetChanged()
     }
 
