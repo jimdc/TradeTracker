@@ -36,7 +36,7 @@ class MainService : Service {
      */
     override fun onCreate() {
         super.onCreate()
-        toast("Target scanning")
+        toast("scanning")
 
         if (!updat.running) {
             Log.d("got", "starting!")
