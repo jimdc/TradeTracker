@@ -45,18 +45,23 @@ class AddEditStockActivity : AppCompatActivity() {
         EditingCrypto = b.getBoolean("EditingCrypto")
         EditingExisting = b.getBoolean("EditingExisting")
         if (EditingExisting) {
-            val thestock: Stock = b.getParcelable("TheStock")
-            stockid = thestock.stockid
-            val stockticker = thestock.ticker
+            val thestock: Stock? = b.getParcelable("TheStock")
+            if (thestock == null) {
+                toast("Did not receive stock to edit from MainActivity")
+                finish()
+            } else {
+                stockid = thestock.stockid
+                val stockticker = thestock.ticker
 
-            setTitle(resources.getString(R.string.title_activity_edit_stock, stockticker))
+                setTitle(resources.getString(R.string.title_activity_edit_stock, stockticker))
 
-            tickerName.setText(stockticker)
-            tickerPrice.setText(thestock.target.toString())
-            aboveChecked.setChecked(thestock.above < 1)
-            phoneChecked.setChecked(thestock.phone < 1)
+                tickerName.setText(stockticker)
+                tickerPrice.setText(thestock.target.toString())
+                aboveChecked.setChecked(thestock.above < 1)
+                phoneChecked.setChecked(thestock.phone < 1)
 
-            deletebutton.setOnClickListener(DeleteStockClickListener)
+                deletebutton.setOnClickListener(DeleteStockClickListener)
+            }
         } else if (!EditingExisting) { //adding a new stock
             if (EditingCrypto) { setTitle(getResources().getString(R.string.title_activity_add_crypto)) }
             deletebutton.visibility = View.INVISIBLE

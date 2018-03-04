@@ -107,8 +107,8 @@ class MainActivity : AppCompatActivity() {
 
             when(it.itemId) {
                 R.id.menu_snooze -> snooze()
-                R.id.menu_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
-                R.id.menu_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
+                R.id.menu_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
+                R.id.menu_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
             }
             true
         }
@@ -170,8 +170,8 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> mDrawerLayout?.openDrawer(GravityCompat.START)
             R.id.action_snooze -> snooze()
-            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
-            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
+            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
+            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
         }
 
         return super.onOptionsItemSelected(item)
