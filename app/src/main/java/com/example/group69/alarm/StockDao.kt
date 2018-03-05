@@ -17,11 +17,9 @@ interface StockDao {
     @Query("SELECT * FROM TableView2 WHERE _stockid = :id")
     fun findStockById(id: Long): Stock
 
+    //Insert works fine to update but not vice-versa for some reason.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(stock: Stock): Long
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(stock: Stock): Int
 
     @Delete
     fun delete(stock: Stock): Int

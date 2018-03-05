@@ -15,7 +15,11 @@ import org.jetbrains.anko.db.rowParser
 import org.jetbrains.anko.db.select
 import java.util.Random
 
-class DatabaseSortaService(val context: Context) {
+/**
+ * Database stuff done here. Not necessarily on its own thread...
+ */
+
+class WrapperAroundDao(val context: Context) {
     var stockDatabase = StockDatabase.getInstance(context)
     var stockDao = stockDatabase?.stockDao()
 
@@ -38,7 +42,7 @@ class DatabaseSortaService(val context: Context) {
             try {
                 rez = stockDao?.delete(stock)
             } catch (e: SQLiteException) {
-                Log.e("DatabaseSortaService", "could not delete $stockid: " + e.toString())
+                Log.e("WrapperAroundDao", "could not delete $stockid: " + e.toString())
             }
         }
 
@@ -49,6 +53,9 @@ class DatabaseSortaService(val context: Context) {
         return true
     }
 
+    /**
+     * Used by [Updaten], but really, that service should also subscribe to [getFlowableStocklist]
+     */
     @Synchronized
     fun getStocklistFromDB() : List<Stock> {
         var results: List<Stock>? = null
@@ -56,12 +63,15 @@ class DatabaseSortaService(val context: Context) {
         try {
             results = stockDatabase?.stockDao()?.getAllStocks()
         } catch (e: SQLiteException) {
-            Log.e("DatabaseSortaService", "getStocklistFromDB exception: " + e.toString())
+            Log.e("WrapperAroundDao", "getStocklistFromDB exception: " + e.toString())
         }
 
         return results ?: emptyList()
     }
 
+    /**
+     * For the UI thread subscription
+     */
     @Synchronized
     fun getFlowableStocklist() : Flowable<List<Stock>> {
         return stockDao!!.getAllStocksF()
@@ -73,7 +83,7 @@ class DatabaseSortaService(val context: Context) {
         var rownum: Long? = stockDao?.insert(stock)
 
         if (rownum == null || rownum == -1L) {
-            Log.d("DatabaseSortaService", "That was a fail.")
+            Log.d("WrapperAroundDao", "That was a fail.")
             return false
         }
 

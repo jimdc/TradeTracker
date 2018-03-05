@@ -6,6 +6,10 @@ import android.arch.persistence.room.*
 import android.arch.persistence.room.OnConflictStrategy.REPLACE
 import io.reactivex.Flowable
 
+/**
+ * Not in use yet. For db version 3.
+ */
+
 @Dao
 interface StokoDao {
     @Query("SELECT * FROM stockstable")

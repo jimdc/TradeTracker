@@ -62,16 +62,6 @@ class MainService : Service {
         return Service.START_NOT_STICKY
     }
 
-    /*    protected fun showToast(msg: String) {
-            //gets the main thread
-            val handler = Handler(Looper.getMainLooper())
-            handler.post {
-                // run this code in the main thread
-                Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
-            }
-        }
-    */
-
     /**
      * Interrupts [targetScanThread] and cancels [updat]
      * @todo Something here is not allowed with Kotlin. Is it unnecessary?

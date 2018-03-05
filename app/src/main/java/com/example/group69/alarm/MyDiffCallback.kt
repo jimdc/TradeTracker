@@ -3,12 +3,9 @@ package com.example.group69.alarm
 import android.support.v7.util.DiffUtil
 import android.os.Bundle
 
-
-
 /**
- * Substitute for costly notifySetDataChanged
+ * Not used yet. It' a substitute for costly notifySetDataChanged
  * see https://medium.com/@iammert/using-diffutil-in-android-recyclerview-bdca8e4fbb00
- * Not used yet.
  */
 
 class MyDiffCallback(internal var newStocks: List<Stock>, internal var oldStocks: List<Stock>) : DiffUtil.Callback() {

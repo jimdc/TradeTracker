@@ -4,8 +4,11 @@ import android.arch.persistence.room.*
 import android.arch.persistence.room.Entity
 import java.time.Instant
 
+/**
+ * Not in use yet. For db version 3.
+ */
+
 @Entity(tableName = "stockstable")
-//@TypeConverters(DateConverter.class)
 data class Stoko(var ticker: String = "") {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="stock_id") var stockId: Long = 0
@@ -17,7 +20,7 @@ data class Stoko(var ticker: String = "") {
     @ColumnInfo(name="crypto") var crypto: Boolean = false
     @ColumnInfo(name="num_alarms") var numAlarms: Int = 0
     @ColumnInfo(name="last_price") var lastPrice: Long = 0
-    @ColumnInfo(name="last_price_as_of") //@TypeConverters(DateConverter.class)
+    @ColumnInfo(name="last_price_as_of")
     var lastPriceAsOf: Long = 0
 
     @Embedded var stokoPosition = StokoPosition()

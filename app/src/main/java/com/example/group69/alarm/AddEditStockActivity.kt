@@ -6,11 +6,9 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.support.design.widget.FloatingActionButton
 import android.app.ActionBar
-import android.util.Log
 import android.view.View
 import org.jetbrains.anko.*
 import java.util.Calendar
-import org.jetbrains.anko.db.delete
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.widget.*
@@ -57,14 +55,14 @@ class AddEditStockActivity : AppCompatActivity() {
 
                 tickerName.setText(stockticker)
                 tickerPrice.setText(thestock.target.toString())
-                aboveChecked.setChecked(thestock.above < 1)
-                phoneChecked.setChecked(thestock.phone < 1)
+                aboveChecked.setChecked(thestock.above > 0)
+                phoneChecked.setChecked(thestock.phone > 0)
 
                 deletebutton.setOnClickListener(DeleteStockClickListener)
             }
         } else if (!EditingExisting) { //adding a new stock
             if (EditingCrypto) { setTitle(getResources().getString(R.string.title_activity_add_crypto)) }
-            deletebutton.visibility = View.INVISIBLE
+            deletebutton.visibility = View.INVISIBLE //Why not let us delete it?
         }
 
         val addbutton = findViewById(R.id.fab) as FloatingActionButton
@@ -96,7 +94,7 @@ class AddEditStockActivity : AppCompatActivity() {
             val editedstock = Stock(stockid, tickerName.text.toString(), target
                         ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
-            dss.addeditstock(editedstock)
+            dbFunctions.addeditstock(editedstock)
             finish()
         }
     }
@@ -106,7 +104,7 @@ class AddEditStockActivity : AppCompatActivity() {
      */
     private val DeleteStockClickListener = object : View.OnClickListener {
         override fun onClick(v: View) {
-            if (dss.deletestockInternal(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
+            if (dbFunctions.deletestockInternal(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
             else toast(resources.getString(R.string.delfail))
 
             finish()

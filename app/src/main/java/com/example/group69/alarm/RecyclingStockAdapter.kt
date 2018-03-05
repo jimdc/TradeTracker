@@ -7,13 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.util.Log
-import android.widget.AdapterView
 import android.widget.ImageView
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
-import android.support.v7.util.DiffUtil
-import android.os.Bundle
 
 /**
  * Provide views to RecyclerView with data from RSAstocklist.
@@ -56,7 +53,7 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
                 with(view.context) {
                     alert("Are you sure you want to delete row " + adapterPosition.toString(), "Confirm") {
                         positiveButton("Yes") {
-                                if (dss.deletestockInternal(thestock.stockid)) {
+                                if (dbFunctions.deletestockInternal(thestock.stockid)) {
                                     toast("Successfully deleted stock.")
                                 } else {
                                     toast("Could not delete stock.")
@@ -116,7 +113,7 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
         RSAstocklist = newitems
 
         //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above
-        //But not that important since we mash all information together anyway
+        //But not that important for now since we mash all information together anyway w/ Stock.toString()
         //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.RSAstocklist, newitems))
         //diffResult.dispatchUpdatesTo(this)
 

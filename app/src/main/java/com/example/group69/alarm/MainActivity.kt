@@ -24,7 +24,7 @@ import io.reactivex.schedulers.Schedulers
  * @param[notifID] is used to track notifications
  */
 
-lateinit var dss: DatabaseSortaService
+lateinit var dbFunctions: WrapperAroundDao
 var isSnooze: Boolean = false
 var snoozeTime: Double = 0.0;
 var scanRunning: Boolean = false
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        dss = DatabaseSortaService(this.applicationContext)
+        dbFunctions = WrapperAroundDao(this.applicationContext)
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
@@ -69,10 +69,9 @@ class MainActivity : AppCompatActivity() {
     private val mDisposable = CompositeDisposable()
     override fun onStart() {
         super.onStart()
-        // Subscribe to the emissions of the stock from the view model.
-        // Update the stock text view, at every onNext emission.
-        // In case of error, log the exception.
-        mDisposable.add(dss.getFlowableStocklist()
+        // Subscribe to stock emissions from the database
+        // On every onNext emission update textview or log exception
+        mDisposable.add(dbFunctions.getFlowableStocklist()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -84,10 +83,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        mDisposable.clear()
+        mDisposable.clear() //Unsubscribe from database updates of stocklist
     }
 
-
+    /**
+     * This menu is the "add stock, add crypto, snooze, settings" on top.
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.main_activity_action_menu, menu)
@@ -117,6 +118,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * @todo: Don't crash when leaving one field blank or not a number. There are UI components that enforce this?
+     */
     fun snooze() {
         Log.d("snoozeee","snoozin")
         if (scanRunning) {
@@ -165,17 +169,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Queries Datenbank [NewestTableName] for stocks list and returns it
-     * @return the rows of stocks, or an empty list if Datenbank fails
-     * @seealso [Updaten.getStocklistFromDB]
-     */
-    @Synchronized
-    fun getStocklistFromDB() : List<Stock> {
-        return dss.getStocklistFromDB()
-    }
-
-    /**
-
      * Query the system for if a service is already running.
      * @param[serviceClass] the service class
      * @return true if running, false if not
@@ -257,7 +250,7 @@ class MainActivity : AppCompatActivity() {
         if (currentPriceReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
         }
-        dss.cleanup()
+        dbFunctions.cleanup() //Close database access
         super.onDestroy()
     }
 }

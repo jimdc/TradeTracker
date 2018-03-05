@@ -5,6 +5,10 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.PrimaryKey
 
+/**
+ * Not in use yet. For db version 3.
+ */
+
 @Entity(tableName = "alarmstable",
         foreignKeys = arrayOf(ForeignKey(entity=Stoko::class, parentColumns = arrayOf("stockid"),
         childColumns=arrayOf("myStockId"),
