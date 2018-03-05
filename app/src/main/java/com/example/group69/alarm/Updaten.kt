@@ -39,13 +39,6 @@ class Updaten(CallerContext: Context) {
         for (stockx in stocksTargets) {
             val ticker: String = stockx.ticker
 
-            if (ticker.equals("snoozee")) {
-                SetPendingFinishedStock(stockx.stockid)
-                val snoozems = 1000*stockx.target.toLong()
-                Log.d("Updaten","Snoozing for $snoozems milliseconds.")
-                return 0
-            }
-
             var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
             } else { Geldmonitor.getLateStockPrice(ticker) } //changed from getStockPrice, the livestockprice is often non-existent and doesnt round as well for penny stocks
 

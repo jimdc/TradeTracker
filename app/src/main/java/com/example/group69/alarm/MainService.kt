@@ -11,21 +11,22 @@ import android.os.Process
 import android.os.HandlerThread
 import java.lang.Thread.*
 import android.os.Vibrator
+import android.support.annotation.RestrictTo
 import android.util.Log
 
-
 class MainService : Service {
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public var started = true
+
     var runTargetScan = true
     private lateinit var mServiceLooper: Looper
     private lateinit var mServiceHandler: ServiceHandler
-    lateinit var mMainActivity: MainActivity
     private val targetScanThread = HandlerThread("TutorialService",
             Process.THREAD_PRIORITY_BACKGROUND)
     var updat = Updaten(this@MainService)
 
     constructor(callerContext: Context) : super() {
         Log.i("MainService", "Constructor called")
-        mMainActivity = callerContext as MainActivity
     }
 
     constructor() {}
@@ -46,6 +47,8 @@ class MainService : Service {
             mServiceLooper = targetScanThread.looper
             mServiceHandler = ServiceHandler(mServiceLooper)
         }
+
+        started = true
     }
 
     /**
