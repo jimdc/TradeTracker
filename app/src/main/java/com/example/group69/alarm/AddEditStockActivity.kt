@@ -96,9 +96,7 @@ class AddEditStockActivity : AppCompatActivity() {
             val editedstock = Stock(stockid, tickerName.text.toString(), target
                         ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
-            if (dbsBound) { dbService.addeditstock(editedstock) }
-            else { Log.e("AddButton", "OnClickListener: dbsBound = false, so did nothing.") }
-
+            dss.addeditstock(editedstock)
             finish()
         }
     }
@@ -108,10 +106,7 @@ class AddEditStockActivity : AppCompatActivity() {
      */
     private val DeleteStockClickListener = object : View.OnClickListener {
         override fun onClick(v: View) {
-            var delsuccess: Boolean = false
-            if (dbsBound) { delsuccess = dbService.deletestockInternal(stockid) }
-
-            if (delsuccess) toast(resources.getString(R.string.numdeleted, stockticker))
+            if (dss.deletestockInternal(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
             else toast(resources.getString(R.string.delfail))
 
             finish()

@@ -123,9 +123,7 @@ public class RecyclerViewFragment : Fragment() {
      */
     private fun initDataset() {
         //dbsBound would be true only when the recyclerview is recreated after hitting "back"
-        if (dbsBound) {
-            mDataset = dbService.getStocklistFromDB()
-        }
+        mDataset = dss.getStocklistFromDB()
     }
 
 }

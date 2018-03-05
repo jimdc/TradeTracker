@@ -43,7 +43,7 @@
                 android:value=".MainActivity" />
         </activity>
         <service android:name=".MainService" android:exported="false"></service>
-        <service android:name=".DatabaseService" android:exported="false"></service>
+        <service android:name=".DatabaseSortaService" android:exported="false"></service>
     </application>
 
 </manifest>

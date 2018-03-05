@@ -56,16 +56,12 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
                 with(view.context) {
                     alert("Are you sure you want to delete row " + adapterPosition.toString(), "Confirm") {
                         positiveButton("Yes") {
-                            if (dbsBound) {
-                                if (dbService.deletestockInternal(thestock.stockid)) {
+                                if (dss.deletestockInternal(thestock.stockid)) {
                                     toast("Successfully deleted stock.")
                                 } else {
                                     toast("Could not delete stock.")
                                 }
-                            } else {
-                                toast("Could not connect to DB service to delete stock.")
                             }
-                        }
                         negativeButton("No") { toast("OK, nothing was deleted.") }
                     }.show()
                 }

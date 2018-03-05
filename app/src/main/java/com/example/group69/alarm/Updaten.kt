@@ -88,12 +88,8 @@ class Updaten(CallerContext: Context) {
      */
     private fun DeletePendingFinishedStock() {
         if (alarmPlayed == true) {
-            if (dbsBound) {
-                dbService.deletestockInternal(IdOfStockToDelete)
-                Log.v("Updaten", "DeletePendingFinishedStock: requested DBS delete of $IdOfStockToDelete")
-            } else {
-                Log.e("Updaten", "DeletePendingFinishedStock: dbsBound = false, so did nothing.")
-            }
+            dss.deletestockInternal(IdOfStockToDelete)
+            Log.v("Updaten", "DeletePendingFinishedStock: requested DBS delete of $IdOfStockToDelete")
         }
     }
 
@@ -104,11 +100,7 @@ class Updaten(CallerContext: Context) {
      * This thread doesn't do that because it could conflict with [DeletePendingFinishedStock]
      */
     fun getStocklistFromDB() : List<Stock> {
-        if (dbsBound) {
-            return dbService.getStocklistFromDB()
-        }
-        Log.e("Updaten", "getStocklistFromDB: dbsBound = false, so did nothing.")
-        return emptyList()
+        return dss.getStocklistFromDB()
     }
 
     fun PriceBroadcastLocal(stockid: Long, currentprice: Double) {

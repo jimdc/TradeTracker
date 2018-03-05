@@ -24,7 +24,7 @@ class DatabaseServiceRoom : Service() {
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
     inner class LocalBinder : Binder() {
-        internal// Return this instance of DatabaseService so clients can call public methods
+        internal// Return this instance of DatabaseSortaService so clients can call public methods
         val service: DatabaseServiceRoom
             get() = this@DatabaseServiceRoom
     }

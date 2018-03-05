@@ -1,7 +1,6 @@
 package com.example.group69.alarm
 
 import android.app.*
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -24,6 +23,9 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 
 //import android.databinding.DataBindingUtil
@@ -34,20 +36,15 @@ import android.widget.*
  * @param[notifID] is used to track notifications
  */
 
-lateinit var dbService: DatabaseService
-lateinit var dbServicer: DatabaseServiceRoom
-lateinit var mModel: StockViewModel
-lateinit var stockObserverForRecycler: Observer<List<Stock>>
-var dbsBound: Boolean = false
-var dbsrBound: Boolean = false
+lateinit var dss: DatabaseSortaService
 var isSnooze: Boolean = false
 var snoozeTime: Double = 0.0;
-var scanRunning: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
     private var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
+
     val servRunning = true
 
     internal lateinit var notificationManager: NotificationManager
@@ -60,21 +57,6 @@ class MainActivity : AppCompatActivity() {
     private val adapter: RecyclingStockAdapter by lazy { fragment.mAdapter }
     var mDrawerLayout: DrawerLayout? = null
 
-    var dbConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            val binder = service as DatabaseService.LocalBinder
-            dbService = binder.service
-            dbsBound = true
-            Log.d("MainActivity", "dbService connected")
-            refreshULA()
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            dbsBound = false
-        }
-    }
-
     /**
      * Registers broadcast receiver, populates stock listview.
      */
@@ -82,15 +64,22 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        dss = DatabaseSortaService(this.applicationContext)
         setContentView(R.layout.activity_main)
+
+        if (savedInstanceState == null) {
+            val transaction = supportFragmentManager.beginTransaction()
+            fragment = RecyclerViewFragment()
+            transaction.replace(R.id.stock_content_fragment, fragment)
+            transaction.commit()
+        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 resultReceiver, IntentFilter("com.example.group69.alarm"))
 
         val mSwipeRefreshLayout = findViewById(R.id.swiperefresh) as SwipeRefreshLayout
         mSwipeRefreshLayout?.setOnRefreshListener {
-            Log.i("MainActivity", "onRefresh called from SwipeRefreshLayout")
-            refreshULA()
+            Log.i("MainActivity", "onRefresh called. This does nothing though.")
             mSwipeRefreshLayout.setRefreshing(false)
         }
 
@@ -114,24 +103,27 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+    }
 
-        if (savedInstanceState == null) {
-            var intent = Intent(this, DatabaseService::class.java)
-            if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
-                Log.e("MainActivity", "onCreate: not able to bind dbConnection")
+    private val mDisposable = CompositeDisposable()
+    override fun onStart() {
+        super.onStart()
+        // Subscribe to the emissions of the stock from the view model.
+        // Update the stock text view, at every onNext emission.
+        // In case of error, log the exception.
+        mDisposable.add(dss.getFlowableStocklist()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { Stocklist -> adapter?.refresh(Stocklist) },
+                        { throwable -> Log.d("Disposable::fail", throwable.message)}
+                )
+        )
+    }
 
-            val transaction = supportFragmentManager.beginTransaction()
-            fragment = RecyclerViewFragment()
-            transaction.replace(R.id.stock_content_fragment, fragment)
-            transaction.commit()
-        }
-
-        mModel = ViewModelProviders.of(this).get(StockViewModel::class.java)
-        stockObserverForRecycler = Observer<List<Stock>> {
-            Log.v("MainActivity", "Observer refreshing adapter")
-            adapter?.refresh(it!!)
-        }
-        mModel.stocks.observe(this, stockObserverForRecycler)
+    override fun onStop() {
+        super.onStop()
+        mDisposable.clear()
     }
 
 
@@ -148,7 +140,6 @@ class MainActivity : AppCompatActivity() {
                     mServiceIntent = Intent(this, MainService::class.java)
                     if (!isMyServiceRunning(MainService::class.java)) {
                         startService(mServiceIntent)
-                        scanRunning = true
                     } else {
                         toast("scan already running")
                     }
@@ -156,7 +147,6 @@ class MainActivity : AppCompatActivity() {
                 false -> {
                     val intent = Intent(this, MainService::class.java)
                     stopService(intent)
-                    scanRunning = false
                 }
             }
         }
@@ -180,7 +170,7 @@ class MainActivity : AppCompatActivity() {
     }
     fun snooze() {
         Log.d("snoozeee","snoozin")
-        if (scanRunning) {
+        if (isMyServiceRunning(MainService::class.java)) {
             val mBuilder = AlertDialog.Builder(this@MainActivity)
             val mView = layoutInflater.inflate(R.layout.snooze_dialogue, null)
             val iHour = mView.findViewById(R.id.inputHour) as EditText
@@ -191,10 +181,6 @@ class MainActivity : AppCompatActivity() {
             val dialog = mBuilder.create()
             dialog.show()
             mLogin.setOnClickListener(View.OnClickListener {
-                if (!dbsBound) {
-                    toast("Scan isn'trunning dude")
-                    Log.d("ayyy111","ayyy111")
-                }
                 if (!(iHour.text.toString().isEmpty() && iMinute.text.toString().isEmpty())) {
                     /* if(iHour.text.toString().isEmpty())
                         snoozeTime = iMinute.text.toString().toDouble() * 60
@@ -230,25 +216,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Updates [stocksList] from Datenbank then refreshes UI
-     */
-    fun refreshULA() {
-        Log.v("MainActivity", "refreshULA() called")
-        mModel.stocks.setValue(getStocklistFromDB())
-    }
-
-    /**
      * Queries Datenbank [NewestTableName] for stocks list and returns it
      * @return the rows of stocks, or an empty list if Datenbank fails
      * @seealso [Updaten.getStocklistFromDB]
      */
     @Synchronized
     fun getStocklistFromDB() : List<Stock> {
-        if (dbsBound) {
-            return dbService.getStocklistFromDB()
-        }
-        Log.e("MainActivity", "getStocklistFromDB: dbsBound = false, so did nothing.")
-        return emptyList()
+        return dss.getStocklistFromDB()
     }
 
     /**
@@ -334,11 +308,7 @@ class MainActivity : AppCompatActivity() {
         if (resultReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
         }
-        unbindService(dbConnection)
-        dbsBound = false
-        dbsrBound = false
-
-        mModel.stocks.removeObserver(stockObserverForRecycler)
+        dss.cleanup()
         super.onDestroy()
     }
 }
