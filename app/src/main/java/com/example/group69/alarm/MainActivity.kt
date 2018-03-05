@@ -12,23 +12,11 @@ import org.jetbrains.anko.*
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
-import android.arch.lifecycle.Observer
-import android.content.ServiceConnection
-import android.content.ComponentName
-import android.os.IBinder
-import android.support.design.widget.NavigationView
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v4.widget.SwipeRefreshLayout
 import android.view.Menu
-import android.view.MenuItem
 import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-
-
-//import android.databinding.DataBindingUtil
 
 /**
  * @param[isNotificActive] tracks if the notification is active on the taskbar.
@@ -45,18 +33,14 @@ class MainActivity : AppCompatActivity() {
 
     private var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
-
-    val servRunning = true
-
     internal lateinit var notificationManager: NotificationManager
 
     internal var notifID = 33
     internal var isNotificActive = false
-    var resultReceiver = createPriceBroadcastReceiver()
+    var currentPriceReceiver = createPriceBroadcastReceiver()
 
     lateinit var fragment: RecyclerViewFragment
     private val adapter: RecyclingStockAdapter by lazy { fragment.mAdapter }
-    var mDrawerLayout: DrawerLayout? = null
 
     /**
      * Registers broadcast receiver, populates stock listview.
@@ -76,34 +60,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                resultReceiver, IntentFilter("com.example.group69.alarm"))
-
-        val mSwipeRefreshLayout = findViewById(R.id.swiperefresh) as SwipeRefreshLayout
-        mSwipeRefreshLayout?.setOnRefreshListener {
-            Log.i("MainActivity", "onRefresh called. This does nothing though.")
-            mSwipeRefreshLayout.setRefreshing(false)
-        }
-
+                currentPriceReceiver, IntentFilter("com.example.group69.alarm"))
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
         setSupportActionBar(toolbar)
-        val actionbar = supportActionBar
-        actionbar?.setDisplayHomeAsUpEnabled(true)
-        actionbar?.setHomeAsUpIndicator(R.drawable.ic_menu)
-
-        mDrawerLayout = findViewById(R.id.drawer_layout)
-        val navigationView = findViewById(R.id.nav_view) as NavigationView
-        navigationView.setNavigationItemSelectedListener {
-            it.setChecked(true)
-            mDrawerLayout?.closeDrawers()
-
-            when(it.itemId) {
-                R.id.menu_snooze -> snooze()
-                R.id.menu_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
-                R.id.menu_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
-            }
-            true
-        }
     }
 
     private val mDisposable = CompositeDisposable()
@@ -157,19 +117,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    /**
-     * For navigation drawer in toolbar
-     */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> mDrawerLayout?.openDrawer(GravityCompat.START)
-            R.id.action_snooze -> snooze()
-            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
-            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
     fun snooze() {
         Log.d("snoozeee","snoozin")
         if (scanRunning) {
@@ -307,8 +254,8 @@ class MainActivity : AppCompatActivity() {
      * Unregister the result receiver
      */
     override fun onDestroy() {
-        if (resultReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
+        if (currentPriceReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
         }
         dss.cleanup()
         super.onDestroy()
