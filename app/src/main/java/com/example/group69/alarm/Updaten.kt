@@ -7,7 +7,6 @@ import android.content.Context
 import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
 import android.content.BroadcastReceiver
-import android.database.sqlite.SQLiteException
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
@@ -25,8 +24,7 @@ class Updaten(CallerContext: Context) {
      * If current price meets criteria, send to [onProgressUpdate] for alarm
      * If [Geldmonitor] functions return negative (error) for all stocks, err
      * @return 0 on success, more is the amount of milliseconds to sleep
-     * @todo send current price to [onProgressUpdate] to update the UI as well
-     * @todo Reduce calls to [getStocklistFromDB] by signalling if DB changed
+     * @todo use flowable [dbFunctions]
      */
   
     fun scannetwork(vararg activies : Object): Long {
@@ -34,7 +32,7 @@ class Updaten(CallerContext: Context) {
         var failcount = 0
 
         DeletePendingFinishedStock()
-        var stocksTargets = getStocklistFromDB()
+        var stocksTargets = dbFunctions.getStocklistFromDB()
 
         Log.v("Updaten ", if (stocksTargets.isEmpty()) "might be empty list: " else "stocks targets: " + stocksTargets.map { it.ticker }.joinToString(", "))
 
@@ -88,27 +86,9 @@ class Updaten(CallerContext: Context) {
      */
     private fun DeletePendingFinishedStock() {
         if (alarmPlayed == true) {
-            if (dbsBound) {
-                dbService.deletestockInternal(IdOfStockToDelete)
-                Log.v("Updaten", "DeletePendingFinishedStock: requested DBS delete of $IdOfStockToDelete")
-            } else {
-                Log.e("Updaten", "DeletePendingFinishedStock: dbsBound = false, so did nothing.")
-            }
+            dbFunctions.deletestockInternal(IdOfStockToDelete)
+            Log.v("Updaten", "DeletePendingFinishedStock: requested DBS delete of $IdOfStockToDelete")
         }
-    }
-
-    /**
-     * Queries Datenbank [NewestTableName] for stocks list and returns it
-     * @return the rows of stocks, or an empty list if Datenbank fails
-     * @seealso [MainActivity.getStocklistFromDB], which uses Datenbank.use that closes the DB
-     * This thread doesn't do that because it could conflict with [DeletePendingFinishedStock]
-     */
-    fun getStocklistFromDB() : List<Stock> {
-        if (dbsBound) {
-            return dbService.getStocklistFromDB()
-        }
-        Log.e("Updaten", "getStocklistFromDB: dbsBound = false, so did nothing.")
-        return emptyList()
     }
 
     fun PriceBroadcastLocal(stockid: Long, currentprice: Double) {

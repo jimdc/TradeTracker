@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.util.Log
-import android.widget.AdapterView
 import android.widget.ImageView
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
@@ -54,16 +53,12 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
                 with(view.context) {
                     alert("Are you sure you want to delete row " + adapterPosition.toString(), "Confirm") {
                         positiveButton("Yes") {
-                            if (dbsBound) {
-                                if (dbService.deletestockInternal(thestock.stockid)) {
+                                if (dbFunctions.deletestockInternal(thestock.stockid)) {
                                     toast("Successfully deleted stock.")
                                 } else {
                                     toast("Could not delete stock.")
                                 }
-                            } else {
-                                toast("Could not connect to DB service to delete stock.")
                             }
-                        }
                         negativeButton("No") { toast("OK, nothing was deleted.") }
                     }.show()
                 }
@@ -76,6 +71,29 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
         return ViewHolder(v)
     }
 
+    // Called by diffResult.dispatchUpdatesTo, Or you can do getChangePayload()
+    /*
+    override fun onBindViewHolder(holder: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
+
+        if (payloads!!.isEmpty())
+            return
+        else {
+            val o = payloads.get(0) as Bundle
+            for (key in o.keySet()) {
+                if (key == KEY_TICKER) {
+                    //TODO lets update blink discount textView :)
+                } else if (key == KEY_PRICE) {
+                    //TODO lets update and change price color for some time
+                } else if (key == KEY_REVIEWS_COUNT) {
+                    //TODO just update the review count textview
+                }
+            }
+        }
+
+        super.onBindViewHolder(holder, position, payloads)
+    }
+    */
+
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
         Log.d(TAG, "Element " + position + " set.")
 
@@ -87,11 +105,18 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
 
     fun setCurrentPrice(stockid: Long, price: Double, time: String) {
         currentPrices[stockid] = Pair(price, time)
-        notifyDataSetChanged()
+        val poschanged = RSAstocklist.indexOf(RSAstocklist.find{it.stockid == stockid})
+        notifyItemChanged(poschanged)
     }
 
     fun refresh(newitems: List<Stock>) {
         RSAstocklist = newitems
+
+        //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above
+        //But not that important for now since we mash all information together anyway w/ Stock.toString()
+        //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.RSAstocklist, newitems))
+        //diffResult.dispatchUpdatesTo(this)
+
         notifyDataSetChanged()
     }
 

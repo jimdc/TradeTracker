@@ -9,11 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import com.example.group69.alarm.RecyclingStockAdapter
 
 /**
  * Demonstrates the use of {@link RecyclerView} with a {@link LinearLayoutManager} and a
- * {@link GridLayoutManager}.
+ * {@link GridLayoutManager}. Also initializes dataset with dbFunction
  */
 public class RecyclerViewFragment : Fragment() {
 
@@ -34,7 +33,7 @@ public class RecyclerViewFragment : Fragment() {
     protected lateinit var mRecyclerView: RecyclerView
     public lateinit var mAdapter: RecyclingStockAdapter
     protected lateinit var mLayoutManager: RecyclerView.LayoutManager
-    protected lateinit var mDataset: List<Stock>
+    protected var mDataset: List<Stock> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,13 +117,12 @@ public class RecyclerViewFragment : Fragment() {
     }
 
     /**
-     * Generates Strings for RecyclerView's adapter. This data would usually come
+     * Generates Stocks for RecyclerView's adapter. This data would usually come
      * from a local content provider or remote server.
      */
     private fun initDataset() {
-        mDataset = listOf(Stock(1337, "BABA", 4.20, true, false, false),
-                Stock(666, "HAHA", 4.20, true, false, false),
-                Stock(1337, "NANA", 4.20, true, false, false))
+        //dbsBound would be true only when the recyclerview is recreated after hitting "back"
+        mDataset = dbFunctions.getStocklistFromDB()
     }
 
 }

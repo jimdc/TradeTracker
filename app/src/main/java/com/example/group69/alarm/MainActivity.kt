@@ -1,7 +1,6 @@
 package com.example.group69.alarm
 
 import android.app.*
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -13,20 +12,11 @@ import org.jetbrains.anko.*
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
-import android.arch.lifecycle.Observer
-import android.content.ServiceConnection
-import android.content.ComponentName
-import android.os.IBinder
-import android.support.design.widget.NavigationView
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v4.widget.SwipeRefreshLayout
 import android.view.Menu
-import android.view.MenuItem
 import android.widget.*
-
-
-//import android.databinding.DataBindingUtil
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * @param[isNotificActive] tracks if the notification is active on the taskbar.
@@ -34,9 +24,7 @@ import android.widget.*
  * @param[notifID] is used to track notifications
  */
 
-lateinit var dbService: DatabaseService
-lateinit var mModel: StockViewModel
-var dbsBound: Boolean = false
+lateinit var dbFunctions: WrapperAroundDao
 var isSnooze: Boolean = false
 var snoozeTime: Double = 0.0;
 var scanRunning: Boolean = false
@@ -45,32 +33,14 @@ class MainActivity : AppCompatActivity() {
 
     private var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
-    val servRunning = true
-
     internal lateinit var notificationManager: NotificationManager
 
     internal var notifID = 33
     internal var isNotificActive = false
-    var resultReceiver = createPriceBroadcastReceiver()
+    var currentPriceReceiver = createPriceBroadcastReceiver()
 
     lateinit var fragment: RecyclerViewFragment
     private val adapter: RecyclingStockAdapter by lazy { fragment.mAdapter }
-    var mDrawerLayout: DrawerLayout? = null
-
-    var dbConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            val binder = service as DatabaseService.LocalBinder
-            dbService = binder.service
-            dbsBound = true
-            Log.d("MainActivity", "dbService connected")
-            refreshULA()
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            dbsBound = false
-        }
-    }
 
     /**
      * Registers broadcast receiver, populates stock listview.
@@ -79,49 +49,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        dbFunctions = WrapperAroundDao(this.applicationContext)
         setContentView(R.layout.activity_main)
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                resultReceiver, IntentFilter("com.example.group69.alarm"))
-
-        mMainService = MainService(this)
-        mServiceIntent = Intent(this, MainService::class.java)
-        if (isMyServiceRunning(MainService::class.java)) {
-            toast("Service already running, shutting it down.")
-            val intent = Intent(this, MainService::class.java)
-            stopService(intent)
-        }
-        var intent = Intent(this, DatabaseService::class.java)
-        if (!bindService(intent, dbConnection, Context.BIND_AUTO_CREATE))
-            Log.e("MainActivity", "onCreate: not able to bind dbConnection")
-
-        val mSwipeRefreshLayout = findViewById(R.id.swiperefresh) as SwipeRefreshLayout
-        mSwipeRefreshLayout?.setOnRefreshListener {
-            Log.i("MainActivity", "onRefresh called from SwipeRefreshLayout")
-            refreshULA()
-            mSwipeRefreshLayout.setRefreshing(false)
-        }
-
-
-        val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
-        setSupportActionBar(toolbar)
-        val actionbar = supportActionBar
-        actionbar?.setDisplayHomeAsUpEnabled(true)
-        actionbar?.setHomeAsUpIndicator(R.drawable.ic_menu)
-
-        mDrawerLayout = findViewById(R.id.drawer_layout)
-        val navigationView = findViewById(R.id.nav_view) as NavigationView
-        navigationView.setNavigationItemSelectedListener {
-            it.setChecked(true)
-            mDrawerLayout?.closeDrawers()
-
-            when(it.itemId) {
-                R.id.menu_snooze -> snooze()
-                R.id.menu_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
-                R.id.menu_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
-            }
-            true
-        }
 
         if (savedInstanceState == null) {
             val transaction = supportFragmentManager.beginTransaction()
@@ -130,20 +59,42 @@ class MainActivity : AppCompatActivity() {
             transaction.commit()
         }
 
-        mModel = ViewModelProviders.of(this).get(StockViewModel::class.java)
-        val stockObserverForRecycler = Observer<List<Stock>> {
-            Log.v("MainActivity", "Observer refreshing adapter")
-            adapter?.refresh(it!!)
-        }
-        mModel.stocks.observe(this, stockObserverForRecycler)
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                currentPriceReceiver, IntentFilter("com.example.group69.alarm"))
+
+        val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
+        setSupportActionBar(toolbar)
     }
 
+    private val mDisposable = CompositeDisposable()
+    override fun onStart() {
+        super.onStart()
+        // Subscribe to stock emissions from the database
+        // On every onNext emission update textview or log exception
+        mDisposable.add(dbFunctions.getFlowableStocklist()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { Stocklist -> adapter?.refresh(Stocklist) },
+                        { throwable -> Log.d("Disposable::fail", throwable.message)}
+                )
+        )
+    }
 
+    override fun onStop() {
+        super.onStop()
+        mDisposable.clear() //Unsubscribe from database updates of stocklist
+    }
+
+    /**
+     * This menu is the "add stock, add crypto, snooze, settings" on top.
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.main_activity_action_menu, menu)
 
-        val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.getActionView()?.findViewById(R.id.show_scanning_switch) as? ToggleButton
+        val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
+        mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
                 true -> {
@@ -151,15 +102,14 @@ class MainActivity : AppCompatActivity() {
                     mServiceIntent = Intent(this, MainService::class.java)
                     if (!isMyServiceRunning(MainService::class.java)) {
                         startService(mServiceIntent)
-                        scanRunning = true
                     } else {
                         toast("scan already running")
                     }
+                    scanRunning = true
                 }
                 false -> {
                     val intent = Intent(this, MainService::class.java)
                     stopService(intent)
-                    scanRunning = false
                 }
             }
         }
@@ -169,18 +119,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * For navigation drawer in toolbar
+     * @todo: Don't crash when leaving one field blank or not a number. There are UI components that enforce this?
      */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> mDrawerLayout?.openDrawer(GravityCompat.START)
-            R.id.action_snooze -> snooze()
-            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
-            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
     fun snooze() {
         Log.d("snoozeee","snoozin")
         if (scanRunning) {
@@ -194,10 +134,6 @@ class MainActivity : AppCompatActivity() {
             val dialog = mBuilder.create()
             dialog.show()
             mLogin.setOnClickListener(View.OnClickListener {
-                if (!dbsBound) {
-                    toast("Scan isn'trunning dude")
-                    Log.d("ayyy111","ayyy111")
-                }
                 if (!(iHour.text.toString().isEmpty() && iMinute.text.toString().isEmpty())) {
                     /* if(iHour.text.toString().isEmpty())
                         snoozeTime = iMinute.text.toString().toDouble() * 60
@@ -233,29 +169,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Updates [stocksList] from Datenbank then refreshes UI
-     */
-    fun refreshULA() {
-        Log.v("MainActivity", "refreshULA() called")
-        mModel.stocks.setValue(getStocklistFromDB())
-    }
-
-    /**
-     * Queries Datenbank [NewestTableName] for stocks list and returns it
-     * @return the rows of stocks, or an empty list if Datenbank fails
-     * @seealso [Updaten.getStocklistFromDB]
-     */
-    @Synchronized
-    fun getStocklistFromDB() : List<Stock> {
-        if (dbsBound) {
-            return dbService.getStocklistFromDB()
-        }
-        Log.e("MainActivity", "getStocklistFromDB: dbsBound = false, so did nothing.")
-        return emptyList()
-    }
-
-    /**
-
      * Query the system for if a service is already running.
      * @param[serviceClass] the service class
      * @return true if running, false if not
@@ -334,11 +247,10 @@ class MainActivity : AppCompatActivity() {
      * Unregister the result receiver
      */
     override fun onDestroy() {
-        if (resultReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(resultReceiver)
+        if (currentPriceReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
         }
-        unbindService(dbConnection)
-        dbsBound = false
+        dbFunctions.cleanup() //Close database access
         super.onDestroy()
     }
 }

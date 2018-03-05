@@ -22,7 +22,6 @@ object Geldmonitor {
      * @param[ticker] The ticker name, e.g. GOOG
      * @return Stock price if successful
      */
-    @JvmStatic
     fun getStockPrice(ticker: String): Double {
 
         val tickerL = ticker.toLowerCase()
