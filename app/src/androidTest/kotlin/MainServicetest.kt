@@ -13,16 +13,25 @@ import android.os.Message
 import android.support.test.runner.AndroidJUnit4
 import android.util.Log
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.runner.RunWith
-/*
-@RunWith(AndroidJUnit4::class)
-public class MainServicetest : ServiceTestRule() {
-    @Rule public val mServiceRule = ServiceTestRule()
 
+@Rule
+public val mServiceRule = ServiceTestRule()
+
+@RunWith(AndroidJUnit4::class)
+public class MainServicetest {
+
+    @Before
+    @Test(timeout=1000 * 60)
     fun setUp() {
         val context = InstrumentationRegistry.getTargetContext()
         val serviceIntent = Intent(context, MainService::class.java)
-        val binder = mServiceRule.bindService(serviceIntent)
+        try {
+            val service = mServiceRule.startService(serviceIntent)
+        } catch (e: TimeoutException) {
+            e.printStackTrace()
+        }
     }
 
     @Test
@@ -32,4 +41,3 @@ public class MainServicetest : ServiceTestRule() {
     }
 
 }
-        */
