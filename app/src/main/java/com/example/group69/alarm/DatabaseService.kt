@@ -25,7 +25,7 @@ class DatabaseService : Service() {
     val randomNumber: Int
         get() = mGenerator.nextInt(100)
 
-    var Datenbank: SQLiteDatabase? = null
+    var stockDatabase: StockDatabase? = null
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -38,15 +38,13 @@ class DatabaseService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        DatabaseManager.initializeInstance(DatabaseHelper(this.applicationContext))
-        Datenbank = DatabaseManager.getInstance().database
-
+        stockDatabase = StockDatabase.getInstance(this.applicationContext)
         return mBinder
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        DatabaseManager.getInstance().database.close()
+        StockDatabase.destroyInstance()
     }
 
     fun deletestock(position: Int) : Boolean {
@@ -59,51 +57,44 @@ class DatabaseService : Service() {
     fun deletestockInternal(stockid: Long) : Boolean {
         var rez: Int? = 0
 
+        val stock = stockDatabase?.stockDao()?.findStockById(stockid)
         try {
-            rez = Datenbank?.delete(NewestTableName, "_stockid=$stockid")
+            if (stock != null) rez = stockDatabase?.stockDao()?.delete(stock)
         } catch (e: SQLiteException) {
-            Log.e("MainActivity", "could not delete $stockid: " + e.toString())
+            Log.e("DatabaseService", "could not delete $stockid: " + e.toString())
         }
 
-        if (rez!! > 0) {
-            mModel.stocks.postValue(getStocklistFromDB()) //Synchronize
-            return true
-        }
+        if (rez == null || rez!! <= 0) return false
 
-        return false
+        mModel.stocks.postValue(getStocklistFromDB()) //Synchronize
+        return true
     }
 
     @Synchronized
     fun getStocklistFromDB() : List<Stock> {
-        var results: List<Stock> = ArrayList()
-        try {
-            val sresult = Datenbank?.select(NewestTableName, "_stockid", "ticker", "target", "ab", "phone", "crypto")
+        var results: List<Stock>? = null
 
-            sresult?.exec {
-                if (this.count > 0) {
-                    val parser = rowParser { stockid: Long, ticker: String, target: Double, above: Long, phone: Long, crypto: Long ->
-                        Stock(stockid, ticker, target, above, phone, crypto)
-                    }
-                    results = parseList(parser)
-                }
-            }
+        try {
+            results = stockDatabase?.stockDao()?.getAllStocks()
         } catch (e: SQLiteException) {
             Log.e("DatabaseService", "getStocklistFromDB exception: " + e.toString())
         }
 
-        return results
+        return results ?: emptyList()
     }
 
     @Synchronized
     fun addeditstock(stock: Stock): Boolean {
-        val target: Double? = stock.target
-        var rownum: Long? = 666
-        rownum = Datenbank?.replace(NewestTableName, null, stock.ContentValues())
 
-        if (rownum == -1L) return false
-        else {
-            mModel.stocks.postValue(getStocklistFromDB()) //Synchronize
-            return true
+        var rownum: Long? = 666L
+        rownum = stockDatabase?.stockDao()?.insert(stock)
+
+        if (rownum == 666L || rownum == -1L || rownum == null) {
+            Log.d("DatabaseService", "That was a fail.")
+            return false
         }
+
+        mModel.stocks.postValue(getStocklistFromDB()) //Synchronize
+        return true
     }
 }

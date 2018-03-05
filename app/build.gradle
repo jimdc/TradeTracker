@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-//apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-kapt'
 //apply plugin: 'org.jetbrains.dokka-android'
 
 android {
@@ -64,7 +64,8 @@ dependencies {
     compile "io.reactivex.rxjava2:rxjava:2.1.10"
     implementation "android.arch.lifecycle:extensions:1.1.0"
     implementation "android.arch.persistence.room:runtime:$rootProject.roomVersion"
-    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
+    implementation "android.arch.persistence.room:rxjava2:$rootProject.roomVersion"
+    kapt "android.arch.persistence.room:compiler:$rootProject.roomVersion"
     androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
     testCompile 'junit:junit:4.12'
     //classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"

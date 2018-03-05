@@ -9,17 +9,17 @@ class StokoModel {
         val stoko = Stoko(ticker)
 
         Single.fromCallable {
-            Alarm.database?.stokoDao()?.insert(stoko)
+            Alarm.database?.stokoDao()?.insertStoko(stoko)
         }.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe()
     }
 
-    fun registerAllStokoListener() {
+    /*fun registerAllStokoListener() {
         Alarm.database?.stokoDao()?.getAllStokos()
                 ?.subscribeOn(Schedulers.io())
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe { listOfStokos ->
                     //view.stokoTableUpdated(listOfStokos)
                 }
-    }
+    }*/
 }

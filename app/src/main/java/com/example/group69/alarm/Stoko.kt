@@ -5,34 +5,29 @@ import android.arch.persistence.room.Entity
 import java.time.Instant
 
 @Entity(tableName = "stockstable")
-data class Stoko(val ticker: String = "") {
+//@TypeConverters(DateConverter.class)
+data class Stoko(var ticker: String = "") {
     @PrimaryKey(autoGenerate = true)
-    val stockId: Long = 0
+    @ColumnInfo(name="stock_id") var stockId: Long = 0
 
-    val marketCap: Long = 0
-    val avgVolume: Long = 0
-    val todaysVolume: Long = 0
-    val sharesOutstanding: Int = 0
-    val crypto: Boolean = false
-    val numAlarms: Int = 0
-    val lastPrice: Long = 0
-    val lastPriceAsOf: Long = 0
+    @ColumnInfo(name="market_cap") var marketCap: Long = 0
+    @ColumnInfo(name="avg_volume") var avgVolume: Long = 0
+    @ColumnInfo(name="todays_volume") var todaysVolume: Long = 0
+    @ColumnInfo(name="shares_outstanding") var sharesOutstanding: Int = 0
+    @ColumnInfo(name="crypto") var crypto: Boolean = false
+    @ColumnInfo(name="num_alarms") var numAlarms: Int = 0
+    @ColumnInfo(name="last_price") var lastPrice: Long = 0
+    @ColumnInfo(name="last_price_as_of") //@TypeConverters(DateConverter.class)
+    var lastPriceAsOf: Long = 0
 
-    @Embedded
-    val stokoPosition = StokoPosition()
+    @Embedded var stokoPosition = StokoPosition()
 
-    @Ignore
-    val currentprice: Long = 0
+    @Ignore private var alarmos: List<Alarmo>? = null
+    @Ignore @ColumnInfo(name="current_price") var currentprice: Long = 0
+
+    override fun toString() = ticker
 }
 
-data class StokoPosition(val numShares: Int = 0, val priceShares: Long = 0)
-
-@Entity(foreignKeys = arrayOf(ForeignKey(entity=Stoko::class, parentColumns = arrayOf("stockid"),
-        childColumns=arrayOf("myStockId"), onDelete=ForeignKey.CASCADE)))
-
-data class Alarmo(val myStockId: Long = 0) {
-    val target: Double = 0.0
-    val above: Boolean = false
-    val phone: Boolean = false
-    val alarmType: Int = 0
-}
+data class StokoPosition(
+        @ColumnInfo(name="num_shares") var numShares: Int = 0,
+        @ColumnInfo(name="price_shares") var priceShares: Long = 0)

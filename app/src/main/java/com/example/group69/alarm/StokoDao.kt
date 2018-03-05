@@ -9,13 +9,22 @@ import io.reactivex.Flowable
 @Dao
 interface StokoDao {
     @Query("SELECT * FROM stockstable")
-    fun getAllStokos(): Flowable<List<Stoko>>
+    fun getAllStokosFlowable(): Flowable<List<Stoko>>
 
-    @Query("SELECT * FROM stockstable WHERE stockId = :p0")
+    @Query("SELECT * FROM stockstable")
+    fun getAllStokos(): List<Stoko>
+
+    //@Query("SELECT * FROM Alarmo WHERE my_stock_id =: p0")
+    //fun getAlarmoList(stockId: Long)
+
+    @Query("SELECT * FROM stockstable WHERE stock_id = :id")
     fun findStokoById(id: Long): Stoko
 
     @Insert(onConflict = REPLACE)
-    fun insert(stoko: Stoko)
+    fun insertStoko(stoko: Stoko)
+
+    //@Insert
+    //fun insertAlarmos(alarmos: List<Alarmo>)
 
     @Update(onConflict = REPLACE)
     fun update(stoko: Stoko)

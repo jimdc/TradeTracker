@@ -13,8 +13,7 @@ import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
 import android.support.v7.util.DiffUtil
-
-
+import android.os.Bundle
 
 /**
  * Provide views to RecyclerView with data from RSAstocklist.
@@ -79,6 +78,29 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
         return ViewHolder(v)
     }
 
+    // Called by diffResult.dispatchUpdatesTo, Or you can do getChangePayload()
+    /*
+    override fun onBindViewHolder(holder: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
+
+        if (payloads!!.isEmpty())
+            return
+        else {
+            val o = payloads.get(0) as Bundle
+            for (key in o.keySet()) {
+                if (key == KEY_TICKER) {
+                    //TODO lets update blink discount textView :)
+                } else if (key == KEY_PRICE) {
+                    //TODO lets update and change price color for some time
+                } else if (key == KEY_REVIEWS_COUNT) {
+                    //TODO just update the review count textview
+                }
+            }
+        }
+
+        super.onBindViewHolder(holder, position, payloads)
+    }
+    */
+
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
         Log.d(TAG, "Element " + position + " set.")
 
@@ -97,7 +119,8 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
     fun refresh(newitems: List<Stock>) {
         RSAstocklist = newitems
 
-        //Doesn't work, idk why
+        //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above
+        //But not that important since we mash all information together anyway
         //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.RSAstocklist, newitems))
         //diffResult.dispatchUpdatesTo(this)
 

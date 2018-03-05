@@ -5,13 +5,10 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 
 
-class StockViewModel : ViewModel() {
-    var stocks: MutableLiveData<List<Stock>>
+class StokoViewModel : ViewModel() {
     //var stokos: LiveData<List<Stoko>>
 
     init {
-        stocks = MutableLiveData<List<Stock>>()
-
-        //stokos = dbService.getStocklistFromDB()
+        //stokos = dbServicer.getStocklistFromDB()
     }
 }

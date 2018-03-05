@@ -35,9 +35,11 @@ import android.widget.*
  */
 
 lateinit var dbService: DatabaseService
+lateinit var dbServicer: DatabaseServiceRoom
 lateinit var mModel: StockViewModel
 lateinit var stockObserverForRecycler: Observer<List<Stock>>
 var dbsBound: Boolean = false
+var dbsrBound: Boolean = false
 var isSnooze: Boolean = false
 var snoozeTime: Double = 0.0;
 var scanRunning: Boolean = false
@@ -137,7 +139,7 @@ class MainActivity : AppCompatActivity() {
         val inflater = menuInflater
         inflater.inflate(R.menu.main_activity_action_menu, menu)
 
-        val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.getActionView()?.findViewById(R.id.show_scanning_switch) as? ToggleButton
+        val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
         mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
@@ -334,6 +336,7 @@ class MainActivity : AppCompatActivity() {
         }
         unbindService(dbConnection)
         dbsBound = false
+        dbsrBound = false
 
         mModel.stocks.removeObserver(stockObserverForRecycler)
         super.onDestroy()
