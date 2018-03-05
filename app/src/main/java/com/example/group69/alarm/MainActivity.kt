@@ -39,6 +39,7 @@ import io.reactivex.schedulers.Schedulers
 lateinit var dss: DatabaseSortaService
 var isSnooze: Boolean = false
 var snoozeTime: Double = 0.0;
+var scanRunning: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -143,6 +144,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         toast("scan already running")
                     }
+                    scanRunning = true
                 }
                 false -> {
                     val intent = Intent(this, MainService::class.java)
@@ -170,7 +172,7 @@ class MainActivity : AppCompatActivity() {
     }
     fun snooze() {
         Log.d("snoozeee","snoozin")
-        if (isMyServiceRunning(MainService::class.java)) {
+        if (scanRunning) {
             val mBuilder = AlertDialog.Builder(this@MainActivity)
             val mView = layoutInflater.inflate(R.layout.snooze_dialogue, null)
             val iHour = mView.findViewById(R.id.inputHour) as EditText
