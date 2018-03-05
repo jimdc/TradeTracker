@@ -14,7 +14,9 @@ import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThat
 import android.content.Intent
 import android.support.test.espresso.Espresso.*
+import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.withText
+import android.widget.ToggleButton
 
 
 /**
@@ -34,8 +36,17 @@ class MainActivitytest {
     fun setup() {
         val intent = Intent()
         activity = mActivityRule.launchActivity(intent)
+    }
 
-        //activity = mActivityRule.getActivity()
+    @Test
+    fun ensureScanningIndicatorResponsiveness() {
+        //Ensure that it's not scanning on startup.
+        onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.notscanning)))
+        //Ensure that it shows a different message when you do click.
+        onView(withId(R.id.show_scanning_switch)).perform(click()) //To turn it on...
+        onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.scanning)));
+        onView(withId(R.id.show_scanning_switch)).perform(click()) //And to turn it off.
+        onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.notscanning)));
     }
 
     @Test
@@ -47,8 +58,7 @@ class MainActivitytest {
     @Test
     fun addStock() {
         onView(withId(R.id.addstockorcrypto)).perform(click())
-        onView(withText("Add Stock")).perform(click());
+        onView(withText(R.string.addstock)).perform(click());
     }
-
 
 }
