@@ -27,7 +27,7 @@ import io.reactivex.schedulers.Schedulers
 lateinit var dbFunctions: WrapperAroundDao
 var isSnooze: Boolean = false
 var snoozeTime: Double = 0.0;
-var scanRunning: Boolean = false
+public var scanRunning: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 

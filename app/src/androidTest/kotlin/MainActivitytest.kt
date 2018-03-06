@@ -5,7 +5,6 @@ import org.junit.runner.RunWith
 import com.example.group69.alarm.MainActivity
 import com.example.group69.alarm.R
 import android.support.test.espresso.Espresso
-import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.action.ViewActions.click
 import android.support.v7.widget.Toolbar
 import android.support.test.rule.ActivityTestRule
@@ -13,10 +12,13 @@ import android.support.test.runner.AndroidJUnit4
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThat
 import android.content.Intent
+import android.support.test.InstrumentationRegistry.getInstrumentation
 import android.support.test.espresso.Espresso.*
 import android.support.test.espresso.assertion.ViewAssertions.matches
-import android.support.test.espresso.matcher.ViewMatchers.withText
+import android.support.test.espresso.matcher.RootMatchers.isDialog
+import android.support.test.espresso.matcher.ViewMatchers.*
 import android.widget.ToggleButton
+import com.example.group69.alarm.scanRunning
 
 
 /**
@@ -58,7 +60,7 @@ class MainActivitytest {
     @Test
     fun addStock() {
         onView(withId(R.id.addstockorcrypto)).perform(click())
-        onView(withText(R.string.addstock)).perform(click());
+        onView(withText(R.string.addstock)).perform(click())
     }
 
 }

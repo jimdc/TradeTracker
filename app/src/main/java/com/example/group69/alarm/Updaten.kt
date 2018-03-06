@@ -6,7 +6,6 @@ import android.util.Log
 import android.content.Context
 import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
-import android.content.BroadcastReceiver
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
@@ -91,25 +90,7 @@ class Updaten(CallerContext: Context) {
         intent.putExtra("time", GregorianCalendar().time.toLocaleString())
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
-    private fun createBroadcastReceiver(): BroadcastReceiver {
-        return object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                Log.d("beforeAlarm","mangracina55")
-                // val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                //val num : LongArray = longArrayOf(1000,1000,1000)
-                //v.vibrate(num,3)
-                //updat.cancel(true)
-                //updat.pause(intent.getStringExtra("delay").toLong())
-                //Log.d("slept","canceled " + intent.getStringExtra("delay"))
 
-                //Thread.sleep(intent.getStringExtra("delay").toLong() * 6000)
-                //Log.d("slept",intent.getStringExtra("delay"))
-                //updat.execute("h")
-
-                //deleteStockOfThisIndex(intent.getStringExtra("result"))
-            }
-        }
-    }
     /**
      * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
      * Set the system service [alarmManager] as FLAG_UPDATE_CURRENT
