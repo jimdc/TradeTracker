@@ -15,9 +15,13 @@ import android.content.Intent
 import android.support.test.InstrumentationRegistry.getInstrumentation
 import android.support.test.espresso.Espresso.*
 import android.support.test.espresso.assertion.ViewAssertions.matches
+import android.support.test.espresso.intent.Intents
+import android.support.test.espresso.intent.Intents.intended
+import android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import android.support.test.espresso.matcher.RootMatchers.isDialog
 import android.support.test.espresso.matcher.ViewMatchers.*
 import android.widget.ToggleButton
+import com.example.group69.alarm.AddEditStockActivity
 import com.example.group69.alarm.scanRunning
 
 
@@ -26,7 +30,7 @@ import com.example.group69.alarm.scanRunning
  * RuntimeException because needs to have getActivity() startActivitySync or similar called
  */
 
-@Rule
+@Rule @JvmField
 public val mActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
 @RunWith(AndroidJUnit4::class)
@@ -59,8 +63,14 @@ class MainActivitytest {
 
     @Test
     fun addStock() {
+        Intents.init()
         onView(withId(R.id.addstockorcrypto)).perform(click())
         onView(withText(R.string.addstock)).perform(click())
+
+        //I want to verify that AddEditStockActivity has actually opened.
+        //Apparently it's harder than just this. https://cate.blog/2016/04/28/testing-intents-on-android-like-stabbing-yourself-in-the-eye-with-a-blunt-implement/
+        intended(hasComponent(AddEditStockActivity::class.java.name))
+        Intents.release()
     }
 
 }

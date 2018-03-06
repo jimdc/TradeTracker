@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 import android.support.test.espresso.IdlingResource
 
-@Rule
+@Rule @JvmField
 public val muhActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
 @RunWith(AndroidJUnit4::class)
@@ -45,6 +45,7 @@ class Snoozetest {
 
     /**
      * Test fails because Espresso cannot find the AlertDialog, idk why. Waiting doesn't help it pop up.
+     * It might be that snooze in general is broken; I can't open it normally
      */
 
     @Test
