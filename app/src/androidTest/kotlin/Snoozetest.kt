@@ -41,13 +41,19 @@ class Snoozetest {
     }
 
     @Test
-    fun trysnoozing() {
+    fun trysnoozingHappypath() {
         onView(withId(R.id.snoozeSetTimeTextview)).inRoot(isDialog()).check(matches(isDisplayed()))
 
         onView(withId(R.id.inputHour)).perform(typeText("1"))
         onView(withId(R.id.inputMinute)).perform(typeText("15"))
 
         onView(withId(R.id.btnSnooze)).perform(click())
+    }
+
+    @Test
+    fun trysnoozingIncorrectly() {
+        onView(withId(R.id.snoozeSetTimeTextview)).inRoot(isDialog()).check(matches(isDisplayed()))
+        onView(withId(R.id.btnSnooze)).perform(click()) //I didn't enter any number
     }
 
     @After

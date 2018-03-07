@@ -46,4 +46,11 @@
     <string name="NaN">\"%1$s\" is not a number.</string>
     <string name="invalid_entry">invalid entry</string>
     <string name="scan_pausing">Scan pausing...</string>
+    <string name="confirm">Confirm</string>
+    <string name="areyousure">Are you sure you want to delete row %1$d?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="deletesuccess">Successfully deleted it.</string>
+    <string name="deletefailure">Could not delete it.</string>
+    <string name="oknodelete">OK, nothing was deleted.</string>
 </resources>

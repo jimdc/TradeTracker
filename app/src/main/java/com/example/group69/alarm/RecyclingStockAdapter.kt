@@ -38,28 +38,28 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
             Editbtn = v.findViewById(R.id.imgEditStock)
             Delbtn = v.findViewById(R.id.imgDeleteStock)
             v.setOnClickListener { view ->
-                Log.v(TAG, "Element " + adapterPosition + " clicked.")
+                Log.v(TAG, "Element ${adapterPosition} clicked.")
             }
             Editbtn.setOnClickListener { view ->
-                Log.v(TAG, "Edit " + adapterPosition + " clicked.")
+                Log.v(TAG, "Edit ${adapterPosition} clicked.")
                 with(view.context) {
-                    startActivity<AddEditStockActivity>("EditingExisting" to true, "snooze" to false,
+                    startActivity<AddEditStockActivity>("EditingExisting" to true,
                             "EditingCrypto" to (thestock.crypto > 0), "TheStock" to thestock)
                 }
             }
             Delbtn.setOnClickListener {
                 view ->
-                Log.v(TAG, "Delete " + adapterPosition + " clicked.")
+                Log.v(TAG, "Delete ${adapterPosition} clicked.")
                 with(view.context) {
-                    alert("Are you sure you want to delete row " + adapterPosition.toString(), "Confirm") {
-                        positiveButton("Yes") {
+                    alert(resources.getString(R.string.areyousure, adapterPosition)) {
+                        positiveButton(R.string.yes) {
                                 if (dbFunctions.deletestockInternal(thestock.stockid)) {
-                                    toast("Successfully deleted stock.")
+                                    toast(R.string.deletesuccess)
                                 } else {
-                                    toast("Could not delete stock.")
+                                    toast(R.string.deletefailure)
                                 }
                             }
-                        negativeButton("No") { toast("OK, nothing was deleted.") }
+                        negativeButton(R.string.no) { toast(R.string.oknodelete) }
                     }.show()
                 }
             }
@@ -95,7 +95,7 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
     */
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        Log.d(TAG, "Element " + position + " set.")
+        Log.d(TAG, "Element ${position} set.")
 
         var stock = RSAstocklist[position]
         holder?.Row1?.text = stock.toString()
