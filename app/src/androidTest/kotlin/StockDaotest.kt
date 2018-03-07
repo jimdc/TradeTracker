@@ -10,6 +10,8 @@ import io.reactivex.Observer
 import io.reactivex.observers.TestObserver
 import io.reactivex.subscribers.TestSubscriber
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,14 +40,15 @@ open class StockDaoTest {
 
     @Test
     fun insertStockSavesData() {
-        var ssget = stockDao.findStockById(samplestock1.stockid) //Ensure that it's not just cached.
-        assert(ssget == null)
+        stockDao.delete(samplestock1)
+        var ssget = stockDao.findStockById(samplestock1.stockid)
+        assertNull("samplestock1 already in db before I added it?!", ssget)
 
         var subscriber: TestSubscriber<List<Stock>> = stockDao.getAllStocksF().test()
 
         stockDao.insert(samplestock1)
         ssget = stockDao.findStockById(samplestock1.stockid)
-        assert(ssget == samplestock1)
+        assertEquals("stockDao not finding sample stock I inserted!", ssget, samplestock1)
 
         assert(!subscriber.hasSubscription()) //For now...
     }
@@ -53,6 +56,8 @@ open class StockDaoTest {
 
     @Test
     fun getStocklistRetrievesData() {
+        val remnant = Stock(ticker="MSFT", above=1, target=500000.0, phone=1, crypto=0)
+        stockDao.delete(remnant) //Does not seem to be deleting.
 
         val stocklist = arrayOf(samplestock1, samplestock2, samplestock3)
         stocklist.forEach {
@@ -60,12 +65,20 @@ open class StockDaoTest {
         }
 
         val retrievedstocks = stockDao.getAllStocks()
-        assert(retrievedstocks == stocklist.sortedWith(compareBy({it.stockid}, {it.stockid})))
+        assertEquals("stockDao not returning list of stocks I inserted!",
+                retrievedstocks, stocklist.sortedWith(compareBy({it.stockid}, {it.stockid})))
+
+        stocklist.forEach {
+            stockDao.delete(it)
+        }
+
+        assertNull("stockDao did not delete stocks when I requested", stockDao.getAllStocks())
     }
 
     @Test
     fun clearStocklistClearsData() {
         stockDao.insert(samplestock1)
+        assert(!stockDao.getAllStocks().isEmpty())
         stockDao.delete(samplestock1)
         assert(stockDao.getAllStocks().isEmpty())
     }

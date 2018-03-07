@@ -20,35 +20,32 @@ import org.amshove.kluent.*
  */
 class Geldmonitortest {
 
+    val ETH_USD_20181213 = "{\"USD\":846.31}"
+    val rETH_USD_20181213 = reader(ETH_USD_20181213)
+    val MSFT_20181213 = "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$89.83</div>\n"
+    val rMSFT_20181213 = reader(MSFT_20181213)
+    val GOOG_20181213 = "<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>"
+    val rGOOG_20181213 = reader(GOOG_20181213)
+
     @Test
-    fun testParsing () {
-        val ETH_USD_20181213 = "{\"USD\":846.31}"
-        val rETH_USD_20181213 = reader(ETH_USD_20181213)
-        val MSFT_20181213 = "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$89.83</div>\n"
-        val rMSFT_20181213 = reader(MSFT_20181213)
-        val GOOG_20181213 = "<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>"
-        val rGOOG_20181213 = reader(GOOG_20181213)
-
+    fun testParsingHappyPath () {
         parseCryptoPrice(ETH_USD_20181213).shouldEqual(846.31)
-        parseCryptoPrice(MSFT_20181213).shouldBeNegative()
-
         parseLiveStockPrice(rGOOG_20181213).shouldEqual(1053.0)
-        parseLiveStockPrice(rETH_USD_20181213).shouldBeNegative()
-
         parseLateStockPrice(rMSFT_20181213).shouldEqual(89.83)
+    }
+
+    @Test
+    fun testParsingErrors() {
+        parseCryptoPrice(MSFT_20181213).shouldBeNegative()
+        parseLiveStockPrice(rETH_USD_20181213).shouldBeNegative()
         parseLateStockPrice(rETH_USD_20181213).shouldBeNegative()
     }
 
     @Test
     fun testTickerMismatch() {
-        //Stock-wise, ETH is Ethan Allen Interiors, while ETH in Crypto is Ethereum
-        getStockPrice("ETH").shouldNotBe(Geldmonitor.getCryptoPrice("ETH"))
-
-        //BTC is a cryptocurrency but not a stock ticker so this should give an error.
-        getStockPrice("BTC").shouldBeNegative()
-
-        //MSFT is a stock but not a cryptocurrency so this should give an error
-        getCryptoPrice("MSFT").shouldBeNegative()
+        getStockPrice("ETH").shouldNotBe(Geldmonitor.getCryptoPrice("ETH")) //Ethan Allen Interiors != Ethereum
+        getStockPrice("BTC").shouldBeNegative() //BTC is a cryptocurrency but not a stock ticker
+        getCryptoPrice("MSFT").shouldBeNegative() //MSFT is a stock but not a cryptocurrency
     }
 
     @Test
