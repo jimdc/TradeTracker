@@ -59,13 +59,10 @@ open class StockDaoTest {
 
     @Test
     fun getStocklistRetrievesData() {
-        val remnant = Stock(ticker="MSFT", above=1, target=500000.0, phone=1, crypto=0)
-        stockDao.delete(remnant) //Does not seem to be deleting.
+        stockDao.nukeall()
 
         val stocklist = arrayOf(samplestock1, samplestock2, samplestock3)
-        stocklist.forEach {
-            stockDao.insert(it)
-        }
+        stocklist.forEach { stockDao.insert(it) }
 
         val retrievedstocks = stockDao.getAllStocks()
         assertThat("Did not retrieve at least as many stocks as I put in",
@@ -74,11 +71,8 @@ open class StockDaoTest {
         assertEquals("Did not return exact list of stocks I put in",
                 retrievedstocks, stocklist.sortedWith(compareBy({it.stockid}, {it.stockid})))
 
-        stocklist.forEach {
-            stockDao.delete(it)
-        }
-
-        assertNull("stockDao did not delete stocks when I requested", stockDao.getAllStocks())
+        stocklist.forEach { stockDao.delete(it) }
+        assertThat("stockDao did not delete stocks when I requested", stockDao.getAllStocks().isEmpty())
     }
 
     @Test
