@@ -13,6 +13,7 @@ import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -116,6 +117,18 @@ class MainActivity : AppCompatActivity() {
 
         return super.onCreateOptionsMenu(menu)
 
+    }
+
+    /**
+    * For navigation drawer in toolbar
+    */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_snooze -> snooze()
+            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
+            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     /**

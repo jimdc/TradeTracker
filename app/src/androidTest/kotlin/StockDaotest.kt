@@ -9,12 +9,15 @@ import io.reactivex.Flowable
 import io.reactivex.Observer
 import io.reactivex.observers.TestObserver
 import io.reactivex.subscribers.TestSubscriber
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThanOrEqualTo
+import org.hamcrest.Matchers.hasSize
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.stream.Stream
 
 @RunWith(AndroidJUnit4::class)
 open class StockDaoTest {
@@ -65,7 +68,10 @@ open class StockDaoTest {
         }
 
         val retrievedstocks = stockDao.getAllStocks()
-        assertEquals("stockDao not returning list of stocks I inserted!",
+        assertThat("Did not retrieve at least as many stocks as I put in",
+                retrievedstocks, hasSize(greaterThanOrEqualTo(stocklist.size)))
+
+        assertEquals("Did not return exact list of stocks I put in",
                 retrievedstocks, stocklist.sortedWith(compareBy({it.stockid}, {it.stockid})))
 
         stocklist.forEach {

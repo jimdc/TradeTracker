@@ -67,9 +67,7 @@ class MainActivitytest {
         onView(withId(R.id.addstockorcrypto)).perform(click())
         onView(withText(R.string.addstock)).perform(click())
 
-        //I want to verify that AddEditStockActivity has actually opened.
-        //Apparently it's harder than just this. https://cate.blog/2016/04/28/testing-intents-on-android-like-stabbing-yourself-in-the-eye-with-a-blunt-implement/
-        intended(hasComponent(AddEditStockActivity::class.java.name))
+        intended(hasComponent(AddEditStockActivity::class.java.name)) //verify AddEditStockActivity has opened
         Intents.release()
     }
 

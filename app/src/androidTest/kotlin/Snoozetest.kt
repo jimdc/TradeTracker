@@ -40,7 +40,6 @@ class Snoozetest {
         Espresso.onView(ViewMatchers.withText(R.string.snooze)).perform(ViewActions.click())
     }
 
-    @Ignore //It can't find the AlertDialog but neither can I in a normal use case
     @Test
     fun trysnoozing() {
         onView(withId(R.id.snoozeSetTimeTextview)).inRoot(isDialog()).check(matches(isDisplayed()))

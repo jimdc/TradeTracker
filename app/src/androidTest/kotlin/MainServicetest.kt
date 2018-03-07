@@ -34,8 +34,7 @@ public class MainServicetest {
     }
 
     @Test
-    @Throws(TimeoutException::class)
-    fun testWithBoundService() {
+    fun testUnboundService() {
 
     }
 
