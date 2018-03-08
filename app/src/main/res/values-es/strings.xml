@@ -53,4 +53,7 @@
     <string name="oknodelete">OK, nada fue eliminado</string>
     <string name="onlysnoozewhenscanning">Sólo puedo tomar una siesta durante el escaneado.</string>
     <string name="alreadysnoozing">Ya estoy durmiendo.</string>
+    <string name="notsnoozing">No estoy durmiendo.</string>
+    <string name="snoozingfor">Voy a posponer por %1$d milisegundos.</string>
+    <string name="snoozedfor">Estuve dormido durante %1$d / %2$d ms.</string>
 </resources>

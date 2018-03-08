@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     isSnoozing = true
-                    infoSnoozer.text = "Snoozing for ${snoozeMsecTotal}ms."
+                    infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
 
                     Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
                     async {
@@ -177,12 +177,12 @@ class MainActivity : AppCompatActivity() {
                         while(isSnoozing) {
                             uiThread {
                                 progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
-                                infoSnoozer.text = "Snoozed for ${snoozeMsecElapsed}/${snoozeMsecTotal}ms"
+                                infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
                             }
                             Utility.TryToSleepFor(snoozeMsecInterval)
                         }
                         uiThread {
-                            infoSnoozer.text = "Not snoozing."
+                            infoSnoozer.text = resources.getString(R.string.notsnoozing)
                         }
                     }
                     dialog.dismiss()

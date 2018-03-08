@@ -55,4 +55,7 @@
     <string name="oknodelete">OK, nothing was deleted.</string>
     <string name="onlysnoozewhenscanning">I can only snooze when scanning.</string>
     <string name="alreadysnoozing">I am already snoozing.</string>
+    <string name="notsnoozing">Not snoozing.</string>
+    <string name="snoozingfor">I will snooze for %1$d milliseconds.</string>
+    <string name="snoozedfor">I snoozed for %1$d / %2$d ms.</string>
 </resources>

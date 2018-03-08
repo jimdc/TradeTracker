@@ -52,4 +52,7 @@
     <string name="oknodelete">OK, rien n\'a été effacé</string>
     <string name="onlysnoozewhenscanning">Je ne peux que faire une sieste lors de le scan.</string>
     <string name="alreadysnoozing">Je dors déjà.</string>
+    <string name="notsnoozing">Je ne dors pas.</string>
+    <string name="snoozingfor">Je somnoler pour %1$d millisecondes.</string>
+    <string name="snoozedfor">J\'ai dormi pendant %1$d / %2$d ms.</string>
 </resources>
