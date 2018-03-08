@@ -23,4 +23,7 @@ interface StockDao {
 
     @Delete
     fun delete(stock: Stock): Int
+
+    @Query("DELETE FROM TableView2")
+    fun nukeall()
 }

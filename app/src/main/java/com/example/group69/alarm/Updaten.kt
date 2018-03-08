@@ -6,7 +6,6 @@ import android.util.Log
 import android.content.Context
 import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
-import android.content.BroadcastReceiver
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
@@ -27,7 +26,7 @@ class Updaten(CallerContext: Context) {
      * @todo use flowable [dbFunctions]
      */
   
-    fun scannetwork(vararg activies : Object): Long {
+    fun scannetwork(vararg activies : Object) {
         Log.d("Updaten","scannetwork start")
         var failcount = 0
 
@@ -38,13 +37,6 @@ class Updaten(CallerContext: Context) {
 
         for (stockx in stocksTargets) {
             val ticker: String = stockx.ticker
-
-            if (ticker.equals("snoozee")) {
-                SetPendingFinishedStock(stockx.stockid)
-                val snoozems = 1000*stockx.target.toLong()
-                Log.d("Updaten","Snoozing for $snoozems milliseconds.")
-                return 0
-            }
 
             var currPrice = if (stockx.crypto == 1L) { Geldmonitor.getCryptoPrice(ticker)
             } else { Geldmonitor.getLateStockPrice(ticker) } //changed from getStockPrice, the livestockprice is often non-existent and doesnt round as well for penny stocks
@@ -67,8 +59,6 @@ class Updaten(CallerContext: Context) {
         if (failcount == stocksTargets.size) {
             Log.e("Updaten", "All stocks below zero. Connection error?")
         }
-
-        return 0
     }
 
     /**
@@ -98,25 +88,7 @@ class Updaten(CallerContext: Context) {
         intent.putExtra("time", GregorianCalendar().time.toLocaleString())
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
-    private fun createBroadcastReceiver(): BroadcastReceiver {
-        return object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                Log.d("beforeAlarm","mangracina55")
-                // val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                //val num : LongArray = longArrayOf(1000,1000,1000)
-                //v.vibrate(num,3)
-                //updat.cancel(true)
-                //updat.pause(intent.getStringExtra("delay").toLong())
-                //Log.d("slept","canceled " + intent.getStringExtra("delay"))
 
-                //Thread.sleep(intent.getStringExtra("delay").toLong() * 6000)
-                //Log.d("slept",intent.getStringExtra("delay"))
-                //updat.execute("h")
-
-                //deleteStockOfThisIndex(intent.getStringExtra("result"))
-            }
-        }
-    }
     /**
      * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
      * Set the system service [alarmManager] as FLAG_UPDATE_CURRENT

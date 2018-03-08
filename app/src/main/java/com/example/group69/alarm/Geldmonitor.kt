@@ -1,6 +1,10 @@
 package com.example.group69.alarm
 
 import android.util.Log
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.KotlinJsonAdapterFactory
+import com.squareup.moshi.Moshi
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -16,6 +20,8 @@ object Geldmonitor {
     const val INTERNET_EXCEPTION = -2.0
     const val SKIPPEDPARSE_ERROR = -3.0
     const val DOUBLE_CONVERSION_ERROR = -4.0
+    const val JSON_DATA_ERROR = -5.0
+    const val IO_ERROR = -6.0
 
     /**
      * Scrapes the NASDAQ website, parses out stock info
@@ -65,10 +71,8 @@ object Geldmonitor {
         val tickerU = ticker.toUpperCase()
 
         val ret = try {
-            val url = URL("https://min-api.cryptocompare.com/data/price?fsym=${tickerU}&tsyms=USD")
-            val urlConn = url.openConnection()
-            val inStream = InputStreamReader(urlConn.getInputStream())
-            parseCryptoPrice(BufferedReader(inStream as Reader?))
+            val url = "https://min-api.cryptocompare.com/data/price?fsym=${tickerU}&tsyms=USD"
+            parseCryptoPrice(linez(url))
         } catch (ie: IOException) {
             INTERNET_EXCEPTION
         }
@@ -129,8 +133,24 @@ object Geldmonitor {
         return ret
     }
 
-    fun parseCryptoPrice(bae: BufferedReader): Double {
-        return parseStockCryptoPrice(bae, false, false)
+    fun parseCryptoPrice(json: String): Double {
+        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+
+        val jsonAdapter = moshi.adapter(Cryptocurrency::class.java)
+        val currenC: Cryptocurrency?
+
+        try {
+            currenC = jsonAdapter.fromJson(json)
+        } catch (io: IOException) {
+            return IO_ERROR
+        } catch (jo: JsonDataException) {
+            return JSON_DATA_ERROR
+        }
+
+        if (currenC == null)
+            return SKIPPEDPARSE_ERROR
+        else
+            return currenC.USD
     }
 
     fun parseLiveStockPrice(bae: BufferedReader): Double {

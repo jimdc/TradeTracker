@@ -13,6 +13,7 @@ import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -25,9 +26,11 @@ import io.reactivex.schedulers.Schedulers
  */
 
 lateinit var dbFunctions: WrapperAroundDao
-var isSnooze: Boolean = false
-var snoozeTime: Double = 0.0;
-var scanRunning: Boolean = false
+
+var isSnoozing: Boolean = false
+var snoozeMsecTotal: Long = 0
+var snoozeMsecElapsed: Long = 0
+var snoozeMsecInterval: Long = 1000
 
 class MainActivity : AppCompatActivity() {
 
@@ -63,8 +66,13 @@ class MainActivity : AppCompatActivity() {
                 currentPriceReceiver, IntentFilter("com.example.group69.alarm"))
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
+        infoSnoozer = findViewById(R.id.infoSnoozing)
+        progressSnoozer = findViewById(R.id.snoozeProgressBar)
         setSupportActionBar(toolbar)
     }
+
+    lateinit var infoSnoozer: TextView
+    lateinit var progressSnoozer: ProgressBar
 
     private val mDisposable = CompositeDisposable()
     override fun onStart() {
@@ -87,7 +95,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * This menu is the "add stock, add crypto, snooze, settings" on top.
+     * This menu is the "add stock, add crypto, openSnoozeDialog, settings" on top.
      */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
@@ -103,9 +111,8 @@ class MainActivity : AppCompatActivity() {
                     if (!isMyServiceRunning(MainService::class.java)) {
                         startService(mServiceIntent)
                     } else {
-                        toast("scan already running")
+                        toast("Scan already running")
                     }
-                    scanRunning = true
                 }
                 false -> {
                     val intent = Intent(this, MainService::class.java)
@@ -119,52 +126,71 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * @todo: Don't crash when leaving one field blank or not a number. There are UI components that enforce this?
-     */
-    fun snooze() {
-        Log.d("snoozeee","snoozin")
-        if (scanRunning) {
+    * For navigation drawer in toolbar
+    */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_snooze -> openSnoozeDialog()
+            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
+            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun openSnoozeDialog() {
+        if (isSnoozing) { toast(R.string.alreadysnoozing); return }
+        Log.i("MainActivity","Opening snooze dialog")
+        if (isMyServiceRunning(MainService::class.java)) {
             val mBuilder = AlertDialog.Builder(this@MainActivity)
-            val mView = layoutInflater.inflate(R.layout.snooze_dialogue, null)
+            val mView = layoutInflater.inflate(R.layout.snooze_dialog, null)
             val iHour = mView.findViewById(R.id.inputHour) as EditText
             val iMinute = mView.findViewById(R.id.inputMinute) as EditText
-            val mLogin = mView.findViewById(R.id.btnSnooze) as Button
+            val bConfirmSnooze = mView.findViewById(R.id.btnSnooze) as Button
 
             mBuilder.setView(mView)
             val dialog = mBuilder.create()
             dialog.show()
-            mLogin.setOnClickListener(View.OnClickListener {
-                if (!(iHour.text.toString().isEmpty() && iMinute.text.toString().isEmpty())) {
-                    /* if(iHour.text.toString().isEmpty())
-                        snoozeTime = iMinute.text.toString().toDouble() * 60
-                    if(iMinute.text.toString().isEmpty())
-                        snoozeTime = iHour.text.toString().toDouble() * 3600
-                    if(!iHour.text.toString().isEmpty() && !iMinute.text.toString().isEmpty())
-                        snoozeTime = iHour.text.toString().toDouble() * 3600 + iMinute.text.toString().toDouble() * 60 */
+            bConfirmSnooze.setOnClickListener {
+                val iHourt = iHour.text.trim().toString()
+                val iMinutet = iMinute.text.trim().toString()
 
-                    Log.d("main","scan pausing")
-                    //var stockid = Calendar.getInstance().getTimeInMillis()
-                    snoozeTime = iHour.text.toString().toDouble() * 3600 + iMinute.text.toString().toDouble() * 60
-                    isSnooze = true
-                    val seconds = iHour.text.toString().toDouble() * 3600 + iMinute.text.toString().toDouble() * 60
-                    /*  val snoozeEntry = Stock(stockid, "snoozee", seconds
-                              ?: 6.66, false, false, false)
-                      if (dbsBound) {
-                          dbService.addeditstock(snoozeEntry)
-                      } else {
-                          Log.e("AddButton", "OnClickListener: dbsBound = false, so did nothing.")
-                      } */
-                    dialog.dismiss()
-                } else {
+                if (iHourt.isEmpty() && iMinutet.isEmpty())
                     Toast.makeText(this@MainActivity,
-                            getString(R.string.invalid_entry),
-                            Toast.LENGTH_SHORT).show()
-                }
-            })
+                            getString(R.string.invalid_entry), Toast.LENGTH_SHORT).show()
+                else {
+                    try {
+                        val hours = if (iHourt.isEmpty()) 0L else iHourt.toLong()
+                        val minutes = if (iMinutet.isEmpty()) 0L else iMinutet.toLong()
+                        snoozeMsecTotal = 1000*(hours*3600 + minutes*60)
+                        snoozeMsecElapsed = 0L
+                    } catch (nfe: NumberFormatException) {
+                        Toast.makeText(this@MainActivity, getString(R.string.NaN, iHourt + "/" + iMinutet), Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    }
 
-        }
-        else {
-            toast("scan isn't running, can't snooze")
+                    isSnoozing = true
+                    infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
+
+                    Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
+                    async {
+                        progressSnoozer.max = snoozeMsecTotal.toInt()
+                        while(isSnoozing) {
+                            uiThread {
+                                progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
+                                infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
+                            }
+                            Utility.TryToSleepFor(snoozeMsecInterval)
+                        }
+                        uiThread {
+                            infoSnoozer.text = resources.getString(R.string.notsnoozing)
+                        }
+                    }
+                    dialog.dismiss()
+                }
+            }
+
+        } else {
+            toast(R.string.onlysnoozewhenscanning)
         }
     }
 

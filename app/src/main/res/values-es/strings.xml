@@ -44,4 +44,16 @@
     <string name="title_activity_edit_stock">Edición stock/crypto \"%1$s\"</string>
     <string name="stocknoexist">El stock \"%1$s\" no existe.</string>
     <string name="NaN">\"%1$s\" no es un número.</string>
+    <string name="invalid_entry">Entrada inválida: debe incluir un número.</string>
+    <string name="areyousure">¿Está segur@ que quiere borrar la fila %1$d?</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="deletesuccess">La borró exitosamente</string>
+    <string name="deletefailure">No se pudo borrar</string>
+    <string name="oknodelete">OK, nada fue eliminado</string>
+    <string name="onlysnoozewhenscanning">Sólo puedo tomar una siesta durante el escaneado.</string>
+    <string name="alreadysnoozing">Ya estoy durmiendo.</string>
+    <string name="notsnoozing">No estoy durmiendo.</string>
+    <string name="snoozingfor">Voy a posponer por %1$d milisegundos.</string>
+    <string name="snoozedfor">Estuve dormido durante %1$d / %2$d ms.</string>
 </resources>

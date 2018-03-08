@@ -13,19 +13,16 @@ import java.lang.Thread.*
 import android.os.Vibrator
 import android.util.Log
 
-
 class MainService : Service {
     var runTargetScan = true
     private lateinit var mServiceLooper: Looper
     private lateinit var mServiceHandler: ServiceHandler
-    lateinit var mMainActivity: MainActivity
     private val targetScanThread = HandlerThread("TutorialService",
             Process.THREAD_PRIORITY_BACKGROUND)
     var updat = Updaten(this@MainService)
 
     constructor(callerContext: Context) : super() {
         Log.i("MainService", "Constructor called")
-        mMainActivity = callerContext as MainActivity
     }
 
     constructor() {}
@@ -39,7 +36,7 @@ class MainService : Service {
         toast("scanning")
 
         if (!updat.running) {
-            Log.d("got", "starting!")
+            Log.v("MainService", "updat.running == false, so starting up service.")
             updat.running = true
             targetScanThread.start()
 
@@ -67,7 +64,7 @@ class MainService : Service {
      * @todo Something here is not allowed with Kotlin. Is it unnecessary?
      */
     override fun onDestroy() {
-        Log.d("geld", "got destroyed")
+        Log.i("MainService", "onDestroy called")
         runTargetScan = false
         targetScanThread.interrupt()
         if (updat.running) updat.running = false
@@ -101,21 +98,18 @@ class MainService : Service {
             updat.running = true
 
             while (!currentThread().isInterrupted) {
-                Log.d("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
-                val t = updat.scannetwork()
+                if (isSnoozing) {
+                    Utility.TryToSleepFor(snoozeMsecInterval)
+                    snoozeMsecElapsed += snoozeMsecInterval
 
-                if (isSnooze) {  //a return code of 2 means that snooze was activated and the sleep value was loaded into snoozeTime from mainActivity
-                    Log.d("Main","snoozetime")
-                    scanRunning = false  //scan refers to updaten, not the service
-                    toast("sleeping!" + snoozeTime)
-                    Utility.TryToSleepFor(snoozeTime.toLong()*1000)
-                    toast("scan resuming")
-                    scanRunning = true
-                    isSnooze = false
+                    if (snoozeMsecElapsed >= snoozeMsecTotal) {
+                        isSnoozing = false
+                    }
+                } else {
+                    Log.i("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
+                    updat.scannetwork()
+                    Utility.TryToSleepFor(8000)
                 }
-                else Utility.TryToSleepFor(8000)
-
-
                 SecondsSinceScanStarted++
             }
 
