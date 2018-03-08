@@ -30,9 +30,6 @@ class Updaten(CallerContext: Context) {
         //val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         //val num: LongArray = longArrayOf(800, 800, 800)
         //v.vibrate(num, -1)
-
-
-
         Log.d("Updaten","scannetwork start")
         var failcount = 0
 

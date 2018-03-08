@@ -116,7 +116,7 @@ class MainService : Service {
                     updat.scannetwork()
                     Utility.TryToSleepFor(8000)
                 }
-                Save(current)
+
 
                 SecondsSinceScanStarted++
             }
@@ -129,45 +129,6 @@ class MainService : Service {
             return
         }
 
-
-        fun Save(lastTime: Long) {
-            async {  //whether or not it is an async task it still does not work
-                var newCurrent = System.currentTimeMillis()/1000
-                var data = (newCurrent - lastTime).toString()
-
-                var logPath = File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Logs")
-                if (!logPath.exists()) {
-                    logPath.mkdirs()
-                }
-                val filename = "saving.txt"
-
-                val file = File(logPath, filename)
-                try {
-                    FileOutputStream(file).use { // no errors but nothing readable
-                        it.write(data.toByteArray())
-                    }
-                    //openFileOutput(filename, Context.MODE_PRIVATE).use {
-                      //  it.write((data+"\n").toByteArray())   this is shown on android website but gives system.err
-
-                    /* this didn't work either, neither did bufferedWriter and fileWriter
-                    try {
-                        val fos = FileOutputStream(filename)
-                        fos.write((data + "\n").toByteArray())
-                        fos.close()
-                    }
-                    catch (e: Exception) {
-                        e.printStackTrace()
-                    } */
-
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                Log.d("service", "saved file")
-                val inputAsString = FileInputStream(file).bufferedReader().use { it.readText() }
-                Log.d("service",inputAsString)
-            }
-        }
     }
 }
 
