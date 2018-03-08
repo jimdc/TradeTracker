@@ -43,10 +43,13 @@
     <string name="title_activity_edit_stock">Édition stock/crypto \"%1$s\"</string>
     <string name="stocknoexist">Le stock \"%1$s\" n\'existe pas.</string>
     <string name="NaN">\"%1$s\" n\'est pas un nombre.</string>
+    <string name="invalid_entry">Entrée invalide: doit inclure un nombre.</string>
     <string name="areyousure">Êtes-vous sûr de vouloir supprimer la ligne %1$d?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
     <string name="deletesuccess">L\'a supprimé avec succès</string>
     <string name="deletefailure">Impossible de la supprimer</string>
     <string name="oknodelete">OK, rien n\'a été effacé</string>
+    <string name="onlysnoozewhenscanning">Je ne peux que faire une sieste lors de le scan.</string>
+    <string name="alreadysnoozing">Je dors déjà.</string>
 </resources>

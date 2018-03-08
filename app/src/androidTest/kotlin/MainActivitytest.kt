@@ -57,9 +57,9 @@ class MainActivitytest {
         onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.notscanning)))
         //Ensure that it shows a different message when you do click.
         onView(withId(R.id.show_scanning_switch)).perform(click()) //To turn it on...
-        onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.scanning)));
+        onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.scanning)))
         onView(withId(R.id.show_scanning_switch)).perform(click()) //And to turn it off.
-        onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.notscanning)));
+        onView(withId(R.id.show_scanning_switch)).check(matches(withText(R.string.notscanning)))
     }
 
     @Test

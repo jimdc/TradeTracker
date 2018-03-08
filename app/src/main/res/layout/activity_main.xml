@@ -12,11 +12,32 @@
                 android:background="?attr/colorPrimary"
                 android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
-                <FrameLayout
-                    android:id="@+id/stock_content_fragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:layout_below="@+id/cooltoolbar"/>
+            <FrameLayout
+                android:id="@+id/stock_content_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/cooltoolbar"
+                android:layout_marginTop="62dp"
+                android:layout_weight="2" />
+
+            <ProgressBar
+                android:id="@+id/snoozeProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/cooltoolbar"
+                android:layout_marginStart="23dp"
+                android:layout_marginTop="20dp" />
+
+            <TextView
+                android:id="@+id/infoSnoozing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/snoozeProgressBar"
+                android:layout_marginEnd="113dp"
+                android:text="Not snoozing" />
 
         </RelativeLayout>

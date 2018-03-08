@@ -26,7 +26,7 @@ class Updaten(CallerContext: Context) {
      * @todo use flowable [dbFunctions]
      */
   
-    fun scannetwork(vararg activies : Object): Long {
+    fun scannetwork(vararg activies : Object) {
         Log.d("Updaten","scannetwork start")
         var failcount = 0
 
@@ -59,8 +59,6 @@ class Updaten(CallerContext: Context) {
         if (failcount == stocksTargets.size) {
             Log.e("Updaten", "All stocks below zero. Connection error?")
         }
-
-        return 0
     }
 
     /**

@@ -44,7 +44,7 @@
     <string name="title_activity_edit_stock">Editing stock/crypto \"%1$s\"</string>
     <string name="stocknoexist">The stock \"%1$s\" does not exist.</string>
     <string name="NaN">\"%1$s\" is not a number.</string>
-    <string name="invalid_entry">invalid entry</string>
+    <string name="invalid_entry">Invalid entry - must include a number.</string>
     <string name="scan_pausing">Scan pausing...</string>
     <string name="confirm">Confirm</string>
     <string name="areyousure">Are you sure you want to delete row %1$d?</string>
@@ -53,4 +53,6 @@
     <string name="deletesuccess">Successfully deleted it.</string>
     <string name="deletefailure">Could not delete it.</string>
     <string name="oknodelete">OK, nothing was deleted.</string>
+    <string name="onlysnoozewhenscanning">I can only snooze when scanning.</string>
+    <string name="alreadysnoozing">I am already snoozing.</string>
 </resources>
