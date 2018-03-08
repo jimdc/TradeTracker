@@ -25,8 +25,14 @@ class Updaten(CallerContext: Context) {
      * @return 0 on success, more is the amount of milliseconds to sleep
      * @todo use flowable [dbFunctions]
      */
-  
+
     fun scannetwork(vararg activies : Object) {
+        //val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        //val num: LongArray = longArrayOf(800, 800, 800)
+        //v.vibrate(num, -1)
+
+
+
         Log.d("Updaten","scannetwork start")
         var failcount = 0
 
