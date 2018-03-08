@@ -1,7 +1,17 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-//apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'org.jetbrains.dokka-android'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.16"
+    }
+}
 
 android {
     compileSdkVersion 26
@@ -36,7 +46,6 @@ android {
         // used by Room, to test migrations
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
-    //dataBinding { enabled = true }
 }
 
 dependencies {
@@ -73,15 +82,11 @@ dependencies {
     kapt "android.arch.persistence.room:compiler:$rootProject.roomVersion"
     androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
     testCompile 'junit:junit:4.12'
-    //classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${dokka_version}"
     testCompile "org.mockito:mockito-core:2.15.0"
     testCompile "com.nhaarman:mockito-kotlin:1.5.0"
     testCompile 'org.robolectric:robolectric:3.0'
     testImplementation 'org.amshove.kluent:kluent:1.34'
     testImplementation 'org.amshove.kluent:kluent-android:1.34'
-}
-repositories {
-    mavenCentral()
 }
 afterEvaluate {
     android.sourceSets.all { sourceSet ->

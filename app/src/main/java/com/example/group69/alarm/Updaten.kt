@@ -10,7 +10,9 @@ import android.content.Intent
 import android.os.Vibrator
 import java.util.*
 
-
+/**
+ * Checks through [Geldmonitor]
+ */
 class Updaten(CallerContext: Context) {
     var TutorialServiceContext = CallerContext
 
