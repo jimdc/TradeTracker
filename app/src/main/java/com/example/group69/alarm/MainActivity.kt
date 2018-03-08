@@ -130,6 +130,7 @@ class MainActivity : AppCompatActivity() {
     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_settings -> startActivity<SettingsActivity>()
             R.id.action_snooze -> openSnoozeDialog()
             R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
             R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
