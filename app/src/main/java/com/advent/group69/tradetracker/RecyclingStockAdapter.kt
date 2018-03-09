@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.content.ContentValues.TAG
 import android.support.v7.widget.RecyclerView

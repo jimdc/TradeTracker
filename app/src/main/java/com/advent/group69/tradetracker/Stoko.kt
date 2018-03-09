@@ -1,8 +1,7 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.arch.persistence.room.*
 import android.arch.persistence.room.Entity
-import java.time.Instant
 
 /**
  * Not in use yet. For db version 3.

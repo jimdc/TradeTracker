@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.group69.alarm">
+    package="com.advent.group69.tradetracker">
 
     <!-- Permission to use AlarmManager -->
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.advent.group69.tradetracker.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -24,27 +24,26 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MoreInfoNotification"
+            android:name="com.advent.group69.tradetracker.MoreInfoNotification"
             android:label="@string/moar"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName="com.advent.group69.tradetracker.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.advent.group69.tradetracker.MainActivity" />
         </activity>
-        <receiver android:name=".AlertReceiver" />
+        <receiver android:name="com.advent.group69.tradetracker.AlertReceiver" />
 
         <activity
-            android:name=".AddEditStockActivity"
+            android:name="com.advent.group69.tradetracker.AddEditStockActivity"
             android:label="@string/title_activity_add_stock"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.advent.group69.tradetracker.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.advent.group69.tradetracker.MainActivity" />
         </activity>
-        <service android:name=".MainService" android:exported="false"></service>
-
-        <activity android:name=".SettingsActivity" android:label="Settings-Einstellungen"></activity>
+        <service android:name="com.advent.group69.tradetracker.MainService" android:exported="false"></service>
+        <activity android:name="com.advent.group69.tradetracker.SettingsActivity" android:label="Settings-Einstellungen"></activity>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -54,7 +54,7 @@ class AlertReceiver : BroadcastReceiver() {
         mBuilder.setContentIntent(notificIntent)
 
         //mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-        val sound = Uri.parse("android.resource://" + "com.example.group69.alarm" + "/" + R.raw.new_loud_ringtone)
+        val sound = Uri.parse("android.resource://" + "com.example.group69.tradetracker" + "/" + R.raw.new_loud_ringtone)
         mBuilder.setSound(sound)
         mBuilder.setDefaults(Notification.DEFAULT_VIBRATE)
         mBuilder.setDefaults(Notification.DEFAULT_LIGHTS)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--<layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
-        <variable name="livestockdat" type="com.example.group69.alarm.LiveStockData" />
+        <variable name="livestockdat" type="com.example.groutradetrackerlarm.LiveStockData" />
     </data>-->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"

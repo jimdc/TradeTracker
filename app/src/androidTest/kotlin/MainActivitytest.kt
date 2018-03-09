@@ -2,18 +2,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import android.support.test.espresso.Espresso
 import android.support.v7.widget.Toolbar
-import java.lang.annotation.Annotation
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThat
 import android.content.Intent
-import android.support.annotation.IdRes
-import android.support.test.InstrumentationRegistry.getInstrumentation
 import android.support.test.espresso.Espresso.*
-import android.support.test.espresso.ViewAction
 import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.action.ViewActions.*
 import android.support.test.espresso.assertion.ViewAssertions.matches
@@ -24,8 +19,7 @@ import android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import android.support.test.espresso.matcher.RootMatchers.isDialog
 import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.v7.widget.RecyclerView
-import android.widget.ToggleButton
-import com.example.group69.alarm.*
+import com.advent.group69.tradetracker.*
 
 
 /**

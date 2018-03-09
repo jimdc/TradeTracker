@@ -1,10 +1,5 @@
-import org.junit.Assert.assertThat;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito.*;
-import com.example.group69.alarm.Utility.toDollar
+import com.advent.group69.tradetracker.Utility.toDollar
 import org.amshove.kluent.shouldEqual
 
 class Utilitytest {

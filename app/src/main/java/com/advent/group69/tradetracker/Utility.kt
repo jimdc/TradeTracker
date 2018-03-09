@@ -1,17 +1,7 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
-import android.content.Context
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
-import android.view.View.MeasureSpec
-import android.widget.ListAdapter
-import android.widget.ListView
 import java.util.*
-import android.net.NetworkInfo
-import android.content.Context.CONNECTIVITY_SERVICE
-import android.net.ConnectivityManager
-
 
 
 object Utility {

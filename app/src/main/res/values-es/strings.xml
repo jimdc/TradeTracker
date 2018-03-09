@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Alarma</string>
+    <string name="alarm">Alarma</string>
+    <string name="app_name">TradeTracker</string>
     <string name="hotstock">Stocks Calientes</string>
     <string name="addstock">Añadir Stock</string>
     <string name="addcrypto">Añadir Cripto</string>

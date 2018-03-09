@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -22,7 +22,7 @@ class Updaten(CallerContext: Context) {
 
     /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
-     * If current price meets criteria, send to [onProgressUpdate] for alarm
+     * If current price meets criteria, send to [onProgressUpdate] for tradetracker
      * If [Geldmonitor] functions return negative (error) for all stocks, err
      * @return 0 on success, more is the amount of milliseconds to sleep
      * @todo use flowable [dbFunctions]
@@ -84,7 +84,7 @@ class Updaten(CallerContext: Context) {
     }
 
     fun PriceBroadcastLocal(stockid: Long, currentprice: Double) {
-        val intent = Intent("com.example.group69.alarm")
+        val intent = Intent("com.example.group69.tradetracker")
         intent.putExtra("stockid", stockid)
         intent.putExtra("currentprice", currentprice)
         intent.putExtra("time", GregorianCalendar().time.toLocaleString())
@@ -100,7 +100,7 @@ class Updaten(CallerContext: Context) {
      */
     fun AlarmBroadcastGlobal(ticker: String, price: String, ab: String) {
 
-        Log.v("Updaten", "Building alarm with ticker=$ticker, price=$price, ab=$ab")
+        Log.v("Updaten", "Building tradetracker with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5
 
         val alertIntent = Intent(TutorialServiceContext, AlertReceiver::class.java)

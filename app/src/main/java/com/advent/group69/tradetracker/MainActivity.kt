@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.app.*
 import android.content.Context
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                currentPriceReceiver, IntentFilter("com.example.group69.alarm"))
+                currentPriceReceiver, IntentFilter("com.advent.group69.tradetracker"))
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
         infoSnoozer = findViewById(R.id.infoSnoozing)
@@ -264,7 +264,7 @@ class MainActivity : AppCompatActivity() {
                 val rPrice = intent.getDoubleExtra("currentprice", -666.0)
                 val rTime = intent.getStringExtra("time") ?: "not found"
                 when(intent.action) {
-                    "com.example.group69.alarm" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
+                    "com.advent.group69.tradetracker" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
                 }
             }
         }

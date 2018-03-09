@@ -1,14 +1,10 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
-import android.util.Log
 import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.JsonReader
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStream
-import java.nio.charset.Charset
 import java.io.InputStreamReader
 import java.io.Reader
 import java.lang.NumberFormatException

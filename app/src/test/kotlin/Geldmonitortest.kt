@@ -1,18 +1,13 @@
-import com.example.group69.alarm.Geldmonitor
-import org.junit.Assert.assertThat;
-import org.junit.Before;
+import com.advent.group69.tradetracker.Geldmonitor
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito.*;
 import java.io.StringReader
 import java.io.BufferedReader
-import com.example.group69.alarm.Geldmonitor.parseLiveStockPrice
-import com.example.group69.alarm.Geldmonitor.parseLateStockPrice
-import com.example.group69.alarm.Geldmonitor.parseCryptoPrice
-import com.example.group69.alarm.Geldmonitor.getStockPrice
-import com.example.group69.alarm.Geldmonitor.getLateStockPrice
-import com.example.group69.alarm.Geldmonitor.getCryptoPrice
+import com.advent.group69.tradetracker.Geldmonitor.parseLiveStockPrice
+import com.advent.group69.tradetracker.Geldmonitor.parseLateStockPrice
+import com.advent.group69.tradetracker.Geldmonitor.parseCryptoPrice
+import com.advent.group69.tradetracker.Geldmonitor.getStockPrice
+import com.advent.group69.tradetracker.Geldmonitor.getLateStockPrice
+import com.advent.group69.tradetracker.Geldmonitor.getCryptoPrice
 import org.amshove.kluent.*
 
 /**

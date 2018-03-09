@@ -1,13 +1,8 @@
-import android.arch.persistence.room.Room
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
-import android.arch.lifecycle.LiveData
-import com.example.group69.alarm.Stock
-import com.example.group69.alarm.StockDao
-import com.example.group69.alarm.StockDatabase
-import io.reactivex.Flowable
-import io.reactivex.Observer
-import io.reactivex.observers.TestObserver
+import com.advent.group69.tradetracker.Stock
+import com.advent.group69.tradetracker.StockDao
+import com.advent.group69.tradetracker.StockDatabase
 import io.reactivex.subscribers.TestSubscriber
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -17,7 +12,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.stream.Stream
 
 @RunWith(AndroidJUnit4::class)
 open class StockDaoTest {

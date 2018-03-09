@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
