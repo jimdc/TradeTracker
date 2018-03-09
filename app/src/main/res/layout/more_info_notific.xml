@@ -6,8 +6,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Info on the notification"
+        android:text="Scanning for price changes cannot be done while power saving mode is on unless you are keeping the app open on the screen.
+
+Scanning can still be done in the background on power saving mode if your phone is on the charger. But if removed from the charger scanning will not work once phone does into sleep mode or you switch apps.
+
+If your phone doesn't have great battery life, we recommend keeping the phone on a charger whenever possible if using the scan all day long, as power saving mode needs to be turned off. Perhaps also consider investing in a powerblock to charge on the go."
         android:id="@+id/textView"
-        android:textSize="16sp" />
+        android:textSize="18sp" />
 
 </LinearLayout>

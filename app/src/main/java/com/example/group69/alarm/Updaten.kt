@@ -9,9 +9,19 @@ import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
+import android.os.Build.VERSION_CODES
+import android.os.Build.VERSION_CODES.LOLLIPOP
+import android.os.PowerManager
+import android.os.BatteryManager
+import android.content.IntentFilter
+
+
+
+
 
 
 class Updaten(CallerContext: Context) {
+
     var TutorialServiceContext = CallerContext
 
     var IdOfStockToDelete: Long = 5
@@ -27,9 +37,14 @@ class Updaten(CallerContext: Context) {
      */
 
     fun scannetwork(vararg activies : Object) {
+
         //val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        //val num: LongArray = longArrayOf(800, 800, 800)
+        //val num: LongArray = longArrayOf(400, 400, 400)
         //v.vibrate(num, -1)
+
+        if(powerSavingOn && !notifiedOfPowerSaving){
+            powerSavingFun()
+        }
         Log.d("Updaten","scannetwork start")
         var failcount = 0
 
@@ -91,6 +106,11 @@ class Updaten(CallerContext: Context) {
         intent.putExtra("time", GregorianCalendar().time.toLocaleString())
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
+    fun powerSavingFun() {
+        val intent = Intent("com.example.group69.alarm")
+        intent.putExtra("stockid", 1111111111111111111)
+        LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
+    }
 
     /**
      * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
@@ -120,4 +140,5 @@ class Updaten(CallerContext: Context) {
         val num: LongArray = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
         v.vibrate(num, -1)
     }
+
 }
