@@ -92,14 +92,16 @@ class MainService : Service() {
             updat.running = true
 
             while (!currentThread().isInterrupted) {
-                if (isSnoozing) {
+                /*if (isSnoozing) {
                     Utility.TryToSleepFor(snoozeMsecInterval)
                     snoozeMsecElapsed += snoozeMsecInterval
 
                     if (snoozeMsecElapsed >= snoozeMsecTotal) {
                         isSnoozing = false
                     }
-                } else {
+                } else {*/
+                if (isSnoozing) Utility.TryToSleepFor(snoozeMsecInterval)
+                else {
                     Log.i("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
                     updat.scannetwork()
                     Utility.TryToSleepFor(8000)

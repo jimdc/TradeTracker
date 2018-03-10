@@ -19,7 +19,13 @@ import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.schedulers.Timed
 import android.content.SharedPreferences
+import io.reactivex.Observable
+import java.util.concurrent.TimeUnit
+import javax.xml.datatype.DatatypeConstants.SECONDS
+
+
 
 
 
@@ -175,23 +181,36 @@ class MainActivity : AppCompatActivity() {
                         dialog.dismiss()
                     }
 
-                    isSnoozing = true
-                    infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
-
-                    Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
-                    async {
-                        progressSnoozer.max = snoozeMsecTotal.toInt()
-                        while(isSnoozing) {
-                            uiThread {
-                                progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
-                                infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
-                            }
-                            Utility.TryToSleepFor(snoozeMsecInterval)
-                        }
-                        uiThread {
-                            infoSnoozer.text = resources.getString(R.string.notsnoozing)
-                        }
-                    }
+                    var IterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
+                    val timerDisposable = Observable.interval(snoozeMsecInterval, TimeUnit.MILLISECONDS, Schedulers.io())
+                            .take(IterationsWhenDone)
+                            .map({ v -> IterationsWhenDone - v })
+                            .subscribe(
+                                    { onNext ->
+                                        snoozeMsecElapsed += snoozeMsecInterval
+                                        this.applicationContext.onUiThread {
+                                            progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
+                                            infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
+                                        }
+                                    },
+                                    { onError ->
+                                        this.applicationContext.onUiThread {
+                                            toast("Something went wrong with the snoozer timer.")
+                                        }
+                                    },
+                                    {
+                                        isSnoozing = false //done
+                                        this.applicationContext.onUiThread {
+                                            infoSnoozer.text = resources.getString(R.string.notsnoozing)
+                                        }
+                                    },
+                                    { onSubscribe ->
+                                        isSnoozing = true //start
+                                        this.applicationContext.onUiThread {
+                                            progressSnoozer.max = snoozeMsecTotal.toInt()
+                                            infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
+                                        }
+                                    })
                     dialog.dismiss()
                 }
             }

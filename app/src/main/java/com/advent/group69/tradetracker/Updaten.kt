@@ -21,6 +21,27 @@ class Updaten(CallerContext: Context) {
     var running: Boolean = false
 
     /**
+     * Need a way to add the delay element here.
+     */
+    fun RXscannetwork() {
+        dbFunctions.getFlowableStocklist().subscribe{
+            it.forEach {
+                var currPrice = with (Geldmonitor) {
+                    if (it.crypto == 1L) getCryptoPrice(it.ticker) else getLateStockPrice(it.ticker)
+                }
+                if (currPrice > 0) {
+                    PriceBroadcastLocal(it.stockid, currPrice)
+
+                    if (it.above==1L && currPrice>it.target || it.above==0L && currPrice<it.target) {
+                        SetPendingFinishedStock(it.stockid)
+                        AlarmBroadcastGlobal(it.ticker, it.target.toString(), it.above.toString())
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
      * If current price meets criteria, send to [onProgressUpdate] for tradetracker
      * If [Geldmonitor] functions return negative (error) for all stocks, err
