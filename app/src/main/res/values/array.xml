@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notification_sounds_names">
+        <item>home phone</item>
+        <item>new loud ringtone</item>
+        <item>old phone</item>
+    </string-array>
+    <string-array name="notification_sounds_values">
+        <item>home_phone_5.mp3</item>
+        <item>new_loud_ringtone.mp3</item>
+        <item>old_phone.mp3</item>
+    </string-array>
+</resources>

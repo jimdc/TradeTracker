@@ -59,4 +59,7 @@
     <string name="notsnoozing">Not snoozing.</string>
     <string name="snoozingfor">I will snooze for %1$d milliseconds.</string>
     <string name="snoozedfor">I snoozed for %1$d / %2$d ms.</string>
+    <string name="appearance">Appearance</string>
+    <string name="updates">Updates</string>
+    <string name="notifications">Notifications</string>
 </resources>

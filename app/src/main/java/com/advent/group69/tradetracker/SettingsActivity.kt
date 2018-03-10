@@ -8,8 +8,9 @@ import android.support.v7.preference.PreferenceFragmentCompat
 
 class SettingsActivity : AppCompatActivity() {
 
-    companion object KEY_PREF_EXAMPLE_SWITCH {
+    companion object KEYS {
         fun get() = "example_switch"
+        fun gridlayout() = "gridlayout"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

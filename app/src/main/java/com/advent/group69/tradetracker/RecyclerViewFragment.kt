@@ -2,6 +2,7 @@ package com.advent.group69.tradetracker
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.preference.PreferenceManager
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -41,7 +42,6 @@ class RecyclerViewFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
         val rootView = inflater?.inflate(R.layout.recycler_view_frag, container, false)
         rootView?.tag = TAG
 
@@ -57,24 +57,20 @@ class RecyclerViewFragment : Fragment() {
         if (savedInstanceState != null) {
             // Restore saved layout manager type.
             mCurrentLayoutManagerType = savedInstanceState.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
+        } else {
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(this.context)
+            val gridlayoutPref = sharedPref.getBoolean(SettingsActivity.KEYS.gridlayout(), false)
+
+            mCurrentLayoutManagerType = if (gridlayoutPref) LayoutManagerType.GRID_LAYOUT_MANAGER else LayoutManagerType.LINEAR_LAYOUT_MANAGER
         }
+
+
         setRecyclerViewLayoutManager(mCurrentLayoutManagerType)
 
         mAdapter = RecyclingStockAdapter(mDataset)
 
         // Set CustomAdapter as the adapter for RecyclerView.
         mRecyclerView.adapter = mAdapter
-
-        mLinearLayoutRadioButton = rootView.findViewById(R.id.linear_layout_rb) as RadioButton
-        mLinearLayoutRadioButton.setOnClickListener {
-            setRecyclerViewLayoutManager(LayoutManagerType.LINEAR_LAYOUT_MANAGER)
-        }
-
-        mGridLayoutRadioButton = rootView.findViewById(R.id.grid_layout_rb) as RadioButton
-        mGridLayoutRadioButton.setOnClickListener {
-            view -> setRecyclerViewLayoutManager(LayoutManagerType.GRID_LAYOUT_MANAGER)
-        }
-
         return rootView
     }
 

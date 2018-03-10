@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val switchPref = sharedPref.getBoolean(SettingsActivity.KEY_PREF_EXAMPLE_SWITCH.get(), false)
+        val gridlayoutPref = sharedPref.getBoolean(SettingsActivity.KEYS.gridlayout(), false)
     }
 
     private lateinit var infoSnoozer: TextView
@@ -116,20 +116,16 @@ class MainActivity : AppCompatActivity() {
 
         val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
         mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
+        mServiceIntent = Intent(this, MainService::class.java)
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
                 true -> {
-                    mServiceIntent = Intent(this, MainService::class.java)
-                    if (!isMyServiceRunning(MainService::class.java)) {
+                    if (!isMyServiceRunning(MainService::class.java))
                         startService(mServiceIntent)
-                    } else {
+                    else
                         toast("Scan already running")
-                    }
                 }
-                false -> {
-                    val intent = Intent(this, MainService::class.java)
-                    stopService(intent)
-                }
+                false -> { stopService(mServiceIntent) }
             }
         }
 

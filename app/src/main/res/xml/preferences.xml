@@ -1,25 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <android.support.v7.preference.PreferenceCategory android:title="Category 1">
+        <android.support.v7.preference.PreferenceCategory android:title="@string/appearance">
 
             <android.support.v7.preference.SwitchPreferenceCompat
-                android:key="layout"
+                android:key="gridlayout"
                 android:title="GridLayout"
                 android:summary="LinearLayout is default"
                 android:defaultValue="false" />
+            <android.support.v7.preference.EditTextPreference
+                android:key="snooze-upd-interval"
+                android:title="Snooze interval (ms)"
+                android:summary="How often to report snooze progress"
+                android:dialogMessage="How many millisecond interval?"
+                android:defaultValue="1000" />
+
+        </android.support.v7.preference.PreferenceCategory>
+
+        <android.support.v7.preference.PreferenceCategory android:title="@string/updates">
 
             <android.support.v7.preference.EditTextPreference
-                android:key="upd-interval"
+                android:key="stock-upd-interval"
                 android:title="Update interval (ms)"
-                android:summary="How often to check for updates"
-                android:dialogMessage="Dialog Message"
-                android:defaultValue="Default value" />
+                android:summary="How often to check for stock updates"
+                android:dialogMessage="How many millisecond interval?"
+                android:defaultValue="8000" />
 
+        </android.support.v7.preference.PreferenceCategory>
+
+        <android.support.v7.preference.PreferenceCategory android:title="@string/notifications">
+            <android.support.v7.preference.ListPreference
+                android:key="which-sound"
+                android:title="Which sound"
+                android:summary="Notification ringtone"
+                android:entries="@array/notification_sounds_names"
+                android:entryValues="@array/notification_sounds_values"
+                android:dialogIcon="@drawable/ic_music_note"
+                android:defaultValue="new_loud_ringtone.mp3"/>
             <android.support.v7.preference.CheckBoxPreference
-                android:key="soundy"
-                android:title="Something sound related"
-                android:summary="Like which noise to use?"
+                android:key="vibrate"
+                android:title="Vibration"
+                android:summary="Vibrate when notifying"
                 android:defaultValue="true"/>
-
         </android.support.v7.preference.PreferenceCategory>
 </PreferenceScreen>

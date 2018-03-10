@@ -56,4 +56,7 @@
     <string name="notsnoozing">Je ne dors pas.</string>
     <string name="snoozingfor">Je somnoler pour %1$d millisecondes.</string>
     <string name="snoozedfor">J\'ai dormi pendant %1$d / %2$d ms.</string>
+    <string name="appearance">Apparence</string>
+    <string name="updates">Mises à jour</string>
+    <string name="notifications">Notifications</string>
 </resources>
