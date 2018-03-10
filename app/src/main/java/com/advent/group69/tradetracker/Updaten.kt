@@ -119,6 +119,7 @@ class Updaten(CallerContext: Context) {
 
     /**
      * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
+     * To be passed on to [AlertReceiver]
      * Set the system service [alarmManager] as FLAG_UPDATE_CURRENT
      * @param[ticker] The relevant ticker
      * @param[price] The new, noteworthy price
@@ -130,10 +131,13 @@ class Updaten(CallerContext: Context) {
         val alertTime = GregorianCalendar().timeInMillis + 5
 
         val alertIntent = Intent(TutorialServiceContext, AlertReceiver::class.java)
-        alertIntent.putExtra("message1", ticker.toUpperCase() + " " +
-                if (ab == "1") "rose to" else "dropped to" + " " + Utility.toDollar(price))
-        alertIntent.putExtra("message2", Utility.toDollar(price))
-        alertIntent.putExtra("message3", ab)
+
+        alertIntent.putExtra(TutorialServiceContext.resources.getString(R.string.tickerRoseDroppedMsg),
+                ticker.toUpperCase() + " " + if (ab == "1") "rose to" else "dropped to" + " " + Utility.toDollar(price))
+        alertIntent.putExtra(TutorialServiceContext.resources.getString(R.string.tickerTargetPrice),
+                Utility.toDollar(price))
+        alertIntent.putExtra(TutorialServiceContext.resources.getString(R.string.aboveBelow),
+                ab)
 
         val alarmManager = TutorialServiceContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 

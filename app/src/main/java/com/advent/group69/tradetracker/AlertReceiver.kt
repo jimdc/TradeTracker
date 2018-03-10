@@ -16,12 +16,10 @@ class AlertReceiver : BroadcastReceiver() {
      * Called when a broadcast is made targeting this class
      */
     override fun onReceive(context: Context, intent: Intent) {
-        //Log.d("alarmo","ayy")
-        //Log.d("alarmo",intent.extras.getString("message1"))
         createNotification(context,
-                intent.extras.getString("message1").toString(),
-                intent.extras.getString("message2").toString(),
-                intent.extras.getString("message3").toString()
+                intent.extras.getString(context.resources.getString(R.string.tickerRoseDroppedMsg)),
+                intent.extras.getString(context.resources.getString(R.string.tickerTargetPrice)),
+                intent.extras.getString(context.resources.getString(R.string.aboveBelow))
         )
     }
 
