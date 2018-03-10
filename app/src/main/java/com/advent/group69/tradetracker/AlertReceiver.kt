@@ -10,13 +10,14 @@ import android.net.Uri
 import android.support.v4.app.NotificationCompat
 import android.support.v7.preference.PreferenceManager
 
+
 class AlertReceiver : BroadcastReceiver() {
 
     /**
      * Called when a broadcast is made targeting this class
      */
     override fun onReceive(context: Context, intent: Intent) {
-        createNotification(context,
+        createSoundAndOverheadNotification(context,
                 intent.extras.getString(context.resources.getString(R.string.tickerRoseDroppedMsg)),
                 intent.extras.getString(context.resources.getString(R.string.tickerTargetPrice)),
                 intent.extras.getString(context.resources.getString(R.string.aboveBelow))
@@ -40,7 +41,7 @@ class AlertReceiver : BroadcastReceiver() {
      * Settings in [mBuilder] specify: make sound, vibrate, use default light
      * and auto cancel the notification when clicked on in the task bar.
      */
-    private fun createNotification(context: Context, msg: String, msgText: String, msgAlert: String) {
+    private fun createSoundAndOverheadNotification(context: Context, msg: String, msgText: String, msgAlert: String) {
 
         val notificIntent = PendingIntent.getActivity(context, 0,
                 Intent(context, MainActivity::class.java), 0)
@@ -62,12 +63,9 @@ class AlertReceiver : BroadcastReceiver() {
             else -> R.raw.new_loud_ringtone
         }
 
-        //mBuilder.setDefaults(Notification.DEFAULT_SOUND);
         val sound = Uri.parse("android.resource://" +
-                context.resources.getString(R.string.apppackagename) + "/" + rawsound)
-
+                context.packageName + "/" + rawsound)
         mBuilder.setSound(sound)
-        mBuilder.setDefaults(Notification.DEFAULT_SOUND.inv()) //Don't use default sound
         mBuilder.setDefaults(Notification.DEFAULT_VIBRATE)
 
         mBuilder.setDefaults(Notification.DEFAULT_LIGHTS)

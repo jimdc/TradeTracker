@@ -82,7 +82,6 @@
     <string name="vibrate_key">vibrate</string>
 
     <!-- Things which should not be hardcoded. -->
-    <string name="apppackagename">com.advent.group69.tradetracker</string>
     <string name="tickerRoseDroppedMsg">tickerRoseDroppedMsg</string>
     <string name="tickerTargetPrice">tickerTargetPrice</string>
     <string name="aboveBelow">aboveBelow</string>

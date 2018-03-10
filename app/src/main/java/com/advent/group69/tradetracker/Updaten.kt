@@ -150,10 +150,10 @@ class Updaten(CallerContext: Context) {
     fun vibrate() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(TutorialServiceContext)
         val vibratePref = sharedPref.getBoolean(TutorialServiceContext.resources.getString(R.string.vibrate_key), true)
-
-        val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val num: LongArray = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
-        if (vibratePref)
+        if (vibratePref) {
+            val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            val num: LongArray = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
             v.vibrate(num, -1)
+        }
     }
 }
