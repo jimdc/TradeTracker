@@ -11,12 +11,14 @@ import android.os.Process
 import android.os.HandlerThread
 import java.lang.Thread.*
 import android.os.Vibrator
+import android.support.v7.preference.PreferenceManager
 import android.util.Log
 
 class MainService : Service() {
     var runTargetScan = true
     private lateinit var mServiceLooper: Looper
     private lateinit var mServiceHandler: ServiceHandler
+    private var updateFrequencyPref: Long = 8000
     private val targetScanThread = HandlerThread("TutorialService",
             Process.THREAD_PRIORITY_BACKGROUND)
     var updat = Updaten(this@MainService)
@@ -50,6 +52,14 @@ class MainService : Service() {
         message.arg1 = startId
         mServiceHandler.sendMessage(message)
 
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        updateFrequencyPref =
+                try {
+                    sharedPref.getString(this.resources.getString(R.string.stockupdate_key), "8000").toLong()
+                } catch (nfe: NumberFormatException) {
+                    8000
+                }
+
         return Service.START_NOT_STICKY
     }
 
@@ -81,19 +91,11 @@ class MainService : Service() {
             updat.running = true
 
             while (!currentThread().isInterrupted) {
-                /*if (isSnoozing) {
-                    Utility.TryToSleepFor(snoozeMsecInterval)
-                    snoozeMsecElapsed += snoozeMsecInterval
-
-                    if (snoozeMsecElapsed >= snoozeMsecTotal) {
-                        isSnoozing = false
-                    }
-                } else {*/
                 if (isSnoozing) Utility.TryToSleepFor(snoozeMsecInterval)
                 else {
                     Log.i("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
                     updat.scannetwork()
-                    Utility.TryToSleepFor(8000)
+                    Utility.TryToSleepFor(updateFrequencyPref)
                 }
                 SecondsSinceScanStarted++
             }
