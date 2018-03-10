@@ -1,5 +1,6 @@
 package com.advent.group69.tradetracker
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -25,16 +26,6 @@ import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 import javax.xml.datatype.DatatypeConstants.SECONDS
 
-
-
-
-
-/**
- * @param[isNotificActive] tracks if the notification is active on the taskbar.
- * @param[notificationManager] allows us to notify user that something happened in the backgorund.
- * @param[notifID] is used to track notifications
- */
-
 lateinit var dbFunctions: WrapperAroundDao
 
 var isSnoozing: Boolean = false
@@ -42,6 +33,11 @@ var snoozeMsecTotal: Long = 0
 var snoozeMsecElapsed: Long = 0
 var snoozeMsecInterval: Long = 1000
 
+/**
+ * @param[isNotificActive] tracks if the notification is active on the taskbar.
+ * @param[notificationManager] allows us to notify user that something happened in the backgorund.
+ * @param[notifID] is used to track notifications
+ */
 class MainActivity : AppCompatActivity() {
 
     private var mServiceIntent: Intent? = null
@@ -80,8 +76,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        //val gridlayoutPref = sharedPref.getBoolean(SettingsActivity.KEYS.gridlayout(), false)
     }
 
     private lateinit var infoSnoozer: TextView
@@ -146,6 +140,7 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("InflateParams")
     private fun openSnoozeDialog() {
         if (isSnoozing) { toast(R.string.alreadysnoozing); return }
         Log.i("MainActivity","Opening snooze dialog")
@@ -177,11 +172,11 @@ class MainActivity : AppCompatActivity() {
                         dialog.dismiss()
                     }
 
-                    var IterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
+                    val iterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
                     val timerDisposable = Observable.interval(snoozeMsecInterval, TimeUnit.MILLISECONDS, Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread()) //To show things on UI
-                            .take(IterationsWhenDone)
-                            .map({ v -> IterationsWhenDone - v })
+                            .take(iterationsWhenDone)
+                            .map({ v -> iterationsWhenDone - v })
                             .subscribe(
                                     { onNext ->
                                         snoozeMsecElapsed += snoozeMsecInterval
@@ -215,6 +210,7 @@ class MainActivity : AppCompatActivity() {
      * @return true if running, false if not
      * @sample startService
      */
+    @Suppress("DEPRECATION")
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -267,7 +263,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    val BROADCAST_PRICE_UPDATE = "BROADCAST_PRICE_UPDATE"
     /**
      * @return BroadcastReceiver that logs when it is registered
      */
@@ -280,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                 val rTime = intent.getStringExtra("time") ?: "not found"
                 Log.v("MainActivity", "Received price update of $rStockid as $rPrice")
                 when (intent.action) {
-                    "PRICEUPDATE" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
+                    "PRICEUPDATE" -> adapter.setCurrentPrice(rStockid, rPrice, rTime)
                 }
             }
         }

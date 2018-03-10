@@ -18,11 +18,10 @@ class AddEditStockActivity : AppCompatActivity() {
 
     /**
      * Customizes the UI based on intent extras "EditingCrypto" and "EditingExisting"
-     * @todo make more modular by having Datenbank interaction in own function
      */
     private var EditingCrypto: Boolean = false
     private var EditingExisting: Boolean = false
-    private var stockid = Calendar.getInstance().getTimeInMillis() //@todo use autoincrement
+    private var stockid = Calendar.getInstance().getTimeInMillis()
     private lateinit var stockticker: String
     private lateinit var tickerName: EditText
     private lateinit var tickerPrice: EditText
@@ -65,7 +64,7 @@ class AddEditStockActivity : AppCompatActivity() {
             deletebutton.visibility = View.INVISIBLE //Why not let us delete it?
         }
 
-        val addbutton = findViewById(R.id.fab) as FloatingActionButton
+        val addbutton = findViewById<FloatingActionButton>(R.id.fab)
         addbutton.setOnClickListener(AddStockClickListener)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -85,7 +84,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
     /**
      * Used BOTH by the "Add" button on bottom right, and the "Done" button in toolbar.
-     * @todo Do not add default values; i.e., validate content
+     * @todo Validate content
      */
     private val AddStockClickListener = View.OnClickListener {
         val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
@@ -97,9 +96,6 @@ class AddEditStockActivity : AppCompatActivity() {
         finish()
     }
 
-    /*
-     * @todo: handle case where stockticker is not fulfilled
-     */
     private val DeleteStockClickListener = View.OnClickListener {
         if (dbFunctions.deletestockInternal(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
         else toast(resources.getString(R.string.delfail))

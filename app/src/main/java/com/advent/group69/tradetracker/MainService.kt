@@ -55,7 +55,6 @@ class MainService : Service() {
 
     /**
      * Interrupts [targetScanThread] and cancels [updat]
-     * @todo Something here is not allowed with Kotlin. Is it unnecessary?
      */
     override fun onDestroy() {
         Log.i("MainService", "onDestroy called")
@@ -74,19 +73,9 @@ class MainService : Service() {
         /**
          * Vibrates, executes [updat], waits for an interrupt, then shuts down
          * We are invoked when [onStartCommand] calls [mServiceHandler]'s sendMessage
-         * @todo track service using [msg.arg1], which is the same as [startId] in [onStartCommand]
          */
         override fun handleMessage(msg: Message) {
             // Add your cpu-blocking activity here
-            val VibratorService = this@MainService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-
-            val VibratorWaitDuration: LongArray = longArrayOf(0, //Millisecond of vibrator duration
-                    100) //Milliseconds before turning the vibrator on
-
-            VibratorService.vibrate(VibratorWaitDuration, -1)
-
-            Log.v("MainService", "ServiceHandler starting")
-
             var SecondsSinceScanStarted = 0
             var iteration = 0
             updat.running = true

@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.NotificationCompat
+import android.support.v7.preference.PreferenceManager
 
 class AlertReceiver : BroadcastReceiver() {
 
@@ -53,8 +54,19 @@ class AlertReceiver : BroadcastReceiver() {
 
         mBuilder.setContentIntent(notificIntent)
 
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+        val soundPref = sharedPref.getString(context.resources.getString(R.string.notification_sound_key), "new_loud_ringtone.mp3")
+
+        val rawsound = when(soundPref) {
+            "home_phone_5.mp3" -> R.raw.home_phone_5
+            "new_loud_ringtone.mp3" -> R.raw.new_loud_ringtone
+            "old_phone.mp3" -> R.raw.old_phone
+            else -> R.raw.new_loud_ringtone
+        }
+
         //mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-        val sound = Uri.parse("android.resource://" + "com.example.group69.tradetracker" + "/" + R.raw.new_loud_ringtone)
+        val sound = Uri.parse("android.resource://" + context.resources.getString(R.string.apppackagename) + "/" + rawsound)
+
         mBuilder.setSound(sound)
         mBuilder.setDefaults(Notification.DEFAULT_VIBRATE)
         mBuilder.setDefaults(Notification.DEFAULT_LIGHTS)

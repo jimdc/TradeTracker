@@ -7,19 +7,15 @@
                 android:title="GridLayout"
                 android:summary="LinearLayout is default"
                 android:defaultValue="false" />
-            <android.support.v7.preference.EditTextPreference
-                android:key="snooze-upd-interval"
-                android:title="Snooze interval (ms)"
-                android:summary="How often to report snooze progress"
-                android:dialogMessage="How many millisecond interval?"
-                android:defaultValue="1000" />
 
         </android.support.v7.preference.PreferenceCategory>
 
         <android.support.v7.preference.PreferenceCategory android:title="@string/updates">
 
             <android.support.v7.preference.EditTextPreference
-                android:key="stock-upd-interval"
+                android:key="@string/stockupdate_key"
+                android:inputType="number"
+                android:digits="0123456789"
                 android:title="Update interval (ms)"
                 android:summary="How often to check for stock updates"
                 android:dialogMessage="How many millisecond interval?"
@@ -29,7 +25,7 @@
 
         <android.support.v7.preference.PreferenceCategory android:title="@string/notifications">
             <android.support.v7.preference.ListPreference
-                android:key="which-sound"
+                android:key="@string/notification_sound_key"
                 android:title="Which sound"
                 android:summary="Notification ringtone"
                 android:entries="@array/notification_sounds_names"
@@ -37,7 +33,7 @@
                 android:dialogIcon="@drawable/ic_music_note"
                 android:defaultValue="new_loud_ringtone.mp3"/>
             <android.support.v7.preference.CheckBoxPreference
-                android:key="vibrate"
+                android:key="@string/vibrate_key"
                 android:title="Vibration"
                 android:summary="Vibrate when notifying"
                 android:defaultValue="true"/>

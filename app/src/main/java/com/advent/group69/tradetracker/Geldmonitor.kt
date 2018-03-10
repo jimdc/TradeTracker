@@ -15,11 +15,11 @@ import java.util.regex.Pattern
 
 object Geldmonitor {
 
-    const val INTERNET_EXCEPTION = -2.0
-    const val SKIPPEDPARSE_ERROR = -3.0
-    const val DOUBLE_CONVERSION_ERROR = -4.0
-    const val JSON_DATA_ERROR = -5.0
-    const val IO_ERROR = -6.0
+    private val INTERNET_EXCEPTION = -2.0
+    private val SKIPPEDPARSE_ERROR = -3.0
+    private val DOUBLE_CONVERSION_ERROR = -4.0
+    private val JSON_DATA_ERROR = -5.0
+    private val IO_ERROR = -6.0
 
     /**
      * Scrapes the NASDAQ website, parses out stock info
@@ -137,10 +137,10 @@ object Geldmonitor {
             return JSON_DATA_ERROR
         }
 
-        if (currenC == null)
-            return SKIPPEDPARSE_ERROR
+        return if (currenC == null)
+            SKIPPEDPARSE_ERROR
         else
-            return currenC.USD
+            currenC.USD
     }
 
     fun parseLiveStockPrice(bae: BufferedReader): Double {

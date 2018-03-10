@@ -65,4 +65,10 @@
 
     <!-- Settings preference keys -->
     <string name="gridlayout_key">gridlayout</string>
+    <string name="stockupdate_key">stock-upd-interval</string>
+    <string name="notification_sound_key">which-sound</string>
+    <string name="vibrate_key">vibrate</string>
+
+    <!-- Things which should not be hardcoded. -->
+    <string name="apppackagename">com.advent.group69.tradetracker</string>
 </resources>
