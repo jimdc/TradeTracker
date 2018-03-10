@@ -62,6 +62,18 @@
     <string name="appearance">Appearance</string>
     <string name="updates">Updates</string>
     <string name="notifications">Notifications</string>
+    <string name="name">Name</string>
+    <string name="edit">Edit</string>
+    <string name="uninitialized">Uninitialized</string>
+    <string name="vibration">Vibration</string>
+    <string name="vibwhen">Vibrate when notifying</string>
+    <string name="notifringtone">Notification ringtone</string>
+    <string name="whichsound">Which sound?</string>
+    <string name="gridlayout">GridLayout</string>
+    <string name="layoutsummary">LinearLayout is default</string>
+    <string name="stockupdtitle">Update interval (ms)</string>
+    <string name="stockupdsummary">How often to check for stock updates</string>
+    <string name="stockupddlgmsg">How many millisecond interval?</string>
 
     <!-- Settings preference keys -->
     <string name="gridlayout_key">gridlayout</string>

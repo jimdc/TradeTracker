@@ -29,7 +29,7 @@
     <string name="editsuccess">Écrits avec succès</string>
     <string name="targetprice">Prix cible</string>
     <string name="tickername">nom Ticker</string>
-    <string name="phonecall">Appel téléphonique</string>
+    <string name="callme">Appel téléphonique</string>
     <string name="above">ci-dessus</string>
     <string name="below">ci-dessous</string>
     <string name="cancel">Annuler</string>
@@ -51,6 +51,7 @@
     <string name="deletesuccess">L\'a supprimé avec succès</string>
     <string name="deletefailure">Impossible de la supprimer</string>
     <string name="oknodelete">OK, rien n\'a été effacé</string>
+    <string name="delete">Effacer</string>
     <string name="onlysnoozewhenscanning">Je ne peux que faire une sieste lors de le scan.</string>
     <string name="alreadysnoozing">Je dors déjà.</string>
     <string name="notsnoozing">Je ne dors pas.</string>
@@ -59,4 +60,16 @@
     <string name="appearance">Apparence</string>
     <string name="updates">Mises à jour</string>
     <string name="notifications">Notifications</string>
+    <string name="name">Nom</string>
+    <string name="edit">Éditer</string>
+    <string name="uninitialized">Non initialisé</string>
+    <string name="vibration">Vibration</string>
+    <string name="vibwhen">Vibrer lors de la notification</string>
+    <string name="notifringtone">Sonnerie de notification</string>
+    <string name="whichsound">Quel son ?</string>
+    <string name="gridlayout">GridLayout</string>
+    <string name="layoutsummary">LinearLayout est par défaut</string>
+    <string name="stockupdtitle">Intervalle de mise à jour (ms)</string>
+    <string name="stockupdsummary">Combien de fois pour vérifier les mises à jour de stock</string>
+    <string name="stockupddlgmsg">Combien d\'intervalle millisecondes ?</string>
 </resources>
