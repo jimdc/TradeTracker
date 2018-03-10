@@ -38,7 +38,7 @@ class AddEditStockActivity : AppCompatActivity() {
         aboveChecked = findViewById(R.id.rbAbove)
         phoneChecked = findViewById(R.id.phoneCallCB)
 
-        val deletebutton = findViewById(R.id.delbtn) as Button
+        val deletebutton = findViewById<Button>(R.id.delbtn)
         val b = intent.extras
         EditingCrypto = b.getBoolean("EditingCrypto")
         EditingExisting = b.getBoolean("EditingExisting")
@@ -68,7 +68,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val addbutton = findViewById(R.id.fab) as FloatingActionButton
         addbutton.setOnClickListener(AddStockClickListener)
 
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -76,7 +76,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val customActionBarView = inflater?.inflate(R.layout.actionbar_custom_view_done_cancel, null)
 
         customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_done)?.setOnClickListener(AddStockClickListener) //"Done"
-        customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_cancel)?.setOnClickListener(View.OnClickListener { finish() }) // "Cancel"
+        customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_cancel)?.setOnClickListener({ finish() }) // "Cancel"
 
         // Show the custom action bar view and hide the normal Home icon and title.
         supportActionBar?.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM or ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE)

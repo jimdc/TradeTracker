@@ -36,7 +36,7 @@ class WrapperAroundDao(val context: Context) {
             }
         }
 
-        if (rez == null || rez!! <= 0) {
+        if (rez == null || rez <= 0) {
             return false
         }
 
@@ -70,7 +70,7 @@ class WrapperAroundDao(val context: Context) {
     @Synchronized
     fun addeditstock(stock: Stock): Boolean {
 
-        var rownum: Long? = stockDao?.insert(stock)
+        val rownum: Long? = stockDao?.insert(stock)
 
         if (rownum == null || rownum == -1L) {
             Log.d("WrapperAroundDao", "That was a fail.")

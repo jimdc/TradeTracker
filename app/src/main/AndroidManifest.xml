@@ -43,7 +43,12 @@
                 android:value="com.advent.group69.tradetracker.MainActivity" />
         </activity>
         <service android:name="com.advent.group69.tradetracker.MainService" android:exported="false"></service>
-        <activity android:name="com.advent.group69.tradetracker.SettingsActivity" android:label="Settings-Einstellungen"></activity>
+        <activity android:name="com.advent.group69.tradetracker.SettingsActivity" android:label="Settings"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

@@ -132,10 +132,10 @@ object Kontaktieren {
         val password = "qwerqwer1234"
 
         val props = Properties()
-        props.put("mail.smtp.auth", "true")
-        props.put("mail.smtp.starttls.enable", "true")
-        props.put("mail.smtp.host", "smtp.gmail.com")
-        props.put("mail.smtp.port", "587")
+        props["mail.smtp.auth"] = "true"
+        props["mail.smtp.starttls.enable"] = "true"
+        props["mail.smtp.host"] = "smtp.gmail.com"
+        props["mail.smtp.port"] = "587"
 
 
         val session = Session.getInstance(props,

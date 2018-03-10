@@ -12,12 +12,16 @@ import org.jetbrains.anko.*
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
+import android.support.v7.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import android.content.SharedPreferences
+
+
 
 /**
  * @param[isNotificActive] tracks if the notification is active on the taskbar.
@@ -35,7 +39,6 @@ var snoozeMsecInterval: Long = 1000
 class MainActivity : AppCompatActivity() {
 
     private var mServiceIntent: Intent? = null
-    private var mMainService: MainService? = null
     internal lateinit var notificationManager: NotificationManager
 
     internal var notifID = 33
@@ -69,10 +72,14 @@ class MainActivity : AppCompatActivity() {
         infoSnoozer = findViewById(R.id.infoSnoozing)
         progressSnoozer = findViewById(R.id.snoozeProgressBar)
         setSupportActionBar(toolbar)
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val switchPref = sharedPref.getBoolean(SettingsActivity.KEY_PREF_EXAMPLE_SWITCH.get(), false)
     }
 
-    lateinit var infoSnoozer: TextView
-    lateinit var progressSnoozer: ProgressBar
+    private lateinit var infoSnoozer: TextView
+    private lateinit var progressSnoozer: ProgressBar
 
     private val mDisposable = CompositeDisposable()
     override fun onStart() {
@@ -83,7 +90,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { Stocklist -> adapter?.refresh(Stocklist) },
+                        { Stocklist -> adapter.refresh(Stocklist) },
                         { throwable -> Log.d("Disposable::fail", throwable.message)}
                 )
         )
@@ -106,7 +113,6 @@ class MainActivity : AppCompatActivity() {
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
                 true -> {
-                    mMainService = MainService(this)
                     mServiceIntent = Intent(this, MainService::class.java)
                     if (!isMyServiceRunning(MainService::class.java)) {
                         startService(mServiceIntent)
@@ -138,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun openSnoozeDialog() {
+    private fun openSnoozeDialog() {
         if (isSnoozing) { toast(R.string.alreadysnoozing); return }
         Log.i("MainActivity","Opening snooze dialog")
         if (isMyServiceRunning(MainService::class.java)) {
@@ -253,7 +259,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    final val BROADCAST_PRICE_UPDATE = "BROADCAST_PRICE_UPDATE"
+    val BROADCAST_PRICE_UPDATE = "BROADCAST_PRICE_UPDATE"
     /**
      * @return BroadcastReceiver that logs when it is registered
      */
@@ -274,9 +280,7 @@ class MainActivity : AppCompatActivity() {
      * Unregister the result receiver
      */
     override fun onDestroy() {
-        if (currentPriceReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
-        }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
         dbFunctions.cleanup() //Close database access
         super.onDestroy()
     }
