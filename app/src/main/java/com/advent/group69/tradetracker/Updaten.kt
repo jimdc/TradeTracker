@@ -8,6 +8,7 @@ import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import android.os.Vibrator
+import android.support.v7.preference.PreferenceManager
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -140,13 +141,19 @@ class Updaten(CallerContext: Context) {
                 ab)
 
         val alarmManager = TutorialServiceContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
         alarmManager.set(AlarmManager.RTC_WAKEUP, alertTime,
                 PendingIntent.getBroadcast(TutorialServiceContext, 1, alertIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT))
+        vibrate()
+    }
+
+    fun vibrate() {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(TutorialServiceContext)
+        val vibratePref = sharedPref.getBoolean(TutorialServiceContext.resources.getString(R.string.vibrate_key), true)
 
         val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val num: LongArray = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
-        v.vibrate(num, -1)
+        if (vibratePref)
+            v.vibrate(num, -1)
     }
 }

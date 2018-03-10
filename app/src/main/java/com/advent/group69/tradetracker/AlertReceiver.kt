@@ -63,20 +63,17 @@ class AlertReceiver : BroadcastReceiver() {
         }
 
         //mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-        val sound = Uri.parse("android.resource://" + context.resources.getString(R.string.apppackagename) + "/" + rawsound)
+        val sound = Uri.parse("android.resource://" +
+                context.resources.getString(R.string.apppackagename) + "/" + rawsound)
 
         mBuilder.setSound(sound)
+        mBuilder.setDefaults(Notification.DEFAULT_SOUND.inv()) //Don't use default sound
         mBuilder.setDefaults(Notification.DEFAULT_VIBRATE)
+
         mBuilder.setDefaults(Notification.DEFAULT_LIGHTS)
         mBuilder.setAutoCancel(true)
-        //  Notification note = mBuilder.build();
 
         val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         mNotificationManager.notify(1, mBuilder.build())
-        //val v = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        //val num : LongArray = longArrayOf(1500,1500,1500)
-        //v.vibrate(num,1)
-        //Thread.sleep(17000)
-        //v.cancel()
     }
 }
