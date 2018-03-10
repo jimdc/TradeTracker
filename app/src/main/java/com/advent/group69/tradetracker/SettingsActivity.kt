@@ -8,11 +8,6 @@ import android.support.v7.preference.PreferenceFragmentCompat
 
 class SettingsActivity : AppCompatActivity() {
 
-    companion object KEYS {
-        fun get() = "example_switch"
-        fun gridlayout() = "gridlayout"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mFragmentTransaction = supportFragmentManager.beginTransaction()

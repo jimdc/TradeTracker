@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                currentPriceReceiver, IntentFilter("com.advent.group69.tradetracker"))
+                currentPriceReceiver, IntentFilter("PRICEUPDATE"))
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
         infoSnoozer = findViewById(R.id.infoSnoozing)
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val gridlayoutPref = sharedPref.getBoolean(SettingsActivity.KEYS.gridlayout(), false)
+        //val gridlayoutPref = sharedPref.getBoolean(SettingsActivity.KEYS.gridlayout(), false)
     }
 
     private lateinit var infoSnoozer: TextView
@@ -179,33 +179,26 @@ class MainActivity : AppCompatActivity() {
 
                     var IterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
                     val timerDisposable = Observable.interval(snoozeMsecInterval, TimeUnit.MILLISECONDS, Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread()) //To show things on UI
                             .take(IterationsWhenDone)
                             .map({ v -> IterationsWhenDone - v })
                             .subscribe(
                                     { onNext ->
                                         snoozeMsecElapsed += snoozeMsecInterval
-                                        this.applicationContext.onUiThread {
-                                            progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
-                                            infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
-                                        }
+                                        progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
+                                        infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
                                     },
                                     { onError ->
-                                        this.applicationContext.onUiThread {
-                                            toast("Something went wrong with the snoozer timer.")
-                                        }
+                                        toast("Something went wrong with the snoozer timer.")
                                     },
                                     {
                                         isSnoozing = false //done
-                                        this.applicationContext.onUiThread {
-                                            infoSnoozer.text = resources.getString(R.string.notsnoozing)
-                                        }
+                                        infoSnoozer.text = resources.getString(R.string.notsnoozing)
                                     },
                                     { onSubscribe ->
                                         isSnoozing = true //start
-                                        this.applicationContext.onUiThread {
-                                            progressSnoozer.max = snoozeMsecTotal.toInt()
-                                            infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
-                                        }
+                                        progressSnoozer.max = snoozeMsecTotal.toInt()
+                                        infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
                                     })
                     dialog.dismiss()
                 }
@@ -278,14 +271,16 @@ class MainActivity : AppCompatActivity() {
     /**
      * @return BroadcastReceiver that logs when it is registered
      */
+
     private fun createPriceBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val rStockid = intent.getLongExtra("stockid", -666)
                 val rPrice = intent.getDoubleExtra("currentprice", -666.0)
                 val rTime = intent.getStringExtra("time") ?: "not found"
-                when(intent.action) {
-                    "com.advent.group69.tradetracker" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
+                Log.v("MainActivity", "Received price update of $rStockid as $rPrice")
+                when (intent.action) {
+                    "PRICEUPDATE" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
                 }
             }
         }

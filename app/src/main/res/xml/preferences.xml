@@ -3,7 +3,7 @@
         <android.support.v7.preference.PreferenceCategory android:title="@string/appearance">
 
             <android.support.v7.preference.SwitchPreferenceCompat
-                android:key="gridlayout"
+                android:key="@string/gridlayout_key"
                 android:title="GridLayout"
                 android:summary="LinearLayout is default"
                 android:defaultValue="false" />

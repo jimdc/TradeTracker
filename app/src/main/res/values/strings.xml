@@ -62,4 +62,7 @@
     <string name="appearance">Appearance</string>
     <string name="updates">Updates</string>
     <string name="notifications">Notifications</string>
+
+    <!-- Settings preference keys -->
+    <string name="gridlayout_key">gridlayout</string>
 </resources>

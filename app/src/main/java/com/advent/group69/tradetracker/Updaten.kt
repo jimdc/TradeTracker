@@ -109,7 +109,8 @@ class Updaten(CallerContext: Context) {
     }
 
     fun PriceBroadcastLocal(stockid: Long, currentprice: Double) {
-        val intent = Intent("com.example.group69.tradetracker")
+        Log.i("Updaten", "Sending price update of ${stockid} as ${currentprice}")
+        val intent = Intent("PRICEUPDATE")
         intent.putExtra("stockid", stockid)
         intent.putExtra("currentprice", currentprice)
         intent.putExtra("time", GregorianCalendar().time.toLocaleString())

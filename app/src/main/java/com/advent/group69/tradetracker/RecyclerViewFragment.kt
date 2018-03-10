@@ -59,7 +59,7 @@ class RecyclerViewFragment : Fragment() {
             mCurrentLayoutManagerType = savedInstanceState.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
         } else {
             val sharedPref = PreferenceManager.getDefaultSharedPreferences(this.context)
-            val gridlayoutPref = sharedPref.getBoolean(SettingsActivity.KEYS.gridlayout(), false)
+            val gridlayoutPref = sharedPref.getBoolean(resources.getString(R.string.gridlayout_key), false)
 
             mCurrentLayoutManagerType = if (gridlayoutPref) LayoutManagerType.GRID_LAYOUT_MANAGER else LayoutManagerType.LINEAR_LAYOUT_MANAGER
         }
