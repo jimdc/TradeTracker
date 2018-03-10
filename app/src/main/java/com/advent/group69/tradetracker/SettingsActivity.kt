@@ -14,7 +14,6 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val mFragmentTransaction = supportFragmentManager.beginTransaction()
         mFragmentTransaction.replace(android.R.id.content, SettingsFragment())
         mFragmentTransaction.commit()

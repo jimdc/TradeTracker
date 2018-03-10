@@ -9,6 +9,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import android.os.Vibrator
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Checks through [Geldmonitor]
@@ -24,7 +25,9 @@ class Updaten(CallerContext: Context) {
      * Need a way to add the delay element here.
      */
     fun RXscannetwork() {
-        dbFunctions.getFlowableStocklist().subscribe{
+
+        /*
+        dbFunctions.getFlowableStocklist().debounce(8000, TimeUnit.MILLISECONDS).subscribe{
             it.forEach {
                 var currPrice = with (Geldmonitor) {
                     if (it.crypto == 1L) getCryptoPrice(it.ticker) else getLateStockPrice(it.ticker)
@@ -39,6 +42,7 @@ class Updaten(CallerContext: Context) {
                 }
             }
         }
+        */
     }
 
     /**
