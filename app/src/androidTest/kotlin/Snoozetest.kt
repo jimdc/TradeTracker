@@ -14,7 +14,6 @@ import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import com.advent.group69.tradetracker.MainActivity
 import com.advent.group69.tradetracker.R
-import com.advent.group69.tradetracker.scanRunning
 import org.junit.runner.RunWith
 import android.content.Context
 import org.junit.*
@@ -55,14 +54,10 @@ class Snoozetest {
 
     @Test
     fun trysnoozingIncorrectly() {
-        scanRunning = true
-
         openActionBarOverflowOrOptionsMenu(context)
         onView(ViewMatchers.withText(R.string.snooze)).perform(ViewActions.click())
         onView(withId(R.id.snoozeSetTimeTextview)).inRoot(isDialog()).check(matches(isDisplayed()))
         onView(withId(R.id.btnSnooze)).perform(click()) //I didn't enter any number
-
-        scanRunning = false
     }
 
     @After
