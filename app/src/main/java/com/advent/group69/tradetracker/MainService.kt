@@ -12,9 +12,6 @@ import android.os.HandlerThread
 import java.lang.Thread.*
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
-import org.jetbrains.anko.async
-import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -100,9 +97,9 @@ class MainService : Service() {
             while (!currentThread().isInterrupted) {
                 if (isSnoozing) {
                     Utility.TryToSleepFor(snoozeMsecInterval)
-                    snoozeMsecElapsed += snoozeMsecInterval
-
-                    if (snoozeMsecElapsed >= snoozeMsecTotal) {
+                    snoozeTimeRemaining = wakeupSystemTime - System.currentTimeMillis()
+                    if (snoozeTimeRemaining <= 0) {
+                        snoozeTimeRemaining = 0
                         isSnoozing = false
                     }
                 } else {
