@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Alarma</string>
+    <string name="alarm">Alarma</string>
+    <string name="app_name">TradeTracker</string>
     <string name="hotstock">Stocks Calientes</string>
     <string name="addstock">Añadir Stock</string>
     <string name="addcrypto">Añadir Cripto</string>
@@ -28,7 +29,7 @@
     <string name="editsuccess">Editado con éxito</string>
     <string name="targetprice">Precio objetivo</string>
     <string name="tickername">Nombre del ticker</string>
-    <string name="phonecall">Llamada telefónica</string>
+    <string name="callme">Llamada telefónica</string>
     <string name="above">por encima</string>
     <string name="below">por abajo</string>
     <string name="cancel">Anular</string>
@@ -56,4 +57,19 @@
     <string name="notsnoozing">No estoy durmiendo.</string>
     <string name="snoozingfor">Voy a posponer por %1$d milisegundos.</string>
     <string name="snoozedfor">Estuve dormido durante %1$d / %2$d ms.</string>
+    <string name="appearance">Aspecto</string>
+    <string name="updates">Actualizaciones</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="name">Nombre</string>
+    <string name="edit">Editar</string>
+    <string name="uninitialized">Sin inicializar</string>
+    <string name="vibration">Vibración</string>
+    <string name="vibwhen">Vibrar al notificar</string>
+    <string name="notifringtone">Tono de notificación</string>
+    <string name="whichsound">¿Qué sonido?</string>
+    <string name="gridlayout">GridLayout</string>
+    <string name="layoutsummary">LinearLayout es por defecto</string>
+    <string name="stockupdtitle">Intervalo de actualización (ms)</string>
+    <string name="stockupdsummary">Con qué frecuencia buscar actualizaciones de stock</string>
+    <string name="stockupddlgmsg">¿Cuántos intervalos de milisegundos?</string>
 </resources>

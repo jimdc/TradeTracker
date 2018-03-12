@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <data>
-        <variable name="livestockdat" type="com.example.group69.alarm.LiveStockData" />
-    </data>-->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -15,7 +11,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
-        android:contentDescription="delete"
+        android:contentDescription="@string/delete"
         android:src="@drawable/ic_delete" />
 
     <ImageView
@@ -24,7 +20,7 @@
         android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
-        android:contentDescription="edit"
+        android:contentDescription="@string/edit"
         android:layout_toLeftOf="@id/imgDeleteStock"
         android:src="@drawable/ic_mode_edit" />
 
@@ -39,15 +35,13 @@
             android:id="@+id/txtName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Name"
+            android:text="@string/name"
             android:textStyle="bold"
             />
         <TextView
             android:id="@+id/txtComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@={livestockdat.currPrice}"/>
-            <!--android:text="Comment"/>-->
+            android:text=""/>
     </LinearLayout>
 </RelativeLayout>
-<!--</layout>-->

@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.content.ContentValues.TAG
 import android.support.v7.widget.RecyclerView
@@ -15,20 +15,18 @@ import org.jetbrains.anko.*
 /**
  * Provide views to RecyclerView with data from RSAstocklist.
  */
-public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.ViewHolder> {
-    final val TAG = "RecyclingStockAdapter"
-    lateinit var RSAstocklist: List<Stock>
+public class RecyclingStockAdapter(stocks: List<Stock>) : RecyclerView.Adapter<RecyclingStockAdapter.ViewHolder>() {
+    val TAG = "RecyclingStockAdapter"
+    var RSAstocklist: List<Stock> = stocks
     var currentPrices: MutableMap<Long, Pair<Double,String>> = mutableMapOf()
 
-    constructor (stocks: List<Stock>) { RSAstocklist = stocks }
-
     class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        public lateinit var textView: TextView
+        lateinit var textView: TextView
 
-        lateinit var Row1: TextView
-        lateinit var Row2: TextView
-        lateinit var Editbtn : ImageView
-        lateinit var Delbtn : ImageView
+        var Row1: TextView
+        var Row2: TextView
+        var Editbtn : ImageView
+        var Delbtn : ImageView
 
         lateinit var thestock : Stock //Accursed violation of separation of concerns
 
@@ -37,11 +35,11 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
             Row2 = v.findViewById(R.id.txtComment)
             Editbtn = v.findViewById(R.id.imgEditStock)
             Delbtn = v.findViewById(R.id.imgDeleteStock)
-            v.setOnClickListener { view ->
-                Log.v(TAG, "Element ${adapterPosition} clicked.")
+            v.setOnClickListener {
+                Log.v(TAG, "Element $adapterPosition clicked.")
             }
             Editbtn.setOnClickListener { view ->
-                Log.v(TAG, "Edit ${adapterPosition} clicked.")
+                Log.v(TAG, "Edit $adapterPosition clicked.")
                 with(view.context) {
                     startActivity<AddEditStockActivity>("EditingExisting" to true,
                             "EditingCrypto" to (thestock.crypto > 0), "TheStock" to thestock)
@@ -67,7 +65,7 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-        var v = LayoutInflater.from(parent?.context).inflate(R.layout.user_list_row, parent, false)
+        val v = LayoutInflater.from(parent?.context).inflate(R.layout.user_list_row, parent, false)
         return ViewHolder(v)
     }
 
@@ -95,9 +93,9 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
     */
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        Log.d(TAG, "Element ${position} set.")
+        Log.d(TAG, "Element $position set.")
 
-        var stock = RSAstocklist[position]
+        val stock = RSAstocklist[position]
         holder?.Row1?.text = stock.toString()
         holder?.Row2?.text = "Row ${position.toString()} @ " + currentPrices[stock.stockid] ?: "not recently updated"
         holder?.thestock = stock
@@ -105,7 +103,7 @@ public class RecyclingStockAdapter : RecyclerView.Adapter<RecyclingStockAdapter.
 
     fun setCurrentPrice(stockid: Long, price: Double, time: String) {
         currentPrices[stockid] = Pair(price, time)
-        val poschanged = RSAstocklist.indexOf(RSAstocklist.find{it.stockid == stockid})
+        val poschanged = RSAstocklist.indexOf(this.RSAstocklist.find{it.stockid == stockid})
         notifyItemChanged(poschanged)
     }
 

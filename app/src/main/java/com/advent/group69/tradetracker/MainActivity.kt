@@ -1,9 +1,10 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
+import android.annotation.SuppressLint
 import android.app.*
-import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -12,22 +13,23 @@ import org.jetbrains.anko.*
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
-import android.os.*
+import android.support.v7.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
-
-/**
- * @param[isNotificActive] tracks if the notification is active on the taskbar.
- * @param[notificationManager] allows us to notify user that something happened in the backgorund.
- * @param[notifID] is used to track notifications
- */
+import io.reactivex.schedulers.Timed
+import android.content.SharedPreferences
+import android.os.BatteryManager
+import android.os.Build
+import io.reactivex.Observable
+import java.util.concurrent.TimeUnit
+import javax.xml.datatype.DatatypeConstants.SECONDS
 
 lateinit var dbFunctions: WrapperAroundDao
+
 //these can be used in other kotlin files
 var powerSavingOn = true
 var isSnoozing: Boolean = false
@@ -37,12 +39,14 @@ var snoozeMsecInterval: Long = 1000
 var notifiedOfPowerSaving: Boolean = false
 var notif1: Boolean = false
 
-
+/**
+ * @param[isNotificActive] tracks if the notification is active on the taskbar.
+ * @param[notificationManager] allows us to notify user that something happened in the backgorund.
+ * @param[notifID] is used to track notifications
+ */
 class MainActivity : AppCompatActivity() {
 
-
     private var mServiceIntent: Intent? = null
-    private var mMainService: MainService? = null
     internal lateinit var notificationManager: NotificationManager
 
     internal var notifID = 33
@@ -70,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                currentPriceReceiver, IntentFilter("com.example.group69.alarm"))
+                currentPriceReceiver, IntentFilter("PRICEUPDATE"))
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
         infoSnoozer = findViewById(R.id.infoSnoozing)
@@ -79,10 +83,11 @@ class MainActivity : AppCompatActivity() {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode) {
             powerSavingOn = true
         }
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
     }
 
-    lateinit var infoSnoozer: TextView
-    lateinit var progressSnoozer: ProgressBar
+    private lateinit var infoSnoozer: TextView
+    private lateinit var progressSnoozer: ProgressBar
 
     private val mDisposable = CompositeDisposable()
     override fun onStart() {
@@ -93,7 +98,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { Stocklist -> adapter?.refresh(Stocklist) },
+                        { Stocklist -> adapter.refresh(Stocklist) },
                         { throwable -> Log.d("Disposable::fail", throwable.message)}
                 )
         )
@@ -113,21 +118,16 @@ class MainActivity : AppCompatActivity() {
 
         val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
         mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
+        mServiceIntent = Intent(this, MainService::class.java)
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
                 true -> {
-                    mMainService = MainService(this)
-                    mServiceIntent = Intent(this, MainService::class.java)
-                    if (!isMyServiceRunning(MainService::class.java)) {
+                    if (!isMyServiceRunning(MainService::class.java))
                         startService(mServiceIntent)
-                    } else {
+                    else
                         toast("Scan already running")
-                    }
                 }
-                false -> {
-                    val intent = Intent(this, MainService::class.java)
-                    stopService(intent)
-                }
+                false -> { stopService(mServiceIntent) }
             }
         }
 
@@ -140,6 +140,7 @@ class MainActivity : AppCompatActivity() {
     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_settings -> startActivity<SettingsActivity>()
             R.id.action_snooze -> openSnoozeDialog()
             R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
             R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
@@ -147,7 +148,8 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun openSnoozeDialog() {
+    @SuppressLint("InflateParams")
+    private fun openSnoozeDialog() {
         if (isSnoozing) { toast(R.string.alreadysnoozing); return }
         Log.i("MainActivity","Opening snooze dialog")
         if (isMyServiceRunning(MainService::class.java)) {
@@ -180,7 +182,6 @@ class MainActivity : AppCompatActivity() {
 
                     isSnoozing = true
                     infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
-
                     Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
                     async {
                         progressSnoozer.max = snoozeMsecTotal.toInt()
@@ -191,10 +192,39 @@ class MainActivity : AppCompatActivity() {
                             }
                             Utility.TryToSleepFor(snoozeMsecInterval)
                         }
+
                         uiThread {
                             infoSnoozer.text = resources.getString(R.string.notsnoozing)
                         }
                     }
+
+                    /**
+                     * RX version of timer. It did not persist through activity changes so not used for now.
+                     */
+                    /*val iterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
+                    val timerDisposable = Observable.interval(snoozeMsecInterval, TimeUnit.MILLISECONDS, Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread()) //To show things on UI
+                            .take(iterationsWhenDone)
+                            .map({ v -> iterationsWhenDone - v })
+                            .subscribe(
+                                    { onNext ->
+                                        snoozeMsecElapsed += snoozeMsecInterval
+                                        progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
+                                        infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
+                                    },
+                                    { onError ->
+                                        toast("Something went wrong with the snoozer timer.")
+                                    },
+                                    {
+                                        isSnoozing = false //done
+                                        infoSnoozer.text = resources.getString(R.string.notsnoozing)
+                                    },
+                                    { onSubscribe ->
+                                        isSnoozing = true //start
+                                        progressSnoozer.max = snoozeMsecTotal.toInt()
+                                        infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
+                                    })
+                    */
                     dialog.dismiss()
                 }
             }
@@ -210,6 +240,7 @@ class MainActivity : AppCompatActivity() {
      * @return true if running, false if not
      * @sample startService
      */
+    @Suppress("DEPRECATION")
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -222,13 +253,6 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    /**
-     * Adds our notification intent to the stack
-     * FLAG_UPDATE_CURRENT: keep but update intent
-     * Obtains NotificationManger and posts it
-     * [isNotificActive] ensures us we can't double stop
-     * @param[view] current view from which to notify
-     */
     fun showNotification() {
         val notificBuilder = NotificationCompat.Builder(this)
                 .setContentTitle("please disable power saving mode to keep scanning while phone screen is off")
@@ -262,35 +286,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    final val BROADCAST_PRICE_UPDATE = "BROADCAST_PRICE_UPDATE"
     /**
      * @return BroadcastReceiver that logs when it is registered
      */
+
     private fun createPriceBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val rStockid = intent.getLongExtra("stockid", -666)
                 val rPrice = intent.getDoubleExtra("currentprice", -666.0)
                 val rTime = intent.getStringExtra("time") ?: "not found"
-                if(rStockid == 1111111111111111111 && !isPhonePluggedIn(context) && powerSavingOn){
+                Log.v("MainActivity", "Received price update of $rStockid as $rPrice")
 
-                    if(notif1) {
+                if(rStockid == 1111111111111111111 && !isPhonePluggedIn(context) && powerSavingOn) {
+                    if (notif1) {
                         showNotification()
                         toast("Turn off power saving mode so scan can run while phone is sleeping")
                         notifiedOfPowerSaving = true
-                        return
-                    }
-                    else{
+                    } else {
                         notif1 = true
-                        return
                     }
+
+                    return
                 }
-                when(intent.action) { //this shows the prices on the UI
-                    "com.example.group69.alarm" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
+                when (intent.action) {
+                    "PRICEUPDATE" -> adapter.setCurrentPrice(rStockid, rPrice, rTime)
                 }
             }
         }
     }
+
     fun isPhonePluggedIn(context: Context): Boolean {
         var charging = false
 
@@ -309,14 +334,11 @@ class MainActivity : AppCompatActivity() {
         return charging
     }
 
-
     /**
      * Unregister the result receiver
      */
     override fun onDestroy() {
-        if (currentPriceReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
-        }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
         dbFunctions.cleanup() //Close database access
         super.onDestroy()
     }

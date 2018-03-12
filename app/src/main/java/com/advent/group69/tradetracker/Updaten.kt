@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -8,20 +8,14 @@ import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
 import android.content.Intent
 import android.os.Vibrator
+import android.support.v7.preference.PreferenceManager
 import java.util.*
-import android.os.Build.VERSION_CODES
-import android.os.Build.VERSION_CODES.LOLLIPOP
-import android.os.PowerManager
-import android.os.BatteryManager
-import android.content.IntentFilter
+import java.util.concurrent.TimeUnit
 
-
-
-
-
-
+/**
+ * Checks through [Geldmonitor]
+ */
 class Updaten(CallerContext: Context) {
-
     var TutorialServiceContext = CallerContext
 
     var IdOfStockToDelete: Long = 5
@@ -29,24 +23,44 @@ class Updaten(CallerContext: Context) {
     var running: Boolean = false
 
     /**
+     * Need a way to add the delay element here.
+     */
+    fun RXscannetwork() {
+
+        /*
+        dbFunctions.getFlowableStocklist().debounce(8000, TimeUnit.MILLISECONDS).subscribe{
+            it.forEach {
+                var currPrice = with (Geldmonitor) {
+                    if (it.crypto == 1L) getCryptoPrice(it.ticker) else getLateStockPrice(it.ticker)
+                }
+                if (currPrice > 0) {
+                    PriceBroadcastLocal(it.stockid, currPrice)
+
+                    if (it.above==1L && currPrice>it.target || it.above==0L && currPrice<it.target) {
+                        SetPendingFinishedStock(it.stockid)
+                        AlarmBroadcastGlobal(it.ticker, it.target.toString(), it.above.toString())
+                    }
+                }
+            }
+        }
+        */
+    }
+
+    /**
      * Iterates through the stocks found by querying [getStocklistFromDB]
-     * If current price meets criteria, send to [onProgressUpdate] for alarm
+     * If current price meets criteria, send to [onProgressUpdate] for tradetracker
      * If [Geldmonitor] functions return negative (error) for all stocks, err
      * @return 0 on success, more is the amount of milliseconds to sleep
      * @todo use flowable [dbFunctions]
      */
-
+  
     fun scannetwork(vararg activies : Object) {
-
-        //val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        //val num: LongArray = longArrayOf(400, 400, 400)
-        //v.vibrate(num, -1)
+        Log.d("Updaten","scannetwork start")
+        var failcount = 0
 
         if(powerSavingOn && !notifiedOfPowerSaving){
             powerSavingFun()
         }
-        Log.d("Updaten","scannetwork start")
-        var failcount = 0
 
         DeletePendingFinishedStock()
         var stocksTargets = dbFunctions.getStocklistFromDB()
@@ -79,6 +93,12 @@ class Updaten(CallerContext: Context) {
         }
     }
 
+    fun powerSavingFun() {
+        val intent = Intent("com.example.group69.alarm")
+        intent.putExtra("stockid", 1111111111111111111)
+        LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
+    }
+
     /**
      * @param[stockid] The stock you want to mark for [DeletePendingFinishedStock]
      */
@@ -100,20 +120,17 @@ class Updaten(CallerContext: Context) {
     }
 
     fun PriceBroadcastLocal(stockid: Long, currentprice: Double) {
-        val intent = Intent("com.example.group69.alarm")
+        Log.i("Updaten", "Sending price update of ${stockid} as ${currentprice}")
+        val intent = Intent("PRICEUPDATE")
         intent.putExtra("stockid", stockid)
         intent.putExtra("currentprice", currentprice)
         intent.putExtra("time", GregorianCalendar().time.toLocaleString())
         LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
-    fun powerSavingFun() {
-        val intent = Intent("com.example.group69.alarm")
-        intent.putExtra("stockid", 1111111111111111111)
-        LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
-    }
 
     /**
      * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
+     * To be passed on to [AlertReceiver]
      * Set the system service [alarmManager] as FLAG_UPDATE_CURRENT
      * @param[ticker] The relevant ticker
      * @param[price] The new, noteworthy price
@@ -121,24 +138,32 @@ class Updaten(CallerContext: Context) {
      */
     fun AlarmBroadcastGlobal(ticker: String, price: String, ab: String) {
 
-        Log.v("Updaten", "Building alarm with ticker=$ticker, price=$price, ab=$ab")
+        Log.v("Updaten", "Building tradetracker with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5
 
         val alertIntent = Intent(TutorialServiceContext, AlertReceiver::class.java)
-        alertIntent.putExtra("message1", ticker.toUpperCase() + " " +
-                if (ab == "1") "rose to" else "dropped to" + " " + Utility.toDollar(price))
-        alertIntent.putExtra("message2", Utility.toDollar(price))
-        alertIntent.putExtra("message3", ab)
+
+        alertIntent.putExtra(TutorialServiceContext.resources.getString(R.string.tickerRoseDroppedMsg),
+                ticker.toUpperCase() + " " + if (ab == "1") "rose to" else "dropped to" + " " + Utility.toDollar(price))
+        alertIntent.putExtra(TutorialServiceContext.resources.getString(R.string.tickerTargetPrice),
+                Utility.toDollar(price))
+        alertIntent.putExtra(TutorialServiceContext.resources.getString(R.string.aboveBelow),
+                ab)
 
         val alarmManager = TutorialServiceContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
         alarmManager.set(AlarmManager.RTC_WAKEUP, alertTime,
                 PendingIntent.getBroadcast(TutorialServiceContext, 1, alertIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT))
-
-        val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val num: LongArray = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
-        v.vibrate(num, -1)
+        vibrate()
     }
 
+    fun vibrate() {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(TutorialServiceContext)
+        val vibratePref = sharedPref.getBoolean(TutorialServiceContext.resources.getString(R.string.vibrate_key), true)
+        if (vibratePref) {
+            val v = TutorialServiceContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            val num: LongArray = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
+            v.vibrate(num, -1)
+        }
+    }
 }

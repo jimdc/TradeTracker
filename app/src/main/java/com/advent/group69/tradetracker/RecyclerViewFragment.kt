@@ -1,7 +1,8 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.preference.PreferenceManager
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -14,12 +15,12 @@ import android.widget.RadioButton
  * Demonstrates the use of {@link RecyclerView} with a {@link LinearLayoutManager} and a
  * {@link GridLayoutManager}. Also initializes dataset with dbFunction
  */
-public class RecyclerViewFragment : Fragment() {
+class RecyclerViewFragment : Fragment() {
 
-    final val TAG = "RecyclerViewFragment"
-    final val KEY_LAYOUT_MANAGER = "layoutManager"
-    final val SPAN_COUNT = 2
-    final val DATASET_COUNT = 60
+    private val TAG = "RecyclerViewFragment"
+    private val KEY_LAYOUT_MANAGER = "layoutManager"
+    private val SPAN_COUNT = 2
+    private val DATASET_COUNT = 60
 
     enum class LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -31,7 +32,7 @@ public class RecyclerViewFragment : Fragment() {
     protected lateinit var mGridLayoutRadioButton: RadioButton
 
     protected lateinit var mRecyclerView: RecyclerView
-    public lateinit var mAdapter: RecyclingStockAdapter
+    lateinit var mAdapter: RecyclingStockAdapter
     protected lateinit var mLayoutManager: RecyclerView.LayoutManager
     protected var mDataset: List<Stock> = emptyList()
 
@@ -41,40 +42,35 @@ public class RecyclerViewFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        var rootView = inflater?.inflate(R.layout.recycler_view_frag, container, false)
-        rootView?.setTag(TAG)
+        val rootView = inflater?.inflate(R.layout.recycler_view_frag, container, false)
+        rootView?.tag = TAG
 
         mRecyclerView = rootView!!.findViewById(R.id.recyclerView)
 
         // LinearLayoutManager is used here, this will layout the elements in a similar fashion
         // to the way ListView would layout elements. The RecyclerView.LayoutManager defines how
         // elements are laid out.
-        mLayoutManager = LinearLayoutManager(getActivity())
+        mLayoutManager = LinearLayoutManager(activity)
 
-        mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+        mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER
 
         if (savedInstanceState != null) {
             // Restore saved layout manager type.
-            mCurrentLayoutManagerType = savedInstanceState?.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
+            mCurrentLayoutManagerType = savedInstanceState.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
+        } else {
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(this.context)
+            val gridlayoutPref = sharedPref.getBoolean(resources.getString(R.string.gridlayout_key), false)
+
+            mCurrentLayoutManagerType = if (gridlayoutPref) LayoutManagerType.GRID_LAYOUT_MANAGER else LayoutManagerType.LINEAR_LAYOUT_MANAGER
         }
+
+
         setRecyclerViewLayoutManager(mCurrentLayoutManagerType)
 
         mAdapter = RecyclingStockAdapter(mDataset)
 
         // Set CustomAdapter as the adapter for RecyclerView.
-        mRecyclerView.setAdapter(mAdapter)
-
-        mLinearLayoutRadioButton = rootView?.findViewById(R.id.linear_layout_rb) as RadioButton
-        mLinearLayoutRadioButton.setOnClickListener {
-            view -> setRecyclerViewLayoutManager(LayoutManagerType.LINEAR_LAYOUT_MANAGER)
-        }
-
-        mGridLayoutRadioButton = rootView?.findViewById(R.id.grid_layout_rb) as RadioButton
-        mGridLayoutRadioButton.setOnClickListener {
-            view -> setRecyclerViewLayoutManager(LayoutManagerType.GRID_LAYOUT_MANAGER)
-        }
-
+        mRecyclerView.adapter = mAdapter
         return rootView
     }
 
@@ -83,32 +79,28 @@ public class RecyclerViewFragment : Fragment() {
      *
      * @param layoutManagerType Type of layout manager to switch to.
      */
-    public fun setRecyclerViewLayoutManager(layoutManagerType: LayoutManagerType) {
+    fun setRecyclerViewLayoutManager(layoutManagerType: LayoutManagerType) {
         var scrollPosition = 0
 
         // If a layout manager has already been set, get current scroll position.
-        if (mRecyclerView.getLayoutManager() != null) {
+        if (mRecyclerView.layoutManager != null) {
             val lm = mRecyclerView.layoutManager as LinearLayoutManager
             scrollPosition = lm.findFirstCompletelyVisibleItemPosition()
         }
 
         when (layoutManagerType) {
             LayoutManagerType.GRID_LAYOUT_MANAGER -> {
-                mLayoutManager = GridLayoutManager (getActivity(), SPAN_COUNT);
-                mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER;
+                mLayoutManager = GridLayoutManager (activity, SPAN_COUNT)
+                mCurrentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER
             }
             LayoutManagerType.LINEAR_LAYOUT_MANAGER -> {
-                mLayoutManager = LinearLayoutManager(getActivity());
-                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
-            }
-            else -> {
-                mLayoutManager = LinearLayoutManager (getActivity());
-                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                mLayoutManager = LinearLayoutManager(activity)
+                mCurrentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER
             }
         }
 
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.scrollToPosition(scrollPosition);
+        mRecyclerView.layoutManager = mLayoutManager
+        mRecyclerView.scrollToPosition(scrollPosition)
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

@@ -1,14 +1,12 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
-import android.util.Log
+import com.advent.group69.tradetracker.Geldmonitor.INTERNET_EXCEPTION
+import com.advent.group69.tradetracker.Geldmonitor.parseCryptoPrice
 import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.JsonReader
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStream
-import java.nio.charset.Charset
 import java.io.InputStreamReader
 import java.io.Reader
 import java.lang.NumberFormatException
@@ -17,11 +15,11 @@ import java.util.regex.Pattern
 
 object Geldmonitor {
 
-    const val INTERNET_EXCEPTION = -2.0
-    const val SKIPPEDPARSE_ERROR = -3.0
-    const val DOUBLE_CONVERSION_ERROR = -4.0
-    const val JSON_DATA_ERROR = -5.0
-    const val IO_ERROR = -6.0
+    private val INTERNET_EXCEPTION = -2.0
+    private val SKIPPEDPARSE_ERROR = -3.0
+    private val DOUBLE_CONVERSION_ERROR = -4.0
+    private val JSON_DATA_ERROR = -5.0
+    private val IO_ERROR = -6.0
 
     /**
      * Scrapes the NASDAQ website, parses out stock info
@@ -55,9 +53,9 @@ object Geldmonitor {
      * @param[url] The webpage you want to open
      * @return A string of the HTML output
      */
-    fun linez(url: String): String {
+    private fun linez(url: String): String {
         val inStream = InputStreamReader(URL(url).openConnection().getInputStream())
-        return BufferedReader(inStream).use { it.readText() } as String
+        return BufferedReader(inStream).use { it.readText() }
     }
 
     /**
@@ -67,17 +65,12 @@ object Geldmonitor {
      * @return crypto price if successful, [INTERNET_EXCEPTION], or exceptions in [parseCryptoPrice]
      */
     fun getCryptoPrice(ticker: String): Double {
-
-        val tickerU = ticker.toUpperCase()
-
-        val ret = try {
-            val url = "https://min-api.cryptocompare.com/data/price?fsym=${tickerU}&tsyms=USD"
-            parseCryptoPrice(linez(url))
+        return try {
+            parseCryptoPrice(linez
+            ("https://min-api.cryptocompare.com/data/price?fsym=${ticker.toUpperCase()}&tsyms=USD"))
         } catch (ie: IOException) {
             INTERNET_EXCEPTION
         }
-
-        return ret
     }
 
     /**
@@ -87,10 +80,9 @@ object Geldmonitor {
      * @sample getStockPrice
      */
     fun getLateStockPrice(ticker: String): Double {
-
         val tickerL = ticker.toLowerCase()
 
-        val ret = try {
+        return try {
             val url = URL("https://www.nasdaq.com/symbol/" + tickerL)
             val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
@@ -98,8 +90,6 @@ object Geldmonitor {
         } catch (ie: IOException) {
             INTERNET_EXCEPTION
         }
-
-        return ret
     }
 
     /**
@@ -111,7 +101,7 @@ object Geldmonitor {
      */
     fun parseStockCryptoPrice(bae: BufferedReader, isStock: Boolean, isLatestock: Boolean): Double {
 
-        var ret = SKIPPEDPARSE_ERROR;
+        var ret = SKIPPEDPARSE_ERROR
         val iterator = bae.lineSequence().iterator()
 
         while(iterator.hasNext()) {
@@ -147,10 +137,10 @@ object Geldmonitor {
             return JSON_DATA_ERROR
         }
 
-        if (currenC == null)
-            return SKIPPEDPARSE_ERROR
+        return if (currenC == null)
+            SKIPPEDPARSE_ERROR
         else
-            return currenC.USD
+            currenC.USD
     }
 
     fun parseLiveStockPrice(bae: BufferedReader): Double {

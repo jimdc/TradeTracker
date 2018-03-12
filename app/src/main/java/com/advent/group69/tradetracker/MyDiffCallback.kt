@@ -1,7 +1,6 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.support.v7.util.DiffUtil
-import android.os.Bundle
 
 /**
  * Not used yet. It' a substitute for costly notifySetDataChanged

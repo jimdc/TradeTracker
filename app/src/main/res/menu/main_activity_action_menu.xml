@@ -15,7 +15,7 @@
     <item
         android:id="@+id/show_scanning"
         android:enabled="true"
-        android:title="Uninitialized"
+        android:title="@string/uninitialized"
         android:checkable="true"
         android:visible="true"
         app:actionLayout="@layout/show_scanning_switch"
@@ -23,7 +23,7 @@
 
     <!-- Settings, should always be in the overflow -->
     <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:title="@string/settings"
         app:showAsAction="never"/>
 
 </menu>

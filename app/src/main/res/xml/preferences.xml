@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <android.support.v7.preference.PreferenceCategory
+            android:title="@string/appearance">
+
+            <android.support.v7.preference.SwitchPreferenceCompat
+                android:key="@string/gridlayout_key"
+                android:title="@string/gridlayout"
+                android:summary="@string/layoutsummary"
+                android:defaultValue="false" />
+
+        </android.support.v7.preference.PreferenceCategory>
+
+        <android.support.v7.preference.PreferenceCategory android:title="@string/updates">
+            <!-- inputType restriction not working at the moment b/c of app compat library. -->
+            <android.support.v7.preference.EditTextPreference
+                android:key="@string/stockupdate_key"
+                android:inputType="number"
+                android:digits="0123456789"
+                android:title="@string/stockupdtitle"
+                android:summary="@string/stockupdsummary"
+                android:dialogMessage="@string/stockupddlgmsg"
+                android:defaultValue="8000" />
+
+        </android.support.v7.preference.PreferenceCategory>
+
+        <android.support.v7.preference.PreferenceCategory android:title="@string/notifications">
+            <android.support.v7.preference.ListPreference
+                android:key="@string/notification_sound_key"
+                android:title="@string/whichsound"
+                android:summary="@string/notifringtone"
+                android:entries="@array/notification_sounds_names"
+                android:entryValues="@array/notification_sounds_values"
+                android:dialogIcon="@drawable/ic_music_note"
+                android:defaultValue="new_loud_ringtone.mp3"/>
+            <android.support.v7.preference.CheckBoxPreference
+                android:key="@string/vibrate_key"
+                android:title="@string/vibration"
+                android:summary="@string/vibwhen"
+                android:defaultValue="true"/>
+        </android.support.v7.preference.PreferenceCategory>
+</PreferenceScreen>

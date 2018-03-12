@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.content.Context
 import android.os.Bundle
@@ -18,16 +18,15 @@ class AddEditStockActivity : AppCompatActivity() {
 
     /**
      * Customizes the UI based on intent extras "EditingCrypto" and "EditingExisting"
-     * @todo make more modular by having Datenbank interaction in own function
      */
-    var EditingCrypto: Boolean = false
-    var EditingExisting: Boolean = false
-    var stockid = Calendar.getInstance().getTimeInMillis() //@todo use autoincrement
-    lateinit var stockticker: String
-    lateinit var tickerName: EditText
-    lateinit var tickerPrice: EditText
-    lateinit var aboveChecked: RadioButton
-    lateinit var phoneChecked: CheckBox
+    private var EditingCrypto: Boolean = false
+    private var EditingExisting: Boolean = false
+    private var stockid = Calendar.getInstance().getTimeInMillis()
+    private lateinit var stockticker: String
+    private lateinit var tickerName: EditText
+    private lateinit var tickerPrice: EditText
+    private lateinit var aboveChecked: RadioButton
+    private lateinit var phoneChecked: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +37,7 @@ class AddEditStockActivity : AppCompatActivity() {
         aboveChecked = findViewById(R.id.rbAbove)
         phoneChecked = findViewById(R.id.phoneCallCB)
 
-        val deletebutton = findViewById(R.id.delbtn) as Button
+        val deletebutton = findViewById<Button>(R.id.delbtn)
         val b = intent.extras
         EditingCrypto = b.getBoolean("EditingCrypto")
         EditingExisting = b.getBoolean("EditingExisting")
@@ -65,10 +64,10 @@ class AddEditStockActivity : AppCompatActivity() {
             deletebutton.visibility = View.INVISIBLE //Why not let us delete it?
         }
 
-        val addbutton = findViewById(R.id.fab) as FloatingActionButton
+        val addbutton = findViewById<FloatingActionButton>(R.id.fab)
         addbutton.setOnClickListener(AddStockClickListener)
 
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -76,7 +75,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val customActionBarView = inflater?.inflate(R.layout.actionbar_custom_view_done_cancel, null)
 
         customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_done)?.setOnClickListener(AddStockClickListener) //"Done"
-        customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_cancel)?.setOnClickListener(View.OnClickListener { finish() }) // "Cancel"
+        customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_cancel)?.setOnClickListener({ finish() }) // "Cancel"
 
         // Show the custom action bar view and hide the normal Home icon and title.
         supportActionBar?.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM or ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE)
@@ -85,29 +84,22 @@ class AddEditStockActivity : AppCompatActivity() {
 
     /**
      * Used BOTH by the "Add" button on bottom right, and the "Done" button in toolbar.
-     * @todo Do not add default values; i.e., validate content
+     * @todo Validate content
      */
-    private val AddStockClickListener = object : View.OnClickListener {
-        override fun onClick(v: View) {
-            val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
+    private val AddStockClickListener = View.OnClickListener {
+        val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
 
-            val editedstock = Stock(stockid, tickerName.text.toString(), target
-                        ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
+        val editedstock = Stock(stockid, tickerName.text.toString(), target
+                ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
-            dbFunctions.addeditstock(editedstock)
-            finish()
-        }
+        dbFunctions.addeditstock(editedstock)
+        finish()
     }
 
-    /*
-     * @todo: handle case where stockticker is not fulfilled
-     */
-    private val DeleteStockClickListener = object : View.OnClickListener {
-        override fun onClick(v: View) {
-            if (dbFunctions.deletestockInternal(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
-            else toast(resources.getString(R.string.delfail))
+    private val DeleteStockClickListener = View.OnClickListener {
+        if (dbFunctions.deletestockInternal(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
+        else toast(resources.getString(R.string.delfail))
 
-            finish()
-        }
+        finish()
     }
 }

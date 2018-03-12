@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.os.Parcelable
 import android.os.Parcel
@@ -28,8 +28,7 @@ data class Stock(@PrimaryKey @ColumnInfo(name="_stockid") var stockid: Long = 13
                     when (aboveB) { true -> {1L} false -> {0L} },
                     when (phoneB) { true -> {1L} false -> {0L} },
                     when (crypto) { true -> {1L} false -> {0L} }
-            ) {
-    }
+            )
 
     fun ContentValues(): android.content.ContentValues {
         val con = android.content.ContentValues()
@@ -47,7 +46,7 @@ data class Stock(@PrimaryKey @ColumnInfo(name="_stockid") var stockid: Long = 13
      * converts boolean and >< to human readable
      */
     override fun toString(): String {
-        var res = ticker.toString()
+        var res = ticker
 
         when (above) { 1L -> { res += " > "} 0L -> { res += " < " } }
         res += target.toString()

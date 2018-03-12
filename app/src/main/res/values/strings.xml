@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Alarm</string>
+    <string name="alarm">Alarm</string>
+    <string name="app_name">TradeTracker</string>
     <string name="hotstock">Hot Stocks</string>
     <string name="addstock">Add Stock</string>
     <string name="addcrypto">Add Crypto</string>
@@ -35,6 +36,7 @@
     <string name="done">Done</string>
     <string name="snooze">Snooze</string>
     <string name="action_settings">Settings</string>
+    <string name="settings">Settings</string>
     <string name="addstockcrypto">Add stock or crypto</string>
     <string name="scanning">Now scanning</string>
     <string name="notscanning">Not scanning</string>
@@ -58,4 +60,31 @@
     <string name="notsnoozing">Not snoozing.</string>
     <string name="snoozingfor">I will snooze for %1$d milliseconds.</string>
     <string name="snoozedfor">I snoozed for %1$d / %2$d ms.</string>
+    <string name="appearance">Appearance</string>
+    <string name="updates">Updates</string>
+    <string name="notifications">Notifications</string>
+    <string name="name">Name</string>
+    <string name="edit">Edit</string>
+    <string name="uninitialized">Uninitialized</string>
+    <string name="vibration">Vibration</string>
+    <string name="vibwhen">Vibrate when notifying</string>
+    <string name="notifringtone">Notification ringtone</string>
+    <string name="whichsound">Which sound?</string>
+    <string name="gridlayout">GridLayout</string>
+    <string name="layoutsummary">LinearLayout is default</string>
+    <string name="stockupdtitle">Update interval (ms)</string>
+    <string name="stockupdsummary">How often to check for stock updates</string>
+    <string name="stockupddlgmsg">How many millisecond interval?</string>
+
+    <!-- Settings preference keys -->
+    <string name="gridlayout_key">gridlayout</string>
+    <string name="stockupdate_key">stock-upd-interval</string>
+    <string name="notification_sound_key">which-sound</string>
+    <string name="vibrate_key">vibrate</string>
+
+    <!-- Things which should not be hardcoded. -->
+    <string name="tickerRoseDroppedMsg">tickerRoseDroppedMsg</string>
+    <string name="tickerTargetPrice">tickerTargetPrice</string>
+    <string name="aboveBelow">aboveBelow</string>
+
 </resources>

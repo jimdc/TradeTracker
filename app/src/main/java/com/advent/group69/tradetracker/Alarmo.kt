@@ -1,4 +1,4 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
@@ -10,9 +10,12 @@ import android.arch.persistence.room.PrimaryKey
  */
 
 @Entity(tableName = "alarmstable",
-        foreignKeys = arrayOf(ForeignKey(entity=Stoko::class, parentColumns = arrayOf("stockid"),
-        childColumns=arrayOf("myStockId"),
-        onDelete= ForeignKey.CASCADE)))
+        foreignKeys = arrayOf(
+                ForeignKey(entity=Stoko::class, parentColumns = arrayOf("stockid"),
+                childColumns=arrayOf("myStockId"),
+                onDelete= ForeignKey.CASCADE)
+        )
+)
 
 data class Alarmo(
         @PrimaryKey @ColumnInfo(name="my_stock_id") val myStockId: Long = 0) {

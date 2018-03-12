@@ -1,19 +1,9 @@
-package com.example.group69.alarm
+package com.advent.group69.tradetracker
 
-import android.content.Intent
-import android.os.IBinder
-import android.os.Binder
-import android.app.Service
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import io.reactivex.Flowable
-import org.jetbrains.anko.db.delete
-import org.jetbrains.anko.db.parseList
-import org.jetbrains.anko.db.rowParser
-import org.jetbrains.anko.db.select
-import java.util.Random
 
 /**
  * Database stuff done here. Not necessarily on its own thread...
@@ -46,7 +36,7 @@ class WrapperAroundDao(val context: Context) {
             }
         }
 
-        if (rez == null || rez!! <= 0) {
+        if (rez == null || rez <= 0) {
             return false
         }
 
@@ -80,7 +70,7 @@ class WrapperAroundDao(val context: Context) {
     @Synchronized
     fun addeditstock(stock: Stock): Boolean {
 
-        var rownum: Long? = stockDao?.insert(stock)
+        val rownum: Long? = stockDao?.insert(stock)
 
         if (rownum == null || rownum == -1L) {
             Log.d("WrapperAroundDao", "That was a fail.")
