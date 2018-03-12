@@ -22,16 +22,22 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.Timed
 import android.content.SharedPreferences
+import android.os.BatteryManager
+import android.os.Build
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 import javax.xml.datatype.DatatypeConstants.SECONDS
 
 lateinit var dbFunctions: WrapperAroundDao
 
+//these can be used in other kotlin files
+var powerSavingOn = true
 var isSnoozing: Boolean = false
 var snoozeMsecTotal: Long = 0
 var snoozeMsecElapsed: Long = 0
 var snoozeMsecInterval: Long = 1000
+var notifiedOfPowerSaving: Boolean = false
+var notif1: Boolean = false
 
 /**
  * @param[isNotificActive] tracks if the notification is active on the taskbar.
@@ -74,7 +80,9 @@ class MainActivity : AppCompatActivity() {
         infoSnoozer = findViewById(R.id.infoSnoozing)
         progressSnoozer = findViewById(R.id.snoozeProgressBar)
         setSupportActionBar(toolbar)
-
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode) {
+            powerSavingOn = true
+        }
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
     }
 
@@ -172,7 +180,28 @@ class MainActivity : AppCompatActivity() {
                         dialog.dismiss()
                     }
 
-                    val iterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
+                    isSnoozing = true
+                    infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
+                    Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
+                    async {
+                        progressSnoozer.max = snoozeMsecTotal.toInt()
+                        while(isSnoozing) {
+                            uiThread {
+                                progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
+                                infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
+                            }
+                            Utility.TryToSleepFor(snoozeMsecInterval)
+                        }
+
+                        uiThread {
+                            infoSnoozer.text = resources.getString(R.string.notsnoozing)
+                        }
+                    }
+
+                    /**
+                     * RX version of timer. It did not persist through activity changes so not used for now.
+                     */
+                    /*val iterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
                     val timerDisposable = Observable.interval(snoozeMsecInterval, TimeUnit.MILLISECONDS, Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread()) //To show things on UI
                             .take(iterationsWhenDone)
@@ -195,6 +224,7 @@ class MainActivity : AppCompatActivity() {
                                         progressSnoozer.max = snoozeMsecTotal.toInt()
                                         infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
                                     })
+                    */
                     dialog.dismiss()
                 }
             }
@@ -223,19 +253,12 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    /**
-     * Adds our notification intent to the stack
-     * FLAG_UPDATE_CURRENT: keep but update intent
-     * Obtains NotificationManger and posts it
-     * [isNotificActive] ensures us we can't double stop
-     * @param[view] current view from which to notify
-     */
-    fun showNotification(view: View) {
+    fun showNotification() {
         val notificBuilder = NotificationCompat.Builder(this)
-                .setContentTitle(resources.getString(R.string.msg))
-                .setContentText(resources.getString(R.string.newmsg))
-                .setTicker(resources.getString(R.string.alnew))
-                .setSmallIcon(R.drawable.ntt_logo_24_24)
+                .setContentTitle("please disable power saving mode to keep scanning while phone screen is off")
+                .setContentText("CLICK THIS NOTIFICATION for more information")
+                .setTicker("C")
+                .setSmallIcon(R.drawable.stocklogo)
 
         val moreInfoIntent = Intent(this, MoreInfoNotification::class.java)
         val tStackBuilder = TaskStackBuilder.create(this)
@@ -274,11 +297,41 @@ class MainActivity : AppCompatActivity() {
                 val rPrice = intent.getDoubleExtra("currentprice", -666.0)
                 val rTime = intent.getStringExtra("time") ?: "not found"
                 Log.v("MainActivity", "Received price update of $rStockid as $rPrice")
+
+                if(rStockid == 1111111111111111111 && !isPhonePluggedIn(context) && powerSavingOn) {
+                    if (notif1) {
+                        showNotification()
+                        toast("Turn off power saving mode so scan can run while phone is sleeping")
+                        notifiedOfPowerSaving = true
+                    } else {
+                        notif1 = true
+                    }
+
+                    return
+                }
                 when (intent.action) {
                     "PRICEUPDATE" -> adapter.setCurrentPrice(rStockid, rPrice, rTime)
                 }
             }
         }
+    }
+
+    fun isPhonePluggedIn(context: Context): Boolean {
+        var charging = false
+
+        val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val status = batteryIntent!!.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+        val batteryCharge = status == BatteryManager.BATTERY_STATUS_CHARGING
+
+        val chargePlug = batteryIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
+        val usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB
+        val acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC
+
+        if (batteryCharge) charging = true
+        if (usbCharge) charging = true
+        if (acCharge) charging = true
+
+        return charging
     }
 
     /**

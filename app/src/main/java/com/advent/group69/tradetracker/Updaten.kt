@@ -58,6 +58,10 @@ class Updaten(CallerContext: Context) {
         Log.d("Updaten","scannetwork start")
         var failcount = 0
 
+        if(powerSavingOn && !notifiedOfPowerSaving){
+            powerSavingFun()
+        }
+
         DeletePendingFinishedStock()
         var stocksTargets = dbFunctions.getStocklistFromDB()
 
@@ -87,6 +91,12 @@ class Updaten(CallerContext: Context) {
         if (failcount == stocksTargets.size) {
             Log.e("Updaten", "All stocks below zero. Connection error?")
         }
+    }
+
+    fun powerSavingFun() {
+        val intent = Intent("com.example.group69.alarm")
+        intent.putExtra("stockid", 1111111111111111111)
+        LocalBroadcastManager.getInstance(this.TutorialServiceContext).sendBroadcast(intent)
     }
 
     /**
