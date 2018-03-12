@@ -231,7 +231,7 @@ class MainActivity : AppCompatActivity() {
      */
     fun showNotification() {
         val notificBuilder = NotificationCompat.Builder(this)
-                .setContentTitle("please disable power saving mode to keep scanning while phone screen is off.")
+                .setContentTitle("please disable power saving mode to keep scanning while phone screen is off")
                 .setContentText("CLICK THIS NOTIFICATION for more information")
                 .setTicker("C")
                 .setSmallIcon(R.drawable.stocklogo)
