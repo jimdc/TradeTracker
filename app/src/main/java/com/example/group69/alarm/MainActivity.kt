@@ -1,9 +1,9 @@
 package com.example.group69.alarm
 
 import android.app.*
+import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -12,12 +12,14 @@ import org.jetbrains.anko.*
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
+import android.os.*
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 /**
  * @param[isNotificActive] tracks if the notification is active on the taskbar.
@@ -26,13 +28,18 @@ import io.reactivex.schedulers.Schedulers
  */
 
 lateinit var dbFunctions: WrapperAroundDao
-
+//these can be used in other kotlin files
+var powerSavingOn = true
 var isSnoozing: Boolean = false
 var snoozeMsecTotal: Long = 0
 var snoozeMsecElapsed: Long = 0
 var snoozeMsecInterval: Long = 1000
+var notifiedOfPowerSaving: Boolean = false
+var notif1: Boolean = false
+
 
 class MainActivity : AppCompatActivity() {
+
 
     private var mServiceIntent: Intent? = null
     private var mMainService: MainService? = null
@@ -69,6 +76,9 @@ class MainActivity : AppCompatActivity() {
         infoSnoozer = findViewById(R.id.infoSnoozing)
         progressSnoozer = findViewById(R.id.snoozeProgressBar)
         setSupportActionBar(toolbar)
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode) {
+            powerSavingOn = true
+        }
     }
 
     lateinit var infoSnoozer: TextView
@@ -219,12 +229,12 @@ class MainActivity : AppCompatActivity() {
      * [isNotificActive] ensures us we can't double stop
      * @param[view] current view from which to notify
      */
-    fun showNotification(view: View) {
+    fun showNotification() {
         val notificBuilder = NotificationCompat.Builder(this)
-                .setContentTitle(resources.getString(R.string.msg))
-                .setContentText(resources.getString(R.string.newmsg))
-                .setTicker(resources.getString(R.string.alnew))
-                .setSmallIcon(R.drawable.ntt_logo_24_24)
+                .setContentTitle("please disable power saving mode to keep scanning while phone screen is off")
+                .setContentText("CLICK THIS NOTIFICATION for more information")
+                .setTicker("C")
+                .setSmallIcon(R.drawable.stocklogo)
 
         val moreInfoIntent = Intent(this, MoreInfoNotification::class.java)
         val tStackBuilder = TaskStackBuilder.create(this)
@@ -262,12 +272,43 @@ class MainActivity : AppCompatActivity() {
                 val rStockid = intent.getLongExtra("stockid", -666)
                 val rPrice = intent.getDoubleExtra("currentprice", -666.0)
                 val rTime = intent.getStringExtra("time") ?: "not found"
-                when(intent.action) {
+                if(rStockid == 1111111111111111111 && !isPhonePluggedIn(context) && powerSavingOn){
+
+                    if(notif1) {
+                        showNotification()
+                        toast("Turn off power saving mode so scan can run while phone is sleeping")
+                        notifiedOfPowerSaving = true
+                        return
+                    }
+                    else{
+                        notif1 = true
+                        return
+                    }
+                }
+                when(intent.action) { //this shows the prices on the UI
                     "com.example.group69.alarm" -> adapter?.setCurrentPrice(rStockid, rPrice, rTime)
                 }
             }
         }
     }
+    fun isPhonePluggedIn(context: Context): Boolean {
+        var charging = false
+
+        val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val status = batteryIntent!!.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+        val batteryCharge = status == BatteryManager.BATTERY_STATUS_CHARGING
+
+        val chargePlug = batteryIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
+        val usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB
+        val acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC
+
+        if (batteryCharge) charging = true
+        if (usbCharge) charging = true
+        if (acCharge) charging = true
+
+        return charging
+    }
+
 
     /**
      * Unregister the result receiver

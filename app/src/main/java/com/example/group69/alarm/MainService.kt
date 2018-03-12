@@ -1,5 +1,6 @@
 package com.example.group69.alarm
 
+import android.app.PendingIntent.getActivity
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,7 @@ import java.lang.Thread.*
 import android.os.Vibrator
 import android.util.Log
 import org.jetbrains.anko.async
+import org.jetbrains.anko.powerManager
 import java.io.*
 //import org.junit.runner.Request.errorReport
 
@@ -74,6 +76,8 @@ class MainService : Service {
         targetScanThread.interrupt()
         if (updat.running) updat.running = false
         toast("Stopping scan")
+        notifiedOfPowerSaving = false
+        notif1 = false
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -89,6 +93,7 @@ class MainService : Service {
          */
         override fun handleMessage(msg: Message) {
             // Add your cpu-blocking activity here
+
             val VibratorService = this@MainService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
             val VibratorWaitDuration: LongArray = longArrayOf(0, //Millisecond of vibrator duration
@@ -103,6 +108,7 @@ class MainService : Service {
             updat.running = true
 
             while (!currentThread().isInterrupted) {
+
                 var current = System.currentTimeMillis()/1000
                 if (isSnoozing) {
                     Utility.TryToSleepFor(snoozeMsecInterval)
@@ -113,10 +119,16 @@ class MainService : Service {
                     }
                 } else {
                     Log.i("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
+                    val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                    val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                            "MyWakelockTag")
+                    wakeLock.acquire()
                     updat.scannetwork()
-                    Utility.TryToSleepFor(8000)
-                }
 
+                    Utility.TryToSleepFor(8000)
+                    wakeLock.release()
+                }
+                //Save(current)
 
                 SecondsSinceScanStarted++
             }
@@ -129,6 +141,46 @@ class MainService : Service {
             return
         }
 
+
+        fun Save(lastTime: Long) {
+            async {  //whether or not it is an async task it still does not work
+                var newCurrent = System.currentTimeMillis()/1000
+                var data = (newCurrent - lastTime).toString()
+
+                var logPath = File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Logs")
+                if (!logPath.exists()) {
+                    logPath.mkdirs()
+                }
+                val filename = "saving.txt"
+
+                val file = File(logPath, filename)
+                try {
+             /*       FileOutputStream(file).use { // no errors but nothing readable
+                        it.write(data.toByteArray())
+                    }*/
+                    openFileOutput(filename, Context.MODE_PRIVATE).use {
+                        it.write((data + "\n").toByteArray())  } //this is shown on android website but gives system.err
+
+                        /* this didn't work either, neither did bufferedWriter and fileWriter
+                    try {
+                        val fos = FileOutputStream(filename)
+                        fos.write((data + "\n").toByteArray())
+                        fos.close()
+                    }
+                    catch (e: Exception) {
+                        e.printStackTrace()
+                    } */
+                    }
+                 catch (e: Exception){
+                 }
+
+
+
+                Log.d("service", "saved file")
+                val inputAsString = FileInputStream(file).bufferedReader().use { it.readText() }
+                Log.d("service",inputAsString)
+            }
+        }
     }
 }
 
