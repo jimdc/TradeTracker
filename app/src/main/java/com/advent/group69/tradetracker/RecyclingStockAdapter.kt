@@ -1,5 +1,6 @@
 package com.advent.group69.tradetracker
 
+import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.graphics.Color
 import android.support.v7.widget.RecyclerView
@@ -59,7 +60,26 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
         }
     }
 
-    override fun onItemDismiss(position: Int) {
+    override fun onItemDismiss(view: RecyclerView.ViewHolder, position: Int) {
+
+        Log.v(ContentValues.TAG, "Delete ${position} clicked.")
+        with(view.itemView.context) {
+            alert(resources.getString(com.advent.group69.tradetracker.R.string.areyousure, position)) {
+                positiveButton(com.advent.group69.tradetracker.R.string.yes) {
+                    if (view is RecyclingStockAdapter.ItemViewHolder) {
+                        if (com.advent.group69.tradetracker.dbFunctions.deletestockInternal(view.thestock.stockid)) {
+                            toast(com.advent.group69.tradetracker.R.string.deletesuccess)
+                        } else {
+                            toast(com.advent.group69.tradetracker.R.string.deletefailure)
+                        }
+                    } else {
+                        toast("Internal error: ViewHolder passed was not ItemViewHolder. Delete this stock through edit.")
+                    }
+                }
+                negativeButton(com.advent.group69.tradetracker.R.string.no) { toast(com.advent.group69.tradetracker.R.string.oknodelete) }
+            }.show()
+        }
+
         RSAstocklist.removeAt(position)
         notifyItemRemoved(position)
     }
@@ -76,24 +96,12 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
      */
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ItemTouchHelperViewHolder {
 
-        val handleView = itemView.findViewById<ImageView>(R.id.handle)
-        lateinit var textView: TextView
-
-        var Row1: TextView
-        var Row2: TextView
-        var Editbtn : ImageView
-        var Delbtn : ImageView
-
+        var Row1 = itemView.findViewById<TextView>(R.id.txtName)
+        var Row2 = itemView.findViewById<TextView>(R.id.txtComment)
+        var Editbtn = itemView.findViewById<ImageView>(R.id.imgEditStock)
         lateinit var thestock : Stock //Accursed violation of separation of concerns
 
         init {
-            Row1 = itemView.findViewById(R.id.txtName)
-            Row2 = itemView.findViewById(R.id.txtComment)
-            Editbtn = itemView.findViewById(R.id.imgEditStock)
-            Delbtn = itemView.findViewById(R.id.imgDeleteStock)
-            itemView.setOnClickListener {
-                Log.v(TAG, "Element $adapterPosition clicked.")
-            }
             Editbtn.setOnClickListener { view ->
                 Log.v(TAG, "Edit $adapterPosition clicked.")
                 with(view.context) {
@@ -101,23 +109,8 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
                             "EditingCrypto" to (thestock.crypto > 0), "TheStock" to thestock)
                 }
             }
-            Delbtn.setOnClickListener {
-                view ->
-                Log.v(TAG, "Delete ${adapterPosition} clicked.")
-                with(view.context) {
-                    alert(resources.getString(R.string.areyousure, adapterPosition)) {
-                        positiveButton(R.string.yes) {
-                            if (dbFunctions.deletestockInternal(thestock.stockid)) {
-                                toast(R.string.deletesuccess)
-                            } else {
-                                toast(R.string.deletefailure)
-                            }
-                        }
-                        negativeButton(R.string.no) { toast(R.string.oknodelete) }
-                    }.show()
-                }
-            }
         }
+
         override fun onItemSelected() {
             itemView.setBackgroundColor(Color.DKGRAY)
         }

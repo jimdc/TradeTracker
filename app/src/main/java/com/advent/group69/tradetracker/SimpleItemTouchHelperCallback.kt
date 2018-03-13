@@ -28,7 +28,7 @@ class SimpleItemTouchHelperCallback(private val mAdapter: ItemTouchHelperAdapter
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        mAdapter.onItemDismiss(viewHolder.getAdapterPosition())
+        mAdapter.onItemDismiss(viewHolder, viewHolder.getAdapterPosition())
     }
 
 }
