@@ -137,8 +137,6 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
         //But not that important for now since we mash all information together anyway w/ Stock.toString()
         //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.RSAstocklist, newitems))
         //diffResult.dispatchUpdatesTo(this)
-
-        notifyDataSetChanged()
     }
 
     override fun getItemCount() = RSAstocklist.size
