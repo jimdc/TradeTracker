@@ -36,6 +36,8 @@ var isSnoozing: Boolean = false
 
 var wakeupSystemTime: Long = 0
 var snoozeTimeRemaining: Long = 0
+var snoozeMsecTotal: Long = 0
+var snoozeMsecElapsed: Long = 0
 var snoozeMsecInterval: Long = 1000
 
 var notifiedOfPowerSaving: Boolean = false
