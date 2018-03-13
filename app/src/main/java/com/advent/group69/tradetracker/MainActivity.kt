@@ -22,6 +22,11 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import android.os.BatteryManager
 import android.os.Build
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import io.fabric.sdk.android.Fabric
+
+
 
 lateinit var dbFunctions: WrapperAroundDao
 
@@ -59,6 +64,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Fabric.with(this, Crashlytics())
+        Fabric.with(this, Answers())
 
         dbFunctions = WrapperAroundDao(this.applicationContext)
         setContentView(R.layout.activity_main)
@@ -85,6 +92,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var infoSnoozer: TextView
     private lateinit var progressSnoozer: ProgressBar
+
+    fun forceCrash(view: View) {
+        throw RuntimeException("This is a crash")
+    }
+
 
     private val mDisposable = CompositeDisposable()
     override fun onStart() {
