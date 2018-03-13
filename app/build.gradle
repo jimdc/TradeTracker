@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
 
 buildscript {
@@ -14,6 +15,10 @@ buildscript {
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.16"
         classpath 'io.fabric.tools:gradle:1.22.2'
     }
+}
+
+androidExtensions {
+    experimental = true
 }
 
 android {
