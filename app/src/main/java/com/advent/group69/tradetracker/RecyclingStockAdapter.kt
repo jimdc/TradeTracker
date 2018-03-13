@@ -15,6 +15,10 @@ import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
 import java.util.*
 import android.view.MotionEvent
+import com.advent.group69.tradetracker.RecyclingStockAdapter.MyUndoListener
+import android.support.design.widget.Snackbar
+
+
 
 /**
  * Provide views to RecyclerView with data from RSAstocklist.
@@ -23,7 +27,10 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
     : ItemTouchHelperAdapter, RecyclerView.Adapter<RecyclingStockAdapter.ItemViewHolder>() {
 
     val TAG = "RecyclingStockAdapter"
+
     var RSAstocklist: MutableList<Stock> = stocks.toMutableList()
+    var DeletedStocks = Stack<Stock>()
+
     var currentPrices: MutableMap<Long, Pair<Double,String>> = mutableMapOf()
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ItemViewHolder {
@@ -66,8 +73,12 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
             alert(resources.getString(com.advent.group69.tradetracker.R.string.areyousure, position)) {
                 positiveButton(com.advent.group69.tradetracker.R.string.yes) {
                     if (view is RecyclingStockAdapter.ItemViewHolder) {
-                        if (com.advent.group69.tradetracker.dbFunctions.deletestockInternal(view.thestock.stockid)) {
-                            toast(com.advent.group69.tradetracker.R.string.deletesuccess)
+                        if (dbFunctions.deletestockInternal(view.thestock.stockid)) {
+                            DeletedStocks.push(view.thestock)
+                            val mySnackbar = Snackbar.make(view.itemView, resources.getString(R.string.deletesuccess), Snackbar.LENGTH_SHORT)
+                            mySnackbar.setAction(R.string.undo_string, MyUndoListener())
+                            mySnackbar.show()
+
                         } else {
                             toast(com.advent.group69.tradetracker.R.string.deletefailure)
                         }
@@ -78,9 +89,6 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
                 negativeButton(com.advent.group69.tradetracker.R.string.no) { toast(com.advent.group69.tradetracker.R.string.oknodelete) }
             }.show()
         }
-
-        RSAstocklist.removeAt(position)
-        notifyItemRemoved(position)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
@@ -116,6 +124,22 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
 
         override fun onItemClear() {
             itemView.setBackgroundColor(Color.TRANSPARENT)
+        }
+    }
+
+    inner class MyUndoListener : View.OnClickListener {
+        override fun onClick(v: View) {
+            with(v.context) {
+                if (DeletedStocks.isEmpty()) toast("Cannot restore stock; DeletedStocks list is empty")
+                else {
+                    val stocktore_add = DeletedStocks.pop()
+                    if (dbFunctions.addeditstock(stocktore_add)) {
+                        toast("Successfully restored stock ${stocktore_add.ticker}")
+                    } else {
+                        toast("Could not re-add stock ${stocktore_add.ticker}")
+                    }
+                }
+            }
         }
     }
 
