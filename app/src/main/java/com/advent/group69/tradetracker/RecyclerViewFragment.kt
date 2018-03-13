@@ -120,7 +120,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
      */
     private fun initDataset() {
         //dbsBound would be true only when the recyclerview is recreated after hitting "back"
-        mDataset = dbFunctions.getStocklistFromDB()
+        //mDataset = dbFunctions.getStocklistFromDB()
     }
 
     private var mItemTouchHelper: ItemTouchHelper? = null

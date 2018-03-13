@@ -15,7 +15,6 @@ import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
 import java.util.*
 import android.view.MotionEvent
-import android.support.v4.view.MotionEventCompat
 
 /**
  * Provide views to RecyclerView with data from RSAstocklist.
@@ -128,7 +127,11 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
     }
 
     fun refresh(newitems: List<Stock>) {
-        RSAstocklist = newitems.toMutableList()
+
+        if (!RSAstocklist.containsAll(newitems) || RSAstocklist.size != newitems.size) { //To preserve order
+            RSAstocklist = newitems.sortedWith(AlphabeticalStocks).toMutableList()
+            notifyDataSetChanged()
+        }
 
         //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above
         //But not that important for now since we mash all information together anyway w/ Stock.toString()
