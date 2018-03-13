@@ -9,7 +9,7 @@ import android.arch.persistence.room.migration.Migration
 
 
 
-@Database(entities = arrayOf(Stock::class), version=2, exportSchema = false)
+@Database(entities = arrayOf(Stock::class), version=3, exportSchema = false)
 abstract class StockDatabase : RoomDatabase() {
     abstract fun stockDao(): StockDao
 

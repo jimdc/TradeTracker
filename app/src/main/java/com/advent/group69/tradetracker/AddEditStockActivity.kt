@@ -90,7 +90,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
 
         val editedstock = Stock(stockid, tickerName.text.toString(), target
-                ?: 6.66, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
+                ?: 6.66, -1.0, -1.0, -1.0, -1.0, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
 
         dbFunctions.addeditstock(editedstock)
         finish()
