@@ -16,6 +16,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginEnd="80dp"
         android:layout_marginTop="24dp"
+        android:layout_marginBottom="4dp"
         android:ems="10"
         android:hint="@string/tickername"
         android:inputType="textCapCharacters" />
@@ -26,6 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tickerName"
         android:layout_below="@+id/tickerName"
+        android:layout_marginBottom="4dp"
         android:ems="10"
         android:hint="@string/targetprice"
         android:inputType="numberDecimal" />
@@ -42,7 +44,7 @@
 
         <RadioButton
             android:id="@+id/rbAbove"
-            android:layout_width="wrap_content"
+            android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="false"

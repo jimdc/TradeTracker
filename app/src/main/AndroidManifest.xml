@@ -36,6 +36,7 @@
 
         <activity
             android:name="com.advent.group69.tradetracker.AddEditStockActivity"
+            android:windowSoftInputMode="stateVisible"
             android:label="@string/title_activity_add_stock"
             android:parentActivityName="com.advent.group69.tradetracker.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">

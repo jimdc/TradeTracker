@@ -17,7 +17,8 @@ import org.jetbrains.anko.async
 import java.io.File
 import java.io.FileInputStream
 
-class MainService : Service() {
+class
+MainService : Service() {
     var runTargetScan = true
     private lateinit var mServiceLooper: Looper
     private lateinit var mServiceHandler: ServiceHandler
@@ -96,22 +97,31 @@ class MainService : Service() {
             updat.running = true
 
             while (!currentThread().isInterrupted) {
+
+                val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag")
                 if (isSnoozing) {
+                    if(wakeLock.isHeld) {
+                        wakeLock.release()
+                    }
+                    wakeLock.acquire(60000)
                     Utility.TryToSleepFor(snoozeMsecInterval)
                     snoozeMsecElapsed += snoozeMsecInterval
-
                     if (snoozeMsecElapsed >= snoozeMsecTotal) {
                         isSnoozing = false
                     }
-                } else {
+
+
+                }
+                else {
                     Log.i("MainService", "HandleMessage call updat.scannetwork() iteration #" + ++iteration)
-                    val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-                    val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag")
-                    wakeLock.acquire()
+
+                    wakeLock.acquire(60000)
                     updat.scannetwork()
                     Utility.TryToSleepFor(updateFrequencyPref)
                     wakeLock.release()
                 }
+
                 SecondsSinceScanStarted++
             }
 

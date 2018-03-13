@@ -94,11 +94,12 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         // Subscribe to stock emissions from the database
         // On every onNext emission update textview or log exception
+
         mDisposable.add(dbFunctions.getFlowableStocklist()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { Stocklist -> adapter.refresh(Stocklist) },
+                        { Stocklist -> adapter.refresh(Stocklist)},
                         { throwable -> Log.d("Disposable::fail", throwable.message)}
                 )
         )
@@ -298,7 +299,7 @@ class MainActivity : AppCompatActivity() {
                 val rTime = intent.getStringExtra("time") ?: "not found"
                 Log.v("MainActivity", "Received price update of $rStockid as $rPrice")
 
-                if(rStockid == 1111111111111111111 && !isPhonePluggedIn(context) && powerSavingOn) {
+                if(rStockid == 1111111111111111111 && powerSavingOn) {
                     if (notif1) {
                         showNotification()
                         toast("Turn off power saving mode so scan can run while phone is sleeping")
