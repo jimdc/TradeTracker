@@ -1,6 +1,7 @@
 package com.advent.group69.tradetracker
 
 import android.content.ContentValues.TAG
+import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -96,8 +97,18 @@ public class RecyclingStockAdapter(stocks: List<Stock>) : RecyclerView.Adapter<R
         Log.d(TAG, "Element $position set.")
 
         val stock = RSAstocklist[position]
-        holder?.Row1?.text = stock.toString()
-        holder?.Row2?.text = "Row ${position.toString()} @ " + currentPrices[stock.stockid] ?: "not recently updated"
+        if (stock.crypto == 1L) {
+            holder?.itemView?.setBackgroundColor(Color.GRAY);
+        }
+
+        val sType = if (stock.crypto == 0L) "Stock" else "Crypto"
+        val sOperator = if (stock.above == 1L) ">" else "<"
+        holder?.Row1?.text = "$sType: alert if ${stock.ticker} $sOperator ${stock.target}"
+
+        val currprice = currentPrices[stock.stockid]
+        holder?.Row2?.text = "Row ${position.toString()} @ ${if (currprice != null) currprice.toString() else " not updated recently"}"
+
+        //To be passed for "edit" function
         holder?.thestock = stock
     }
 
