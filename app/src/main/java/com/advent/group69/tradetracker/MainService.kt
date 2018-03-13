@@ -10,12 +10,11 @@ import android.os.*
 import android.os.Process
 import android.os.HandlerThread
 import java.lang.Thread.*
-import android.os.Vibrator
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
-import org.jetbrains.anko.async
-import java.io.File
-import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainService : Service() {
     var runTargetScan = true
@@ -98,9 +97,9 @@ class MainService : Service() {
             while (!currentThread().isInterrupted) {
                 if (isSnoozing) {
                     Utility.TryToSleepFor(snoozeMsecInterval)
-                    snoozeMsecElapsed += snoozeMsecInterval
-
-                    if (snoozeMsecElapsed >= snoozeMsecTotal) {
+                    snoozeTimeRemaining = wakeupSystemTime - System.currentTimeMillis()
+                    if (snoozeTimeRemaining <= 0) {
+                        snoozeTimeRemaining = 0
                         isSnoozing = false
                     }
                 } else {
@@ -108,9 +107,18 @@ class MainService : Service() {
                     val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
                     val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag")
                     wakeLock.acquire()
+
+                    val simpledate = SimpleDateFormat("MM/dd yyyy, HH:mm:ss")
+                    val datestring = simpledate.format(Date())
+
+                    val beforescan = System.currentTimeMillis()
                     updat.scannetwork()
-                    Utility.TryToSleepFor(updateFrequencyPref)
+                    val afterscan = System.currentTimeMillis()
+                    val difference = afterscan - beforescan
+                    logUpdateTimeToFile("Scan at $datestring took $difference ms.\r\n")
+
                     wakeLock.release()
+                    Utility.TryToSleepFor(updateFrequencyPref)
                 }
                 SecondsSinceScanStarted++
             }
@@ -124,43 +132,15 @@ class MainService : Service() {
         }
     }
 
-    fun Save(lastTime: Long) {
-        async {  //whether or not it is an async task it still does not work
-            var newCurrent = System.currentTimeMillis()/1000
-            var data = (newCurrent - lastTime).toString()
-
-            var logPath = File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Logs")
-            if (!logPath.exists()) {
-                logPath.mkdirs()
+    fun logUpdateTimeToFile(lastTime: String) {
+        try {
+            this@MainService.openFileOutput("UpdatenLog.txt",
+                    Context.MODE_PRIVATE or Context.MODE_APPEND).use {
+                it.write(lastTime.toByteArray())
             }
-            val filename = "saving.txt"
-
-            val file = File(logPath, filename)
-            try {
-                /*       FileOutputStream(file).use { // no errors but nothing readable
-                           it.write(data.toByteArray())
-                       }*/
-                openFileOutput(filename, Context.MODE_PRIVATE).use {
-                    it.write((data + "\n").toByteArray())  } //this is shown on android website but gives system.err
-
-                /* this didn't work either, neither did bufferedWriter and fileWriter
-            try {
-                val fos = FileOutputStream(filename)
-                fos.write((data + "\n").toByteArray())
-                fos.close()
-            }
-            catch (e: Exception) {
-                e.printStackTrace()
-            } */
-            }
-            catch (e: Exception){
-            }
-
-
-
-            Log.d("service", "saved file")
-            val inputAsString = FileInputStream(file).bufferedReader().use { it.readText() }
-            Log.d("service",inputAsString)
+        } catch (fnfe: FileNotFoundException) {
+            Log.d("MainService", fnfe.toString())
         }
+        Log.i("MainService", "wrote: $lastTime")
     }
 }

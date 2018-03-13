@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <ImageView
-        android:id="@+id/imgDeleteStock"
+        android:id="@+id/imgEditStock"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
-        android:contentDescription="@string/delete"
-        android:src="@drawable/ic_delete" />
-
-    <ImageView
-        android:id="@+id/imgEditStock"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="15dp"
         android:contentDescription="@string/edit"
-        android:layout_toLeftOf="@id/imgDeleteStock"
         android:src="@drawable/ic_mode_edit" />
 
     <LinearLayout
@@ -43,5 +34,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text=""/>
+
     </LinearLayout>
 </RelativeLayout>

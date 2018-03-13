@@ -1,6 +1,8 @@
 package com.advent.group69.tradetracker
 
+import android.content.ContentValues
 import android.content.ContentValues.TAG
+import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -11,33 +13,94 @@ import android.widget.ImageView
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
+import java.util.*
+import android.view.MotionEvent
 
 /**
  * Provide views to RecyclerView with data from RSAstocklist.
  */
-public class RecyclingStockAdapter(stocks: List<Stock>) : RecyclerView.Adapter<RecyclingStockAdapter.ViewHolder>() {
+class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStartDragListener)
+    : ItemTouchHelperAdapter, RecyclerView.Adapter<RecyclingStockAdapter.ItemViewHolder>() {
+
     val TAG = "RecyclingStockAdapter"
-    var RSAstocklist: List<Stock> = stocks
+    var RSAstocklist: MutableList<Stock> = stocks.toMutableList()
     var currentPrices: MutableMap<Long, Pair<Double,String>> = mutableMapOf()
 
-    class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        lateinit var textView: TextView
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ItemViewHolder {
+        val v = LayoutInflater.from(parent?.context).inflate(R.layout.stock_list_row, parent, false)
+        return ItemViewHolder(v)
+    }
 
-        var Row1: TextView
-        var Row2: TextView
-        var Editbtn : ImageView
-        var Delbtn : ImageView
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        Log.d(TAG, "Element $position set.")
 
+        val stock = RSAstocklist[position]
+        if (stock.crypto == 1L) {
+            holder?.itemView?.setBackgroundColor(Color.GRAY);
+        }
+
+        val sType = if (stock.crypto == 0L) "Stock" else "Crypto"
+        val sOperator = if (stock.above == 1L) ">" else "<"
+        holder.Row1.text = "$sType: alert if ${stock.ticker} $sOperator ${stock.target}"
+
+        val currprice = currentPrices[stock.stockid]
+        holder.Row2.text = "Row ${position.toString()} @ ${if (currprice != null) currprice.toString() else " not updated recently"}"
+
+        //To be passed for "edit" function
+        holder.thestock = stock
+
+        //Start a drag whenever hte handle view is touched
+        holder.itemView.onTouch {
+            view, motionEvent ->
+                if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    mDragStartListener.onStartDrag(holder)
+                }
+            false
+        }
+    }
+
+    override fun onItemDismiss(view: RecyclerView.ViewHolder, position: Int) {
+
+        Log.v(ContentValues.TAG, "Delete ${position} clicked.")
+        with(view.itemView.context) {
+            alert(resources.getString(com.advent.group69.tradetracker.R.string.areyousure, position)) {
+                positiveButton(com.advent.group69.tradetracker.R.string.yes) {
+                    if (view is RecyclingStockAdapter.ItemViewHolder) {
+                        if (com.advent.group69.tradetracker.dbFunctions.deletestockInternal(view.thestock.stockid)) {
+                            toast(com.advent.group69.tradetracker.R.string.deletesuccess)
+                        } else {
+                            toast(com.advent.group69.tradetracker.R.string.deletefailure)
+                        }
+                    } else {
+                        toast("Internal error: ViewHolder passed was not ItemViewHolder. Delete this stock through edit.")
+                    }
+                }
+                negativeButton(com.advent.group69.tradetracker.R.string.no) { toast(com.advent.group69.tradetracker.R.string.oknodelete) }
+            }.show()
+        }
+
+        RSAstocklist.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        Collections.swap(RSAstocklist, fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
+        return true
+    }
+
+    /**
+     * Simple example of a view holder that implements {@link ItemTouchHelperViewHolder} and has a
+     * "handle" view that initiates a drag event when touched.
+     */
+    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ItemTouchHelperViewHolder {
+
+        var Row1 = itemView.findViewById<TextView>(R.id.txtName)
+        var Row2 = itemView.findViewById<TextView>(R.id.txtComment)
+        var Editbtn = itemView.findViewById<ImageView>(R.id.imgEditStock)
         lateinit var thestock : Stock //Accursed violation of separation of concerns
 
         init {
-            Row1 = v.findViewById(R.id.txtName)
-            Row2 = v.findViewById(R.id.txtComment)
-            Editbtn = v.findViewById(R.id.imgEditStock)
-            Delbtn = v.findViewById(R.id.imgDeleteStock)
-            v.setOnClickListener {
-                Log.v(TAG, "Element $adapterPosition clicked.")
-            }
             Editbtn.setOnClickListener { view ->
                 Log.v(TAG, "Edit $adapterPosition clicked.")
                 with(view.context) {
@@ -45,61 +108,17 @@ public class RecyclingStockAdapter(stocks: List<Stock>) : RecyclerView.Adapter<R
                             "EditingCrypto" to (thestock.crypto > 0), "TheStock" to thestock)
                 }
             }
-            Delbtn.setOnClickListener {
-                view ->
-                Log.v(TAG, "Delete ${adapterPosition} clicked.")
-                with(view.context) {
-                    alert(resources.getString(R.string.areyousure, adapterPosition)) {
-                        positiveButton(R.string.yes) {
-                                if (dbFunctions.deletestockInternal(thestock.stockid)) {
-                                    toast(R.string.deletesuccess)
-                                } else {
-                                    toast(R.string.deletefailure)
-                                }
-                            }
-                        negativeButton(R.string.no) { toast(R.string.oknodelete) }
-                    }.show()
-                }
-            }
+        }
+
+        override fun onItemSelected() {
+            itemView.setBackgroundColor(Color.DKGRAY)
+        }
+
+        override fun onItemClear() {
+            itemView.setBackgroundColor(Color.TRANSPARENT)
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent?.context).inflate(R.layout.user_list_row, parent, false)
-        return ViewHolder(v)
-    }
-
-    // Called by diffResult.dispatchUpdatesTo, Or you can do getChangePayload()
-    /*
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int, payloads: MutableList<Any>?) {
-
-        if (payloads!!.isEmpty())
-            return
-        else {
-            val o = payloads.get(0) as Bundle
-            for (key in o.keySet()) {
-                if (key == KEY_TICKER) {
-                    //TODO lets update blink discount textView :)
-                } else if (key == KEY_PRICE) {
-                    //TODO lets update and change price color for some time
-                } else if (key == KEY_REVIEWS_COUNT) {
-                    //TODO just update the review count textview
-                }
-            }
-        }
-
-        super.onBindViewHolder(holder, position, payloads)
-    }
-    */
-
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        Log.d(TAG, "Element $position set.")
-
-        val stock = RSAstocklist[position]
-        holder?.Row1?.text = stock.toString()
-        holder?.Row2?.text = "Row ${position.toString()} @ " + currentPrices[stock.stockid] ?: "not recently updated"
-        holder?.thestock = stock
-    }
 
     fun setCurrentPrice(stockid: Long, price: Double, time: String) {
         currentPrices[stockid] = Pair(price, time)
@@ -108,14 +127,16 @@ public class RecyclingStockAdapter(stocks: List<Stock>) : RecyclerView.Adapter<R
     }
 
     fun refresh(newitems: List<Stock>) {
-        RSAstocklist = newitems
+
+        if (!RSAstocklist.containsAll(newitems) || RSAstocklist.size != newitems.size) { //To preserve order
+            RSAstocklist = newitems.sortedWith(AlphabeticalStocks).toMutableList()
+            notifyDataSetChanged()
+        }
 
         //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above
         //But not that important for now since we mash all information together anyway w/ Stock.toString()
         //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.RSAstocklist, newitems))
         //diffResult.dispatchUpdatesTo(this)
-
-        notifyDataSetChanged()
     }
 
     override fun getItemCount() = RSAstocklist.size

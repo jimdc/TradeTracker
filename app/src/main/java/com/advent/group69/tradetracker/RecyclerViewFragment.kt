@@ -10,12 +10,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import android.support.v7.widget.helper.ItemTouchHelper
+import com.advent.group69.tradetracker.R.id.recyclerView
+
+
+
+
 
 /**
  * Demonstrates the use of {@link RecyclerView} with a {@link LinearLayoutManager} and a
  * {@link GridLayoutManager}. Also initializes dataset with dbFunction
  */
-class RecyclerViewFragment : Fragment() {
+class RecyclerViewFragment : Fragment(), OnStartDragListener {
 
     private val TAG = "RecyclerViewFragment"
     private val KEY_LAYOUT_MANAGER = "layoutManager"
@@ -64,10 +70,10 @@ class RecyclerViewFragment : Fragment() {
             mCurrentLayoutManagerType = if (gridlayoutPref) LayoutManagerType.GRID_LAYOUT_MANAGER else LayoutManagerType.LINEAR_LAYOUT_MANAGER
         }
 
-
+        mRecyclerView.setHasFixedSize(true)
         setRecyclerViewLayoutManager(mCurrentLayoutManagerType)
 
-        mAdapter = RecyclingStockAdapter(mDataset)
+        mAdapter = RecyclingStockAdapter(mDataset, this)
 
         // Set CustomAdapter as the adapter for RecyclerView.
         mRecyclerView.adapter = mAdapter
@@ -114,7 +120,21 @@ class RecyclerViewFragment : Fragment() {
      */
     private fun initDataset() {
         //dbsBound would be true only when the recyclerview is recreated after hitting "back"
-        mDataset = dbFunctions.getStocklistFromDB()
+        //mDataset = dbFunctions.getStocklistFromDB()
+    }
+
+    private var mItemTouchHelper: ItemTouchHelper? = null
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val callback = SimpleItemTouchHelperCallback(mAdapter)
+        mItemTouchHelper = ItemTouchHelper(callback)
+        mItemTouchHelper?.attachToRecyclerView(mRecyclerView)
+    }
+
+    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
+        mItemTouchHelper?.startDrag(viewHolder)
     }
 
 }
