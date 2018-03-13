@@ -2,14 +2,17 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'io.fabric'
 
 buildscript {
     repositories {
         mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
         jcenter()
     }
     dependencies {
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.16"
+        classpath 'io.fabric.tools:gradle:1.22.2'
     }
 }
 
@@ -58,19 +61,24 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile files('src/main/libs/mail.jar')
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
+        transitive = true;
+    }
+    compile('com.crashlytics.sdk.android:answers:1.4.1@aar') {
+        transitive = true;
+    }
     // sdk19, sdk21, sdk23 are also available
     // In case you need support-v4 bindings
     // For appcompat-v7 bindings
     compile 'com.android.support:design:26.1.0'
     compile 'com.android.support:preference-v14:26.1.0'
     compile 'org.jetbrains.anko:anko-sdk15:0.8.2'
-    compile 'org.jetbrains.anko:anko-sqlite:0.8.2'
     compile 'org.jetbrains.anko:anko-support-v4:0.8.2'
     compile 'org.jetbrains.anko:anko-appcompat-v7:0.8.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:appcompat-v7:26.0.1'
     compile 'com.squareup.moshi:moshi:1.5.0'
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.squareup.moshi:moshi-kotlin:1.5.0'
     implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -84,7 +92,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:2.15.0"
     testCompile "com.nhaarman:mockito-kotlin:1.5.0"
-    testCompile 'org.robolectric:robolectric:3.0'
     testImplementation 'org.amshove.kluent:kluent:1.34'
     testImplementation 'org.amshove.kluent:kluent-android:1.34'
 }

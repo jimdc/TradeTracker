@@ -45,20 +45,6 @@ data class Stock(@PrimaryKey @ColumnInfo(name="_stockid") var stockid: Long = 13
         return con
     }
 
-    /**
-     * Does not display internal stockid, and
-     * converts boolean and >< to human readable
-     */
-    override fun toString(): String {
-        var res = ticker
-
-        when (above) { 1L -> { res += " > "} 0L -> { res += " < " } }
-        res += target.toString()
-        when (phone) { 1L -> { res += " yesPhone " } 0L -> { res += " noPhone "} }
-        when (crypto) { 1L -> { res += " yesCrypto " } 0L -> { res += " noCrypto " } }
-
-        return res
-    }
 
     constructor(source: Parcel) : this(
             source.readLong(),

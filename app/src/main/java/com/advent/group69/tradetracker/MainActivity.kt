@@ -20,22 +20,24 @@ import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.schedulers.Timed
-import android.content.SharedPreferences
 import android.os.BatteryManager
 import android.os.Build
-import io.reactivex.Observable
-import java.util.concurrent.TimeUnit
-import javax.xml.datatype.DatatypeConstants.SECONDS
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import io.fabric.sdk.android.Fabric
+
+
 
 lateinit var dbFunctions: WrapperAroundDao
 
 //these can be used in other kotlin files
 var powerSavingOn = true
 var isSnoozing: Boolean = false
-var snoozeMsecTotal: Long = 0
-var snoozeMsecElapsed: Long = 0
+
+var wakeupSystemTime: Long = 0
+var snoozeTimeRemaining: Long = 0
 var snoozeMsecInterval: Long = 1000
+
 var notifiedOfPowerSaving: Boolean = false
 var notif1: Boolean = false
 
@@ -62,6 +64,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Fabric.with(this, Crashlytics())
+        Fabric.with(this, Answers())
 
         dbFunctions = WrapperAroundDao(this.applicationContext)
         setContentView(R.layout.activity_main)
@@ -88,6 +92,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var infoSnoozer: TextView
     private lateinit var progressSnoozer: ProgressBar
+
+    fun forceCrash(view: View) {
+        throw RuntimeException("This is a crash")
+    }
+
 
     private val mDisposable = CompositeDisposable()
     override fun onStart() {
@@ -171,14 +180,18 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity,
                             getString(R.string.invalid_entry), Toast.LENGTH_SHORT).show()
                 else {
+                    var snoozeMsecTotal: Long = 0
                     try {
                         val hours = if (iHourt.isEmpty()) 0L else iHourt.toLong()
                         val minutes = if (iMinutet.isEmpty()) 0L else iMinutet.toLong()
                         snoozeMsecTotal = 1000*(hours*3600 + minutes*60)
-                        snoozeMsecElapsed = 0L
+                        snoozeTimeRemaining = snoozeMsecTotal
+                        wakeupSystemTime = System.currentTimeMillis()+snoozeMsecTotal
+
                     } catch (nfe: NumberFormatException) {
                         Toast.makeText(this@MainActivity, getString(R.string.NaN, iHourt + "/" + iMinutet), Toast.LENGTH_SHORT).show()
                         dialog.dismiss()
+                        finish()
                     }
 
                     isSnoozing = true
@@ -188,8 +201,8 @@ class MainActivity : AppCompatActivity() {
                         progressSnoozer.max = snoozeMsecTotal.toInt()
                         while(isSnoozing) {
                             uiThread {
-                                progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
-                                infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
+                                progressSnoozer.setProgress(snoozeTimeRemaining.toInt())
+                                infoSnoozer.text = resources.getString(R.string.snoozeremain, snoozeTimeRemaining, snoozeMsecTotal)
                             }
                             Utility.TryToSleepFor(snoozeMsecInterval)
                         }
@@ -209,9 +222,9 @@ class MainActivity : AppCompatActivity() {
                             .map({ v -> iterationsWhenDone - v })
                             .subscribe(
                                     { onNext ->
-                                        snoozeMsecElapsed += snoozeMsecInterval
-                                        progressSnoozer.setProgress(snoozeMsecElapsed.toInt())
-                                        infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeMsecElapsed, snoozeMsecTotal)
+                                        snoozeTimeRemaining += snoozeMsecInterval
+                                        progressSnoozer.setProgress(snoozeTimeRemaining.toInt())
+                                        infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeTimeRemaining, snoozeMsecTotal)
                                     },
                                     { onError ->
                                         toast("Something went wrong with the snoozer timer.")
