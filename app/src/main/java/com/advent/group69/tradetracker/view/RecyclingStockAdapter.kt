@@ -1,7 +1,5 @@
 package com.advent.group69.tradetracker.view
 
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -9,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.util.Log
+import android.content.Context
 import android.widget.ImageView
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
@@ -24,46 +23,55 @@ import com.advent.group69.tradetracker.model.Stock
 
 
 /**
- * Provide views to RecyclerView with data from RSAstocklist.
+ * Provide views to RecyclerView with data from stockList.
  */
-class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStartDragListener)
+
+private const val TAG = "RecyclingStockAdapter"
+
+class RecyclingStockAdapter(
+        stocks: List<Stock>,
+        private var dragStartListener: OnStartDragListener,
+        private var context: Context)
     : ItemTouchHelperAdapter, RecyclerView.Adapter<RecyclingStockAdapter.ItemViewHolder>() {
 
-    val TAG = "RecyclingStockAdapter"
-
-    var RSAstocklist: MutableList<Stock> = stocks.toMutableList()
-    var DeletedStocks = Stack<Stock>()
-
-    var currentPrices: MutableMap<Long, Pair<Double,String>> = mutableMapOf()
+    private var stockList: MutableList<Stock> = stocks.toMutableList()
+    private var deletedStocks = Stack<Stock>()
+    private var currentPrices: MutableMap<Long, Pair<Double,String>> = mutableMapOf()
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ItemViewHolder {
-        val v = LayoutInflater.from(parent?.context).inflate(R.layout.stock_list_row, parent, false)
-        return ItemViewHolder(v)
+        return ItemViewHolder(LayoutInflater
+                .from(parent?.context)
+                .inflate(R.layout.stock_list_row, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         Log.d(TAG, "Element $position set.")
 
-        val stock = RSAstocklist[position]
+        val stock = stockList[position]
         if (stock.crypto == 1L) {
-            holder?.itemView?.setBackgroundColor(Color.GRAY);
+            holder.itemView?.setBackgroundColor(Color.GRAY)
         }
 
-        val sType = if (stock.crypto == 0L) "Stock" else "Crypto"
-        val sOperator = if (stock.above == 1L) ">" else "<"
-        holder.Row1.text = "$sType: alert if ${stock.ticker} $sOperator ${stock.target}"
+        val stockOrCrypto = if (stock.crypto == 0L) "Stock" else "Crypto"
+        val targetOperator = if (stock.above == 1L) ">" else "<"
 
-        val currprice = currentPrices[stock.stockid]
-        holder.Row2.text = "Row ${position.toString()} @ ${if (currprice != null) currprice.toString() else " not updated recently"}"
-
+        holder.rowStockAndAlarm.text = context.resources.getString(R.string.rowStockAndAlarm,
+                stockOrCrypto,
+                stock.ticker,
+                targetOperator,
+                stock.target
+        )
+        val currentPrice = currentPrices[stock.stockid]?.toString() ?: context.resources.getString(R.string.notUpdatedRecently)
+        holder.rowCurrentPrice.text = context.resources.getString(R.string.rowCurrentPrice, position, currentPrice)
         //To be passed for "edit" function
         holder.thestock = stock
 
         //Start a drag whenever hte handle view is touched
         holder.itemView.onTouch {
-            view, motionEvent ->
+            _, motionEvent ->
                 if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    mDragStartListener.onStartDrag(holder)
+                    dragStartListener.onStartDrag(holder)
                 }
             false
         }
@@ -71,13 +79,13 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
 
     override fun onItemDismiss(view: RecyclerView.ViewHolder, position: Int) {
 
-        Log.v(ContentValues.TAG, "Delete ${position} clicked.")
+        Log.v(TAG, "Delete $position clicked.")
         with(view.itemView.context) {
             alert(resources.getString(R.string.areyousure, position)) {
                 positiveButton(R.string.yes) {
                     if (view is ItemViewHolder) {
-                        if (dbFunctions.deletestockInternal(view.thestock.stockid)) {
-                            DeletedStocks.push(view.thestock)
+                        if (dbFunctions.deleteStockByStockId(view.thestock.stockid)) {
+                            deletedStocks.push(view.thestock)
                             val mySnackbar = Snackbar.make(view.itemView, resources.getString(R.string.deletesuccess), Snackbar.LENGTH_SHORT)
                             mySnackbar.setAction(R.string.undo_string, MyUndoListener())
                             mySnackbar.show()
@@ -95,7 +103,7 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-        Collections.swap(RSAstocklist, fromPosition, toPosition)
+        Collections.swap(stockList, fromPosition, toPosition)
         notifyItemMoved(fromPosition, toPosition)
         return true
     }
@@ -106,13 +114,13 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
      */
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ItemTouchHelperViewHolder {
 
-        var Row1 = itemView.findViewById<TextView>(R.id.txtName)
-        var Row2 = itemView.findViewById<TextView>(R.id.txtComment)
-        var Editbtn = itemView.findViewById<ImageView>(R.id.imgEditStock)
+        var rowStockAndAlarm = itemView.findViewById<TextView>(R.id.txtName)
+        var rowCurrentPrice = itemView.findViewById<TextView>(R.id.txtComment)
+        private var btnEdit = itemView.findViewById<ImageView>(R.id.imgEditStock)
         lateinit var thestock : Stock //Accursed violation of separation of concerns
 
         init {
-            Editbtn.setOnClickListener { view ->
+            btnEdit.setOnClickListener { view ->
                 Log.v(TAG, "Edit $adapterPosition clicked.")
                 with(view.context) {
                     startActivity<AddEditStockActivity>("EditingExisting" to true,
@@ -133,13 +141,13 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
     inner class MyUndoListener : View.OnClickListener {
         override fun onClick(v: View) {
             with(v.context) {
-                if (DeletedStocks.isEmpty()) toast("Cannot restore stock; DeletedStocks list is empty")
+                if (deletedStocks.isEmpty()) toast("Cannot restore stock; deletedStocks list is empty")
                 else {
-                    val stocktore_add = DeletedStocks.pop()
-                    if (dbFunctions.addeditstock(stocktore_add)) {
-                        toast("Successfully restored stock ${stocktore_add.ticker}")
+                    val stockToRestore = deletedStocks.pop()
+                    if (dbFunctions.addOrEditStock(stockToRestore)) {
+                        toast("Successfully restored stock ${stockToRestore.ticker}")
                     } else {
-                        toast("Could not re-add stock ${stocktore_add.ticker}")
+                        toast("Could not re-add stock ${stockToRestore.ticker}")
                     }
                 }
             }
@@ -149,22 +157,22 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
 
     fun setCurrentPrice(stockid: Long, price: Double, time: String) {
         currentPrices[stockid] = Pair(price, time)
-        val poschanged = RSAstocklist.indexOf(this.RSAstocklist.find{it.stockid == stockid})
-        notifyItemChanged(poschanged)
+        val positionChanged = stockList.indexOf(this.stockList.find{it.stockid == stockid})
+        notifyItemChanged(positionChanged)
     }
 
-    fun refresh(newitems: List<Stock>) {
+    fun refresh(newStockList: List<Stock>) {
 
-        if (!RSAstocklist.containsAll(newitems) || RSAstocklist.size != newitems.size) { //To preserve order
-            RSAstocklist = newitems.sortedWith(AlphabeticalStocks).toMutableList()
+        if (!stockList.containsAll(newStockList) || stockList.size != newStockList.size) { //To preserve order
+            stockList = newStockList.sortedWith(AlphabeticalStocks).toMutableList()
             notifyDataSetChanged()
         }
 
         //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above
         //But not that important for now since we mash all information together anyway w/ Stock.toString()
-        //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.RSAstocklist, newitems))
+        //val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.stockList, newStockList))
         //diffResult.dispatchUpdatesTo(this)
     }
 
-    override fun getItemCount() = RSAstocklist.size
+    override fun getItemCount() = stockList.size
 }

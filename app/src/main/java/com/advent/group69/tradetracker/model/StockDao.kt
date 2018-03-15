@@ -1,7 +1,6 @@
 package com.advent.group69.tradetracker.model
 
 import android.arch.persistence.room.*
-import com.advent.group69.tradetracker.model.Stock
 import io.reactivex.Flowable
 
 @Dao

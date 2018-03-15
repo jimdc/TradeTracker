@@ -19,7 +19,7 @@ import android.content.Context
 import org.junit.*
 
 @Rule @JvmField
-public val muhActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+val muhActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
 @RunWith(AndroidJUnit4::class)
 class Snoozetest {
@@ -30,7 +30,7 @@ class Snoozetest {
     @Before
     fun setup() {
         val intent = Intent()
-        context = InstrumentationRegistry.getInstrumentation().getTargetContext()
+        context = InstrumentationRegistry.getInstrumentation().targetContext
         activity = muhActivityRule.launchActivity(intent)
     }
 

@@ -18,11 +18,11 @@ import com.advent.group69.tradetracker.model.Stock
 class AddEditStockActivity : AppCompatActivity() {
 
     /**
-     * Customizes the UI based on intent extras "EditingCrypto" and "EditingExisting"
+     * Customizes the UI based on intent extras "isEditingCrypto" and "isEditingExisting"
      */
-    private var EditingCrypto: Boolean = false
-    private var EditingExisting: Boolean = false
-    private var stockid = Calendar.getInstance().getTimeInMillis()
+    private var isEditingCrypto: Boolean = false
+    private var isEditingExisting: Boolean = false
+    private var stockid = Calendar.getInstance().timeInMillis
     private lateinit var stockticker: String
     private lateinit var tickerName: EditText
     private lateinit var tickerPrice: EditText
@@ -38,35 +38,37 @@ class AddEditStockActivity : AppCompatActivity() {
         aboveChecked = findViewById(R.id.rbAbove)
         phoneChecked = findViewById(R.id.phoneCallCB)
 
-        val deletebutton = findViewById<Button>(R.id.delbtn)
-        val b = intent.extras
-        EditingCrypto = b.getBoolean("EditingCrypto")
-        EditingExisting = b.getBoolean("EditingExisting")
-        if (EditingExisting) {
-            val thestock: Stock? = b.getParcelable("TheStock")
-            if (thestock == null) {
+        val deleteButton = findViewById<Button>(R.id.delbtn)
+        val bundleFromIntent = intent.extras
+        isEditingCrypto = bundleFromIntent.getBoolean("isEditingCrypto")
+        isEditingExisting = bundleFromIntent.getBoolean("isEditingExisting")
+        if (isEditingExisting) {
+            val stockFromView: Stock? = bundleFromIntent.getParcelable("TheStock")
+            if (stockFromView == null) {
                 toast("Did not receive stock to edit from MainActivity")
                 finish()
             } else {
-                stockid = thestock.stockid
-                val stockticker = thestock.ticker
+                stockid = stockFromView.stockid
+                val stockTicker = stockFromView.ticker
 
-                setTitle(resources.getString(R.string.title_activity_edit_stock, stockticker))
+                title = resources.getString(R.string.title_activity_edit_stock, stockTicker)
 
-                tickerName.setText(stockticker)
-                tickerPrice.setText(thestock.target.toString())
-                aboveChecked.setChecked(thestock.above > 0)
-                phoneChecked.setChecked(thestock.phone > 0)
+                tickerName.setText(stockTicker)
+                tickerPrice.setText(stockFromView.target.toString())
+                aboveChecked.isChecked = stockFromView.above > 0
+                phoneChecked.isChecked = stockFromView.phone > 0
 
-                deletebutton.setOnClickListener(DeleteStockClickListener)
+                deleteButton.setOnClickListener(DeleteStockClickListener)
             }
-        } else if (!EditingExisting) { //adding a new stock
-            if (EditingCrypto) { setTitle(getResources().getString(R.string.title_activity_add_crypto)) }
-            deletebutton.visibility = View.INVISIBLE //Why not let us delete it?
+        } else if (!isEditingExisting) { //adding a new stock
+            if (isEditingCrypto) {
+                title = resources.getString(R.string.title_activity_add_crypto)
+            }
+            deleteButton.visibility = View.INVISIBLE //Why not let us delete it?
         }
 
         val addbutton = findViewById<FloatingActionButton>(R.id.fab)
-        addbutton.setOnClickListener(AddStockClickListener)
+        addbutton.setOnClickListener(stockClickListener)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -75,7 +77,7 @@ class AddEditStockActivity : AppCompatActivity() {
         val inflater = supportActionBar?.themedContext?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as? LayoutInflater
         val customActionBarView = inflater?.inflate(R.layout.actionbar_custom_view_done_cancel, null)
 
-        customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_done)?.setOnClickListener(AddStockClickListener) //"Done"
+        customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_done)?.setOnClickListener(stockClickListener) //"Done"
         customActionBarView?.findViewById<FrameLayout>(R.id.actionbar_cancel)?.setOnClickListener({ finish() }) // "Cancel"
 
         // Show the custom action bar view and hide the normal Home icon and title.
@@ -87,18 +89,23 @@ class AddEditStockActivity : AppCompatActivity() {
      * Used BOTH by the "Add" button on bottom right, and the "Done" button in toolbar.
      * @todo Validate content
      */
-    private val AddStockClickListener = View.OnClickListener {
+    private val stockClickListener = View.OnClickListener {
         val target: Double? = tickerPrice.text.toString().toDoubleOrNull()
 
-        val editedstock = Stock(stockid, tickerName.text.toString(), target
-                ?: 6.66, -1.0, -1.0, -1.0, -1.0, aboveChecked.isChecked, phoneChecked.isChecked, EditingCrypto)
-
-        dbFunctions.addeditstock(editedstock)
+        val editedStock = Stock(
+                stockid,
+                tickerName.text.toString(),
+                target ?: 6.66, -1.0, -1.0, -1.0, -1.0,
+                aboveChecked.isChecked,
+                phoneChecked.isChecked,
+                isEditingCrypto
+        )
+        dbFunctions.addOrEditStock(editedStock)
         finish()
     }
 
     private val DeleteStockClickListener = View.OnClickListener {
-        if (dbFunctions.deletestockInternal(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
+        if (dbFunctions.deleteStockByStockId(stockid)) toast(resources.getString(R.string.numdeleted, stockticker))
         else toast(resources.getString(R.string.delfail))
 
         finish()

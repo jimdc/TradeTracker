@@ -24,39 +24,22 @@ class AlertReceiver : BroadcastReceiver() {
         )
     }
 
-    /* public void GenerateNotify(Context context) {
-
-        NotificationManager myNotificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = new Notification(android.R.drawable.ic_btn_speak_now,"hi",100);
-        Intent intent=new Intent(context.getApplicationContext(),as.class);
-        PendingIntent contentintent=PendingIntent.getBroadcast(context.getApplicationContext(),0, intent, 0);
-        notification.setLatestEventInfo(getApplicationContext(), "Hi","date", contentintent);
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notification.sound = Uri.parse("android.resource://com.example.serviceproject/" + R.raw.kalimba);
-        myNotificationManager.notify(NOTIFICATION_ID,notification);
-    } */
-
-    /**
-     * Posts a notification to [mNotificationManager] to fire [notificIntent]
-     * Settings in [mBuilder] specify: make sound, vibrate, use default light
-     * and auto cancel the notification when clicked on in the task bar.
-     */
     private fun createSoundAndOverheadNotification(context: Context, msg: String, msgText: String, msgAlert: String) {
 
         val notificIntent = PendingIntent.getActivity(context, 0,
                 Intent(context, MainActivity::class.java), 0)
-        val mBuilder = NotificationCompat.Builder(context)
+        val builder = NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.stocklogo)
                 .setContentTitle(msg)
                 .setTicker(msgAlert)
                 .setContentText(msgText)
 
-        mBuilder.setContentIntent(notificIntent)
+        builder.setContentIntent(notificIntent)
 
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
-        val soundPref = sharedPref.getString(context.resources.getString(R.string.notification_sound_key), "new_loud_ringtone.mp3")
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val soundPreference = sharedPreferences.getString(context.resources.getString(R.string.notification_sound_key), "new_loud_ringtone.mp3")
 
-        val rawsound = when(soundPref) {
+        val rawsound = when(soundPreference) {
             "home_phone_5.mp3" -> R.raw.home_phone_5
             "new_loud_ringtone.mp3" -> R.raw.new_loud_ringtone
             "old_phone.mp3" -> R.raw.old_phone
@@ -65,13 +48,13 @@ class AlertReceiver : BroadcastReceiver() {
 
         val sound = Uri.parse("android.resource://" +
                 context.packageName + "/" + rawsound)
-        mBuilder.setSound(sound)
-        mBuilder.setDefaults(Notification.DEFAULT_VIBRATE)
+        builder.setSound(sound)
+        builder.setDefaults(Notification.DEFAULT_VIBRATE)
 
-        mBuilder.setDefaults(Notification.DEFAULT_LIGHTS)
-        mBuilder.setAutoCancel(true)
+        builder.setDefaults(Notification.DEFAULT_LIGHTS)
+        builder.setAutoCancel(true)
 
-        val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        mNotificationManager.notify(1, mBuilder.build())
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(1, builder.build())
     }
 }

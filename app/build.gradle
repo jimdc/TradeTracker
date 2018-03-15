@@ -67,10 +67,10 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
-        transitive = true;
+        transitive = true
     }
     compile('com.crashlytics.sdk.android:answers:1.4.1@aar') {
-        transitive = true;
+        transitive = true
     }
     // sdk19, sdk21, sdk23 are also available
     // In case you need support-v4 bindings
@@ -81,9 +81,9 @@ dependencies {
     compile 'org.jetbrains.anko:anko-support-v4:0.8.2'
     compile 'org.jetbrains.anko:anko-appcompat-v7:0.8.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:appcompat-v7:26.0.1'
+    compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.squareup.moshi:moshi:1.5.0'
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:multidex:1.0.3'
     compile 'com.squareup.moshi:moshi-kotlin:1.5.0'
     implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'com.android.support:appcompat-v7:26.1.0'

@@ -74,4 +74,7 @@
     <string name="stockupdsummary">Con qué frecuencia buscar actualizaciones de stock</string>
     <string name="stockupddlgmsg">¿Cuántos intervalos de milisegundos?</string>
     <string name="undo_string">Deshacer</string>
+    <string name="notUpdatedRecently">no actualizado recientemente</string>
+    <string name="rowStockAndAlarm">%1$s alerta si %2$s %3$s %4$d</string>
+    <string name="rowCurrentPrice">Fila %1$d en %2$s</string>
 </resources>

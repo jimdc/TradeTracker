@@ -8,11 +8,11 @@ import org.junit.*
 import org.junit.runner.RunWith
 
 @Rule
-public val mServiceRule = ServiceTestRule()
+val mServiceRule = ServiceTestRule()
 
 @Ignore
 @RunWith(AndroidJUnit4::class)
-public class MainServicetest {
+class MainServicetest {
 
     @Before
     @Test(timeout=1000 * 60)

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
-import android.view.View
 import android.util.Log
 import org.jetbrains.anko.*
 import android.content.BroadcastReceiver
@@ -20,7 +19,6 @@ import android.widget.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import android.os.BatteryManager
 import android.os.Build
 import com.advent.group69.tradetracker.model.WrapperAroundDao
 import com.advent.group69.tradetracker.view.MoreInfoNotification
@@ -44,14 +42,12 @@ var notif1: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
-    private var serviceIntent: Intent? = null
-    internal lateinit var notificationManager: NotificationManager
+    private lateinit var notificationManager: NotificationManager
 
-    internal var notificationID = 33
-    internal var isNotificationActiveOnTaskbar = false
-    var currentPriceReceiver = createPriceBroadcastReceiver()
+    private var notificationID = 33
+    private var currentPriceReceiver = createPriceBroadcastReceiver()
 
-    lateinit var fragment: RecyclerViewFragment
+    private lateinit var fragment: RecyclerViewFragment
     private val adapter: RecyclingStockAdapter by lazy { fragment.recyclingStockAdapter }
 
     /**
@@ -89,18 +85,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var infoSnoozer: TextView
     private lateinit var progressSnoozer: ProgressBar
 
+    /*
     fun forceCrash(view: View) {
         throw RuntimeException("This is a crash")
-    }
+    }*/
 
 
-    private val mDisposable = CompositeDisposable()
+    private val disposable = CompositeDisposable()
     override fun onStart() {
         super.onStart()
         // Subscribe to stock emissions from the database
         // On every onNext emission update textview or log exception
 
-        mDisposable.add(dbFunctions.getFlowableStocklist()
+        disposable.add(dbFunctions.getFlowableStockList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -112,7 +109,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        mDisposable.clear() //Unsubscribe from database updates of stocklist
+        disposable.clear() //Unsubscribe from database updates of stocklist
     }
 
     /**
@@ -124,14 +121,14 @@ class MainActivity : AppCompatActivity() {
 
         val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
         mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
-        serviceIntent = Intent(this, MainService::class.java)
+        val serviceIntent = Intent(this, MainService::class.java)
 
-        mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
+        mSwitchScanningOrNot?.setOnCheckedChangeListener { _, boo -> when(boo) {
                 true -> {
                     if (!isMyServiceRunning(MainService::class.java))
                         startService(serviceIntent)
                     else
-                        toast("Scan already running")
+                        toast("Scan already isRunning")
                 }
                 false -> { stopService(serviceIntent) }
             }
@@ -184,8 +181,8 @@ class MainActivity : AppCompatActivity() {
                         snoozeTimeRemaining = snoozeMsecTotal
                         wakeupSystemTime = System.currentTimeMillis()+snoozeMsecTotal
 
-                    } catch (nfe: NumberFormatException) {
-                        Toast.makeText(this@MainActivity, getString(R.string.NaN, iHourt + "/" + iMinutet), Toast.LENGTH_SHORT).show()
+                    } catch (numberFormatException: NumberFormatException) {
+                        Toast.makeText(this@MainActivity, getString(R.string.NaN, "$iHourt/$iMinutet"), Toast.LENGTH_SHORT).show()
                         dialog.dismiss()
                         finish()
                     }
@@ -197,10 +194,10 @@ class MainActivity : AppCompatActivity() {
                         progressSnoozer.max = snoozeMsecTotal.toInt()
                         while(isSnoozing) {
                             uiThread {
-                                progressSnoozer.setProgress(snoozeTimeRemaining.toInt())
+                                progressSnoozer.progress = snoozeTimeRemaining.toInt()
                                 infoSnoozer.text = resources.getString(R.string.snoozeremain, snoozeTimeRemaining, snoozeMsecTotal)
                             }
-                            Utility.TryToSleepFor(snoozeMsecInterval)
+                            Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
                         }
 
                         uiThread {
@@ -245,9 +242,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Query the system for if a service is already running.
+     * Query the system for if a service is already isRunning.
      * @param[serviceClass] the service class
-     * @return true if running, false if not
+     * @return true if isRunning, false if not
      * @sample startService
      */
     @Suppress("DEPRECATION")
@@ -263,7 +260,8 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    fun showNotification() {
+    fun showDisablePowerSavingRequestNotification() {
+
         val notificBuilder = NotificationCompat.Builder(this)
                 .setContentTitle("please disable power saving mode to keep scanning while phone screen is off")
                 .setContentText("CLICK THIS NOTIFICATION for more information")
@@ -271,29 +269,16 @@ class MainActivity : AppCompatActivity() {
                 .setSmallIcon(R.drawable.stocklogo)
 
         val moreInfoIntent = Intent(this, MoreInfoNotification::class.java)
-        val tStackBuilder = TaskStackBuilder.create(this)
+        val taskStackBuilder = TaskStackBuilder.create(this)
 
-        tStackBuilder.addParentStack(MoreInfoNotification::class.java)
-        tStackBuilder.addNextIntent(moreInfoIntent)
+        taskStackBuilder.addParentStack(MoreInfoNotification::class.java)
+        taskStackBuilder.addNextIntent(moreInfoIntent)
 
-        val pendingIntent = tStackBuilder.getPendingIntent(0,
-                PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         notificBuilder.setContentIntent(pendingIntent)
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(notificationID, notificBuilder.build())
-
-        isNotificationActiveOnTaskbar = true
-    }
-
-    /**
-     * Close the notification if it is still active.
-     * @param[view] required for onClick
-     */
-    fun stopNotification(view: View) {
-        if (isNotificationActiveOnTaskbar) {
-            notificationManager.cancel(notificationID)
-        }
     }
 
     /**
@@ -303,14 +288,14 @@ class MainActivity : AppCompatActivity() {
     private fun createPriceBroadcastReceiver(): BroadcastReceiver {
         return object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                val rStockid = intent.getLongExtra("stockid", -666)
-                val rPrice = intent.getDoubleExtra("currentprice", -666.0)
-                val rTime = intent.getStringExtra("time") ?: "not found"
-                Log.v("MainActivity", "Received price update of $rStockid as $rPrice")
+                val stockId = intent.getLongExtra("stockid", -666)
+                val price = intent.getDoubleExtra("currentprice", -666.0)
+                val time = intent.getStringExtra("time") ?: "not found"
+                Log.v("MainActivity", "Received price update of $stockId as $price")
 
-                if(rStockid == 1111111111111111111 && powerSavingOn) {
+                if(stockId == 1111111111111111111 && powerSavingOn) {
                     if (notif1) {
-                        showNotification()
+                        showDisablePowerSavingRequestNotification()
                         toast("Turn off power saving mode so scan can run while phone is sleeping")
                         notifiedOfPowerSaving = true
                     } else {
@@ -320,28 +305,10 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
                 when (intent.action) {
-                    "PRICEUPDATE" -> adapter.setCurrentPrice(rStockid, rPrice, rTime)
+                    "PRICEUPDATE" -> adapter.setCurrentPrice(stockId, price, time)
                 }
             }
         }
-    }
-
-    fun isPhonePluggedIn(context: Context): Boolean {
-        var charging = false
-
-        val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        val status = batteryIntent!!.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-        val batteryCharge = status == BatteryManager.BATTERY_STATUS_CHARGING
-
-        val chargePlug = batteryIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
-        val usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB
-        val acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC
-
-        if (batteryCharge) charging = true
-        if (usbCharge) charging = true
-        if (acCharge) charging = true
-
-        return charging
     }
 
     /**

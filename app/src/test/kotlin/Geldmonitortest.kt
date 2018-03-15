@@ -1,5 +1,5 @@
 import com.advent.group69.tradetracker.Geldmonitor
-import org.junit.Test;
+import org.junit.Test
 import java.io.StringReader
 import java.io.BufferedReader
 import com.advent.group69.tradetracker.Geldmonitor.parseLiveStockPrice

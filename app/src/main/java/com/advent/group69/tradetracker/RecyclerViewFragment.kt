@@ -20,24 +20,23 @@ import com.advent.group69.tradetracker.view.SimpleItemTouchHelperCallback
  * Demonstrates the use of {@link RecyclerView} with a {@link LinearLayoutManager} and a
  * {@link GridLayoutManager}. Also initializes dataset with dbFunction
  */
-class RecyclerViewFragment : Fragment(), OnStartDragListener {
+private const val TAG = "RecyclerViewFragment"
+private const val KEY_LAYOUT_MANAGER = "layoutManager"
+private const val SPAN_COUNT = 2
 
-    private val TAG = "RecyclerViewFragment"
-    private val KEY_LAYOUT_MANAGER = "layoutManager"
-    private val SPAN_COUNT = 2
-    private val DATASET_COUNT = 60
+class RecyclerViewFragment : Fragment(), OnStartDragListener {
 
     enum class LayoutManagerType {
         GRID_LAYOUT_MANAGER,
         LINEAR_LAYOUT_MANAGER
     }
 
-    protected lateinit var currentLayoutManagerType: LayoutManagerType
+    private lateinit var currentLayoutManagerType: LayoutManagerType
 
-    protected lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
     lateinit var recyclingStockAdapter: RecyclingStockAdapter
-    protected lateinit var layoutManager: RecyclerView.LayoutManager
-    protected var dataSet: List<Stock> = emptyList()
+    private lateinit var layoutManager: RecyclerView.LayoutManager
+    private var dataSet: List<Stock> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,22 +54,19 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         // elements are laid out.
         layoutManager = LinearLayoutManager(activity)
 
-        currentLayoutManagerType = LayoutManagerType.LINEAR_LAYOUT_MANAGER
-
-        if (savedInstanceState != null) {
+        currentLayoutManagerType = if (savedInstanceState != null) {
             // Restore saved layout manager type.
-            currentLayoutManagerType = savedInstanceState.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
+            savedInstanceState.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
         } else {
             val sharedPref = PreferenceManager.getDefaultSharedPreferences(this.context)
             val gridlayoutPref = sharedPref.getBoolean(resources.getString(R.string.gridlayout_key), false)
-
-            currentLayoutManagerType = if (gridlayoutPref) LayoutManagerType.GRID_LAYOUT_MANAGER else LayoutManagerType.LINEAR_LAYOUT_MANAGER
+            if (gridlayoutPref) LayoutManagerType.GRID_LAYOUT_MANAGER else LayoutManagerType.LINEAR_LAYOUT_MANAGER
         }
 
         recyclerView.setHasFixedSize(true)
         setRecyclerViewLayoutManager(currentLayoutManagerType)
 
-        recyclingStockAdapter = RecyclingStockAdapter(dataSet, this)
+        recyclingStockAdapter = RecyclingStockAdapter(dataSet, this, this.context)
 
         // Set CustomAdapter as the adapter for RecyclerView.
         recyclerView.adapter = recyclingStockAdapter
@@ -82,18 +78,18 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
      *
      * @param layoutManagerType Type of layout manager to switch to.
      */
-    fun setRecyclerViewLayoutManager(layoutManagerType: LayoutManagerType) {
+    private fun setRecyclerViewLayoutManager(layoutManagerType: LayoutManagerType) {
         var scrollPosition = 0
 
         // If a layout manager has already been set, get current scroll position.
-        if (recyclerView.layoutManager != null) {
+        if (recyclerView.layoutManager is LinearLayoutManager) {
             val lm = recyclerView.layoutManager as LinearLayoutManager
             scrollPosition = lm.findFirstCompletelyVisibleItemPosition()
         }
 
         when (layoutManagerType) {
             LayoutManagerType.GRID_LAYOUT_MANAGER -> {
-                layoutManager = GridLayoutManager (activity, SPAN_COUNT)
+                layoutManager = GridLayoutManager(activity, SPAN_COUNT)
                 currentLayoutManagerType = LayoutManagerType.GRID_LAYOUT_MANAGER
             }
             LayoutManagerType.LINEAR_LAYOUT_MANAGER -> {
@@ -117,7 +113,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
      */
     private fun initDataset() {
         //dbsBound would be true only when the recyclerview is recreated after hitting "back"
-        //dataSet = dbFunctions.getStocklistFromDB()
+        //dataSet = dbFunctions.getStockList()
     }
 
     private var itemTouchHelper: ItemTouchHelper? = null

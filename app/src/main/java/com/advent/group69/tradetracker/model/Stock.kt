@@ -1,7 +1,6 @@
 package com.advent.group69.tradetracker.model
 
 import android.os.Parcelable
-import android.os.Parcel
 import android.arch.persistence.room.*
 import kotlinx.android.parcel.Parcelize
 
@@ -28,7 +27,7 @@ data class Stock(@PrimaryKey @ColumnInfo(name="_stockid") var stockid: Long = 13
      * @param[phoneB] takes boolean and converts it to long equivalent
      * @param[crypto] takes boolean and converts it to long equivalent
      */
-    constructor(_stockid: Long = 1337,
+    @Ignore constructor(_stockid: Long = 1337,
                 _ticker: String = "BABA",
                 _target: Double = 4.20,
                 _percent: Double = -1.0,

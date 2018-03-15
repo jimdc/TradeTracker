@@ -36,15 +36,17 @@ object Geldmonitor {
             val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
             parseLiveStockPrice(BufferedReader(inStream as Reader?))
-        } catch (exception: IOException) {
+        } catch (exception: java.io.IOException) {
             exception.printStackTrace()
             INTERNET_EXCEPTION
         }
 
-        if ((returnValue == INTERNET_EXCEPTION) ||
-                (returnValue == SKIPPED_PARSE_ERROR) ||
-                (returnValue == DOUBLE_CONVERSION_ERROR))
-            return getLateStockPrice(ticker)
+        when(returnValue)
+        {
+            INTERNET_EXCEPTION -> return getLateStockPrice(ticker)
+            SKIPPED_PARSE_ERROR -> return getLateStockPrice(ticker)
+            DOUBLE_CONVERSION_ERROR -> return getLateStockPrice(ticker)
+        }
 
         return returnValue
     }
@@ -84,7 +86,7 @@ object Geldmonitor {
         val tickerLowercase = ticker.toLowerCase()
 
         return try {
-            val url = URL("https://www.nasdaq.com/symbol/" + tickerLowercase)
+            val url = URL("https://www.nasdaq.com/symbol/$tickerLowercase")
             val urlConnection = url.openConnection()
             val inStream = InputStreamReader(urlConnection.getInputStream())
             parseLateStockPrice(BufferedReader(inStream as Reader?))
@@ -100,7 +102,7 @@ object Geldmonitor {
      * @param[isLateStock] checks only a certain line
      * @return crypto price if successful, [SKIPPED_PARSE_ERROR], [DOUBLE_CONVERSION_ERROR]
      */
-    fun parseStockOrCryptoPrice(source: BufferedReader, isStock: Boolean, isLateStock: Boolean): Double {
+    private fun parseStockOrCryptoPrice(source: BufferedReader, isStock: Boolean, isLateStock: Boolean): Double {
 
         var ret = SKIPPED_PARSE_ERROR
         val iterator = source.lineSequence().iterator()
@@ -116,9 +118,13 @@ object Geldmonitor {
             matcher.find()
 
 
-            try { ret = java.lang.Double.parseDouble(matcher.group())
-            } catch (ne: NumberFormatException) { ret = DOUBLE_CONVERSION_ERROR }
-            catch (me: IllegalStateException) { ret = SKIPPED_PARSE_ERROR }
+            ret = try {
+                java.lang.Double.parseDouble(matcher.group())
+            } catch (numberFormatException: NumberFormatException) {
+                DOUBLE_CONVERSION_ERROR
+            } catch (illegalStateException: IllegalStateException) {
+                SKIPPED_PARSE_ERROR
+            }
         }
 
         return ret
@@ -128,17 +134,17 @@ object Geldmonitor {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
         val jsonAdapter = moshi.adapter(Cryptocurrency::class.java)
-        val currenC: Cryptocurrency?
+        val currency: Cryptocurrency?
 
         try {
-            currenC = jsonAdapter.fromJson(json)
+            currency = jsonAdapter.fromJson(json)
         } catch (io: IOException) {
             return IO_ERROR
         } catch (jo: JsonDataException) {
             return JSON_DATA_ERROR
         }
 
-        return if (currenC == null) SKIPPED_PARSE_ERROR else currenC.USD
+        return currency?.USD ?: SKIPPED_PARSE_ERROR
     }
 
     fun parseLiveStockPrice(source: BufferedReader): Double {

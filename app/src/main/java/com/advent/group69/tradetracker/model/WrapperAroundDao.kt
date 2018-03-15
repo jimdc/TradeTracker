@@ -13,21 +13,24 @@ class WrapperAroundDao(val context: Context) {
     var stockDatabase = StockDatabase.getInstance(context)
     var stockDao = stockDatabase?.stockDao()
 
-    public fun cleanup() {
+    fun cleanup() {
         StockDatabase.destroyInstance()
     }
 
-    fun deletestock(position: Int) : Boolean {
-        val stocks: List<Stock> = getStocklistFromDB()
+    fun deleteStockByPosition(position: Int) : Boolean {
+        val stocks: List<Stock> = getStockList()
         val stockid = stocks[position].stockid
-        return deletestockInternal(stockid)
+        return deleteStockByStockId(stockid)
     }
 
     @Synchronized
-    fun deletestockInternal(stockid: Long) : Boolean {
+    fun deleteStockByStockId(stockid: Long) : Boolean {
         var rez: Int? = 0
 
         val stock = stockDao?.findStockById(stockid)
+
+
+
         if (stock != null) {
             try {
                 rez = stockDao?.delete(stock)
@@ -44,16 +47,16 @@ class WrapperAroundDao(val context: Context) {
     }
 
     /**
-     * Used by [Updaten], but really, that service should also subscribe to [getFlowableStocklist]
+     * Used by Updaten, but really, that service should also subscribe to [getFlowableStockList]
      */
     @Synchronized
-    fun getStocklistFromDB() : List<Stock> {
+    fun getStockList() : List<Stock> {
         var results: List<Stock>? = null
 
         try {
             results = stockDatabase?.stockDao()?.getAllStocks()
         } catch (e: SQLiteException) {
-            Log.e("WrapperAroundDao", "getStocklistFromDB exception: " + e.toString())
+            Log.e("WrapperAroundDao", "getStockList exception: " + e.toString())
         }
 
         return results ?: emptyList()
@@ -63,12 +66,12 @@ class WrapperAroundDao(val context: Context) {
      * For the UI thread subscription
      */
     @Synchronized
-    fun getFlowableStocklist() : Flowable<List<Stock>> {
+    fun getFlowableStockList() : Flowable<List<Stock>> {
         return stockDao!!.getFlowableStocks()
     }
 
     @Synchronized
-    fun addeditstock(stock: Stock): Boolean {
+    fun addOrEditStock(stock: Stock): Boolean {
 
         val rownum: Long? = stockDao?.insert(stock)
 
