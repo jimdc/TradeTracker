@@ -1,6 +1,7 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.future
 
 import android.arch.persistence.room.*
+import com.advent.group69.tradetracker.future.Alarmo
 
 @Dao
 public interface AlarmoDao {

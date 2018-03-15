@@ -22,6 +22,9 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import android.os.BatteryManager
 import android.os.Build
+import com.advent.group69.tradetracker.model.WrapperAroundDao
+import com.advent.group69.tradetracker.view.MoreInfoNotification
+import com.advent.group69.tradetracker.view.RecyclingStockAdapter
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
@@ -41,18 +44,13 @@ var snoozeMsecInterval: Long = 1000
 var notifiedOfPowerSaving: Boolean = false
 var notif1: Boolean = false
 
-/**
- * @param[isNotificActive] tracks if the notification is active on the taskbar.
- * @param[notificationManager] allows us to notify user that something happened in the backgorund.
- * @param[notifID] is used to track notifications
- */
 class MainActivity : AppCompatActivity() {
 
-    private var mServiceIntent: Intent? = null
+    private var serviceIntent: Intent? = null
     internal lateinit var notificationManager: NotificationManager
 
-    internal var notifID = 33
-    internal var isNotificActive = false
+    internal var notificationID = 33
+    internal var isNotificationActiveOnTaskbar = false
     var currentPriceReceiver = createPriceBroadcastReceiver()
 
     lateinit var fragment: RecyclerViewFragment
@@ -128,16 +126,16 @@ class MainActivity : AppCompatActivity() {
 
         val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
         mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
-        mServiceIntent = Intent(this, MainService::class.java)
+        serviceIntent = Intent(this, MainService::class.java)
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { button, boo -> when(boo) {
                 true -> {
                     if (!isMyServiceRunning(MainService::class.java))
-                        startService(mServiceIntent)
+                        startService(serviceIntent)
                     else
                         toast("Scan already running")
                 }
-                false -> { stopService(mServiceIntent) }
+                false -> { stopService(serviceIntent) }
             }
         }
 
@@ -285,9 +283,9 @@ class MainActivity : AppCompatActivity() {
         notificBuilder.setContentIntent(pendingIntent)
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notifID, notificBuilder.build())
+        notificationManager.notify(notificationID, notificBuilder.build())
 
-        isNotificActive = true
+        isNotificationActiveOnTaskbar = true
     }
 
     /**
@@ -295,8 +293,8 @@ class MainActivity : AppCompatActivity() {
      * @param[view] required for onClick
      */
     fun stopNotification(view: View) {
-        if (isNotificActive) {
-            notificationManager.cancel(notifID)
+        if (isNotificationActiveOnTaskbar) {
+            notificationManager.cancel(notificationID)
         }
     }
 

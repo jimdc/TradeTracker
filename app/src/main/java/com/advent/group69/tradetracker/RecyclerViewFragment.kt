@@ -11,10 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.support.v7.widget.helper.ItemTouchHelper
-import com.advent.group69.tradetracker.R.id.recyclerView
-
-
-
+import com.advent.group69.tradetracker.model.Stock
+import com.advent.group69.tradetracker.view.OnStartDragListener
+import com.advent.group69.tradetracker.view.RecyclingStockAdapter
+import com.advent.group69.tradetracker.view.SimpleItemTouchHelperCallback
 
 
 /**

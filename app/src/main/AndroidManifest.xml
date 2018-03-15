@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.advent.group69.tradetracker.MoreInfoNotification"
+            android:name="com.advent.group69.tradetracker.view.MoreInfoNotification"
             android:label="@string/moar"
             android:parentActivityName="com.advent.group69.tradetracker.MainActivity">
             <meta-data

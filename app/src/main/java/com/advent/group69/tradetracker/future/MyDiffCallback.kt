@@ -1,6 +1,7 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.future
 
 import android.support.v7.util.DiffUtil
+import com.advent.group69.tradetracker.model.Stock
 
 /**
  * Not used yet. It' a substitute for costly notifySetDataChanged

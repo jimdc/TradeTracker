@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.future
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
@@ -11,7 +11,7 @@ import android.arch.persistence.room.PrimaryKey
 
 @Entity(tableName = "alarmstable",
         foreignKeys = arrayOf(
-                ForeignKey(entity=Stoko::class, parentColumns = arrayOf("stockid"),
+                ForeignKey(entity= Stoko::class, parentColumns = arrayOf("stockid"),
                 childColumns=arrayOf("myStockId"),
                 onDelete= ForeignKey.CASCADE)
         )

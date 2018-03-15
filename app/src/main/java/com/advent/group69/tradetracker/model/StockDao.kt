@@ -1,6 +1,7 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.model
 
 import android.arch.persistence.room.*
+import com.advent.group69.tradetracker.model.Stock
 import io.reactivex.Flowable
 
 @Dao
@@ -8,7 +9,7 @@ interface StockDao {
     //See for Maybe, Single, Flowable: https://medium.com/google-developers/room-rxjava-acb0cd4f3757
 
     @Query("SELECT * FROM TableView2")
-    fun getAllStocksF(): Flowable<List<Stock>>
+    fun getFlowableStocks(): Flowable<List<Stock>>
 
     @Query("SELECT * FROM TableView2")
     fun getAllStocks(): List<Stock>

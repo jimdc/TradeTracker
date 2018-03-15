@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.view
 
 import android.support.v7.widget.helper.ItemTouchHelper
 

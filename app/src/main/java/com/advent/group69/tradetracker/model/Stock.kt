@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.model
 
 import android.os.Parcelable
 import android.os.Parcel

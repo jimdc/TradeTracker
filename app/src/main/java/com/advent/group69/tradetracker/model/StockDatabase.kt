@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.model
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
@@ -6,7 +6,6 @@ import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import android.arch.persistence.db.SupportSQLiteDatabase
 import android.arch.persistence.room.migration.Migration
-
 
 
 @Database(entities = arrayOf(Stock::class), version=3, exportSchema = false)

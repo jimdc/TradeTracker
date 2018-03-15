@@ -12,6 +12,7 @@ import java.util.Calendar
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.widget.*
+import com.advent.group69.tradetracker.model.Stock
 
 
 class AddEditStockActivity : AppCompatActivity() {

@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.view
 
 import android.content.ContentValues
 import android.content.ContentValues.TAG
@@ -15,9 +15,12 @@ import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
 import java.util.*
 import android.view.MotionEvent
-import com.advent.group69.tradetracker.RecyclingStockAdapter.MyUndoListener
 import android.support.design.widget.Snackbar
-
+import com.advent.group69.tradetracker.AddEditStockActivity
+import com.advent.group69.tradetracker.R
+import com.advent.group69.tradetracker.dbFunctions
+import com.advent.group69.tradetracker.model.AlphabeticalStocks
+import com.advent.group69.tradetracker.model.Stock
 
 
 /**
@@ -70,9 +73,9 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
 
         Log.v(ContentValues.TAG, "Delete ${position} clicked.")
         with(view.itemView.context) {
-            alert(resources.getString(com.advent.group69.tradetracker.R.string.areyousure, position)) {
-                positiveButton(com.advent.group69.tradetracker.R.string.yes) {
-                    if (view is RecyclingStockAdapter.ItemViewHolder) {
+            alert(resources.getString(R.string.areyousure, position)) {
+                positiveButton(R.string.yes) {
+                    if (view is ItemViewHolder) {
                         if (dbFunctions.deletestockInternal(view.thestock.stockid)) {
                             DeletedStocks.push(view.thestock)
                             val mySnackbar = Snackbar.make(view.itemView, resources.getString(R.string.deletesuccess), Snackbar.LENGTH_SHORT)
@@ -80,13 +83,13 @@ class RecyclingStockAdapter(stocks: List<Stock>, var mDragStartListener: OnStart
                             mySnackbar.show()
 
                         } else {
-                            toast(com.advent.group69.tradetracker.R.string.deletefailure)
+                            toast(R.string.deletefailure)
                         }
                     } else {
                         toast("Internal error: ViewHolder passed was not ItemViewHolder. Delete this stock through edit.")
                     }
                 }
-                negativeButton(com.advent.group69.tradetracker.R.string.no) { toast(com.advent.group69.tradetracker.R.string.oknodelete) }
+                negativeButton(R.string.no) { toast(R.string.oknodelete) }
             }.show()
         }
     }

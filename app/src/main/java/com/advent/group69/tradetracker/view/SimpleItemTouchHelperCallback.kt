@@ -1,8 +1,8 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.view
 
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper.Callback.makeMovementFlags
 import android.support.v7.widget.helper.ItemTouchHelper
+import com.advent.group69.tradetracker.view.ItemTouchHelperAdapter
 
 
 class SimpleItemTouchHelperCallback(private val mAdapter: ItemTouchHelperAdapter) : ItemTouchHelper.Callback() {

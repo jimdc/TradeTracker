@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.future
 
 import android.arch.persistence.room.*
 import android.arch.persistence.room.Entity

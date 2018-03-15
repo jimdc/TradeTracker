@@ -2,6 +2,7 @@ package com.advent.group69.tradetracker
 
 import com.advent.group69.tradetracker.Geldmonitor.INTERNET_EXCEPTION
 import com.advent.group69.tradetracker.Geldmonitor.parseCryptoPrice
+import com.advent.group69.tradetracker.model.Cryptocurrency
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi

@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.model
 
 import android.content.Context
 import android.database.sqlite.SQLiteException
@@ -64,7 +64,7 @@ class WrapperAroundDao(val context: Context) {
      */
     @Synchronized
     fun getFlowableStocklist() : Flowable<List<Stock>> {
-        return stockDao!!.getAllStocksF()
+        return stockDao!!.getFlowableStocks()
     }
 
     @Synchronized

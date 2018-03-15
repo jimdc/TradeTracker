@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.model
 
 class AlphabeticalStocks {
     companion object : Comparator<Stock> {
