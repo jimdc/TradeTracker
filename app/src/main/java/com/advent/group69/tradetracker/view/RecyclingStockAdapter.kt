@@ -11,13 +11,11 @@ import android.util.Log
 import android.content.Context
 import android.content.Intent
 import android.widget.ImageView
-import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.*
 import java.util.*
 import android.view.MotionEvent
 import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat.startActivityForResult
 import com.advent.group69.tradetracker.*
 import com.advent.group69.tradetracker.model.AlphabeticalStocks
 import com.advent.group69.tradetracker.model.Stock

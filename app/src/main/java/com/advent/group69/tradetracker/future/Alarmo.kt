@@ -10,11 +10,9 @@ import android.arch.persistence.room.PrimaryKey
  */
 
 @Entity(tableName = "alarmstable",
-        foreignKeys = arrayOf(
-                ForeignKey(entity= Stoko::class, parentColumns = arrayOf("stockid"),
+        foreignKeys = [(ForeignKey(entity= Stoko::class, parentColumns = arrayOf("stockid"),
                 childColumns=arrayOf("myStockId"),
-                onDelete= ForeignKey.CASCADE)
-        )
+                onDelete= ForeignKey.CASCADE))]
 )
 
 data class Alarmo(

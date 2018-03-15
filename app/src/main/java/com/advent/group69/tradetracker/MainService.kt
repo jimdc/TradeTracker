@@ -33,7 +33,7 @@ class MainService : Service() {
         super.onCreate()
         toast("scanning")
 
-        if (updat.isRunning == false) {
+        if (!updat.isRunning) {
             Log.v("MainService", "updat.isRunning == false, so starting up service.")
             updat.isRunning = true
             updat.startup()
@@ -73,7 +73,7 @@ class MainService : Service() {
         Log.i("MainService", "onDestroy called")
         runTargetScan = false
         targetScanThread.interrupt()
-        if (updat.isRunning == true) {
+        if (updat.isRunning) {
             updat.isRunning = false
             updat.cleanup()
         }

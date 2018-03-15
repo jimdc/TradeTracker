@@ -10,8 +10,8 @@ import io.reactivex.Flowable
  */
 
 class DatabaseFunctions(val context: Context) : StockInterface {
-    var stockDatabase = StockDatabase.getInstance(context)
-    var stockDao = stockDatabase?.stockDao()
+    private var stockDatabase = StockDatabase.getInstance(context)
+    private var stockDao = stockDatabase?.stockDao()
 
     fun cleanup() {
         StockDatabase.destroyInstance()

@@ -24,8 +24,8 @@ val muhActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActiv
 @RunWith(AndroidJUnit4::class)
 class Snoozetest {
 
-    lateinit var activity: MainActivity
-    lateinit var context: Context
+    private lateinit var activity: MainActivity
+    private lateinit var context: Context
 
     @Before
     fun setup() {

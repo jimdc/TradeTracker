@@ -52,20 +52,20 @@ class MainActivity : StockInterface, AppCompatActivity() {
     private val adapter: RecyclingStockAdapter by lazy { fragment.recyclingStockAdapter }
 
     override fun addOrEditStock(stock: Stock): Boolean {
-        if (::dbFunctions.isInitialized) {
-            return dbFunctions.addOrEditStock(stock)
+        return if (::dbFunctions.isInitialized) {
+            dbFunctions.addOrEditStock(stock)
         } else {
             Log.d("MainActivity", "dbFunctions is not initialized yet; could not add or edit")
-            return false
+            false
         }
     }
 
     override fun deleteStockByStockId(stockId: Long): Boolean {
-        if (::dbFunctions.isInitialized)
-            return dbFunctions.deleteStockByStockId(stockId)
+        return if (::dbFunctions.isInitialized)
+            dbFunctions.deleteStockByStockId(stockId)
         else {
             Log.d("MainActivity","dbFunctions is not initialized yet; could not delete")
-            return false
+            false
         }
     }
 

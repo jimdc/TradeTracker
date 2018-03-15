@@ -13,27 +13,27 @@ import org.amshove.kluent.*
 /**
  * Unit test.
  */
-class Geldmonitortest {
+const val ETH_USD_20181213 = "{\"USD\":846.31}"
+const val MSFT_20181213 = "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$89.83</div>\n"
+const val GOOG_20181213 = "<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>"
 
-    val ETH_USD_20181213 = "{\"USD\":846.31}"
-    val rETH_USD_20181213 = reader(ETH_USD_20181213)
-    val MSFT_20181213 = "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$89.83</div>\n"
-    val rMSFT_20181213 = reader(MSFT_20181213)
-    val GOOG_20181213 = "<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>"
-    val rGOOG_20181213 = reader(GOOG_20181213)
+class Geldmonitortest {
+    val readEthereum = reader(ETH_USD_20181213)
+    val readMicrosoft = reader(MSFT_20181213)
+    val readGoogle = reader(GOOG_20181213)
 
     @Test
     fun testParsingHappyPath () {
         parseCryptoPrice(ETH_USD_20181213).shouldEqual(846.31)
-        parseLiveStockPrice(rGOOG_20181213).shouldEqual(1053.0)
-        parseLateStockPrice(rMSFT_20181213).shouldEqual(89.83)
+        parseLiveStockPrice(readGoogle).shouldEqual(1053.0)
+        parseLateStockPrice(readMicrosoft).shouldEqual(89.83)
     }
 
     @Test
     fun testParsingErrors() {
         parseCryptoPrice(MSFT_20181213).shouldBeNegative()
-        parseLiveStockPrice(rETH_USD_20181213).shouldBeNegative()
-        parseLateStockPrice(rETH_USD_20181213).shouldBeNegative()
+        parseLiveStockPrice(readEthereum).shouldBeNegative()
+        parseLateStockPrice(readEthereum).shouldBeNegative()
     }
 
     @Test

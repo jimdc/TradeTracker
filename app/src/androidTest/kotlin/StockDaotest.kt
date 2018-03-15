@@ -19,9 +19,9 @@ open class StockDaoTest {
     private lateinit var stocksDatabase: StockDatabase
     private lateinit var stockDao: StockDao
 
-    val samplestock1 = Stock(12345, "JPM", 500.0, aboveB = true, phoneB = false, crypto = false)
-    val samplestock2 = Stock(12346, "SNAP", 18.25, aboveB = false, phoneB = true, crypto = false)
-    val samplestock3 = Stock(12347, "LTC", 211.12, aboveB = true, phoneB = true, crypto = true)
+    private val samplestock1 = Stock(12345, "JPM", 500.0, above = 1L, phone = 0L, crypto = 0L)
+    private val samplestock2 = Stock(12346, "SNAP", 18.25, above = 0L, phone = 0L, crypto = 0L)
+    private val samplestock3 = Stock(12347, "LTC", 211.12, above = 0L, phone = 0L, crypto = 0L)
 
     @Before
     fun initDb() {

@@ -27,7 +27,7 @@ class AddEditStockActivity : AppCompatActivity() {
     private lateinit var phoneChecked: CheckBox
     private lateinit var btnDelete: Button
 
-    private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, false, false, false)
+    private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, 0L, 0L, 0L)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,8 +83,8 @@ class AddEditStockActivity : AppCompatActivity() {
 
             tickerName.setText(workingStock.ticker)
             tickerPrice.setText(workingStock.target.toString())
-            phoneChecked.setChecked(workingStock.phone > 0L)
-            if (workingStock.above > 0L) aboveChecked.setChecked(true) else belowChecked.setChecked(true)
+            phoneChecked.isChecked = workingStock.phone > 0L
+            if (workingStock.above > 0L) aboveChecked.isChecked = true else belowChecked.isChecked = true
 
             btnDelete.visibility = View.VISIBLE
             btnDelete.setOnClickListener(deleteStockClickListener)
@@ -117,7 +117,7 @@ class AddEditStockActivity : AppCompatActivity() {
     }
 
     private val stockClickListener = View.OnClickListener {
-        if (updateWorkingStockFromUserInput() == true) {
+        if (updateWorkingStockFromUserInput()) {
             val resultIntent = Intent()
             resultIntent.putExtra("stock", workingStock)
             setResult(Activity.RESULT_OK, resultIntent)

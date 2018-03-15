@@ -33,7 +33,7 @@ val activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActi
 @RunWith(AndroidJUnit4::class)
 class MainActivitytest {
 
-    lateinit var activity: MainActivity
+    private lateinit var activity: MainActivity
 
     @Before
     fun setup() {

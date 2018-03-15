@@ -19,6 +19,6 @@ class MyDiffCallback(private var newStocks: List<Stock>, private var oldStocks: 
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldStocks[oldItemPosition].equals(newStocks[newItemPosition])
+        return oldStocks[oldItemPosition] == newStocks[newItemPosition]
     }
 }
