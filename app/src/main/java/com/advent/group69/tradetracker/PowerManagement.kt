@@ -1,11 +1,13 @@
 package com.advent.group69.tradetracker
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 
 @SuppressWarnings("unused")
+@SuppressLint("unused")
 class PowerManagement {
     fun isPhonePluggedIn(context: Context): Boolean {
         val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))

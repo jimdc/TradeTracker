@@ -20,14 +20,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import android.os.Build
-import com.advent.group69.tradetracker.model.WrapperAroundDao
+import com.advent.group69.tradetracker.model.DatabaseFunctions
+import com.advent.group69.tradetracker.model.Stock
+import com.advent.group69.tradetracker.model.StockInterface
 import com.advent.group69.tradetracker.view.MoreInfoNotification
 import com.advent.group69.tradetracker.view.RecyclingStockAdapter
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
-
-lateinit var dbFunctions: WrapperAroundDao //@todo: take out of static. WrapperAroundDao has field context, leaking memory
 
 //these can be used in other kotlin files
 var powerSavingOn = true
@@ -40,7 +40,7 @@ var snoozeMsecInterval: Long = 1000
 var notifiedOfPowerSaving: Boolean = false
 var notif1: Boolean = false
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : StockInterface, AppCompatActivity() {
 
     private lateinit var notificationManager: NotificationManager
 
@@ -48,7 +48,26 @@ class MainActivity : AppCompatActivity() {
     private var currentPriceReceiver = createPriceBroadcastReceiver()
 
     private lateinit var fragment: RecyclerViewFragment
+    private lateinit var dbFunctions: DatabaseFunctions
     private val adapter: RecyclingStockAdapter by lazy { fragment.recyclingStockAdapter }
+
+    override fun addOrEditStock(stock: Stock): Boolean {
+        if (::dbFunctions.isInitialized) {
+            return dbFunctions.addOrEditStock(stock)
+        } else {
+            Log.d("MainActivity", "dbFunctions is not initialized yet; could not add or edit")
+            return false
+        }
+    }
+
+    override fun deleteStockByStockId(stockId: Long): Boolean {
+        if (::dbFunctions.isInitialized)
+            return dbFunctions.deleteStockByStockId(stockId)
+        else {
+            Log.d("MainActivity","dbFunctions is not initialized yet; could not delete")
+            return false
+        }
+    }
 
     /**
      * Registers broadcast receiver, populates stock listview.
@@ -59,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         Fabric.with(this, Crashlytics())
         Fabric.with(this, Answers())
 
-        dbFunctions = WrapperAroundDao(this.applicationContext)
+        dbFunctions = DatabaseFunctions(this.applicationContext)
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
@@ -84,12 +103,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var infoSnoozer: TextView
     private lateinit var progressSnoozer: ProgressBar
-
-    /*
-    fun forceCrash(view: View) {
-        throw RuntimeException("This is a crash")
-    }*/
-
 
     private val disposable = CompositeDisposable()
     override fun onStart() {
@@ -145,10 +158,51 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_settings -> startActivity<SettingsActivity>()
             R.id.action_snooze -> openSnoozeDialog()
-            R.id.action_add_stock -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to false)
-            R.id.action_add_crypto -> startActivity<AddEditStockActivity>("EditingExisting" to false, "EditingCrypto" to true)
+            R.id.action_add_stock -> {
+                val intent = Intent(this, AddEditStockActivity::class.java)
+                intent.putExtra("isEditingCrypto", false)
+                        .putExtra("isEditingExisting", false)
+                startActivityForResult(intent, ADD_SOMETHING)
+            }
+            R.id.action_add_crypto -> {
+                val intent = Intent(this, AddEditStockActivity::class.java)
+                intent.putExtra("isEditingCrypto", true)
+                        .putExtra("isEditingExisting", false)
+                startActivityForResult(intent, ADD_SOMETHING)
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        // Check which request we're responding to
+        when(requestCode) {
+            ADD_SOMETHING -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val stock = data?.getParcelableExtra<Stock>("stock")
+                    if (stock != null) {
+                        if (addOrEditStock(stock)) toast("Added stock ${stock.ticker} successfully") else toast("Failed to add ${stock.ticker}")
+                    } else {
+                        toast("Did not receive stock info back to add")
+                    }
+                }
+            }
+            EDIT_SOMETHING -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val stock = data?.getParcelableExtra<Stock>("stock")
+                    if (stock != null) {
+                        if (addOrEditStock(stock)) toast("Successfully edited ${stock.ticker}") else toast("Edit of ${stock.ticker} unsuccessful")
+                    } else {
+                        val stockId = data?.getLongExtra("stockIdToDelete", -555)
+                        if (stockId != null) {
+                            if (deleteStockByStockId(stockId)) toast("Successfully deleted stock# $stockId") else toast("Could not delete stock# $stockId")
+                        } else {
+                            toast("Received neither stock info back to delete, not stock info to edit")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @SuppressLint("InflateParams")
@@ -262,7 +316,7 @@ class MainActivity : AppCompatActivity() {
 
     fun showDisablePowerSavingRequestNotification() {
 
-        val notificBuilder = NotificationCompat.Builder(this)
+        val notificBuilder = NotificationCompat.Builder(this, "DisablePowerChannel")
                 .setContentTitle("please disable power saving mode to keep scanning while phone screen is off")
                 .setContentText("CLICK THIS NOTIFICATION for more information")
                 .setTicker("C")

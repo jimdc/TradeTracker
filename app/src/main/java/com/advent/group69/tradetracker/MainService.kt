@@ -33,9 +33,10 @@ class MainService : Service() {
         super.onCreate()
         toast("scanning")
 
-        if (!updat.isRunning) {
+        if (updat.isRunning == false) {
             Log.v("MainService", "updat.isRunning == false, so starting up service.")
             updat.isRunning = true
+            updat.startup()
             targetScanThread.start()
 
             serviceLooper = targetScanThread.looper
@@ -72,7 +73,10 @@ class MainService : Service() {
         Log.i("MainService", "onDestroy called")
         runTargetScan = false
         targetScanThread.interrupt()
-        if (updat.isRunning) updat.isRunning = false
+        if (updat.isRunning == true) {
+            updat.isRunning = false
+            updat.cleanup()
+        }
         toast("Stopping scan")
         notifiedOfPowerSaving = false
         notif1 = false

@@ -8,7 +8,7 @@ import org.junit.*
 import org.junit.runner.RunWith
 
 @Rule
-val mServiceRule = ServiceTestRule()
+val serviceRule = ServiceTestRule()
 
 @Ignore
 @RunWith(AndroidJUnit4::class)
@@ -20,7 +20,7 @@ class MainServicetest {
         val context = InstrumentationRegistry.getTargetContext()
         val serviceIntent = Intent(context, MainService::class.java)
         try {
-            val service = mServiceRule.startService(serviceIntent)
+            val service = serviceRule.startService(serviceIntent)
         } catch (e: TimeoutException) {
             e.printStackTrace()
         }

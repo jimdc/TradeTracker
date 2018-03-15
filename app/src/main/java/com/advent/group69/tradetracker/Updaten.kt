@@ -13,7 +13,7 @@ import java.util.*
 import com.advent.group69.tradetracker.Utility.withDollarSignAndDecimal
 import android.os.VibrationEffect
 import android.os.Build
-
+import com.advent.group69.tradetracker.model.DatabaseFunctions
 
 
 /**
@@ -22,7 +22,16 @@ import android.os.Build
 class Updaten(private val callerContext: Context) {
     private var stockToDeleteId: Long = 5
     private var alarmPlayed: Boolean = false
+    private lateinit var dbFunctions: DatabaseFunctions
     var isRunning = false
+
+    fun startup() {
+        dbFunctions = DatabaseFunctions(callerContext)
+    }
+
+    fun cleanup() {
+        dbFunctions.cleanup()
+    }
 
     /**
      * Iterates through the stocks and sends alert if necessary

@@ -43,6 +43,10 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         initDataset()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater?.inflate(R.layout.recycler_view_frag, container, false)
         rootView?.tag = TAG

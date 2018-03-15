@@ -1,5 +1,6 @@
 package com.advent.group69.tradetracker.view
 
+import android.app.Activity
 import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.util.Log
 import android.content.Context
+import android.content.Intent
 import android.widget.ImageView
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
@@ -15,11 +17,11 @@ import org.jetbrains.anko.*
 import java.util.*
 import android.view.MotionEvent
 import android.support.design.widget.Snackbar
-import com.advent.group69.tradetracker.AddEditStockActivity
-import com.advent.group69.tradetracker.R
-import com.advent.group69.tradetracker.dbFunctions
+import android.support.v4.app.ActivityCompat.startActivityForResult
+import com.advent.group69.tradetracker.*
 import com.advent.group69.tradetracker.model.AlphabeticalStocks
 import com.advent.group69.tradetracker.model.Stock
+import com.advent.group69.tradetracker.model.StockInterface
 
 
 /**
@@ -37,6 +39,17 @@ class RecyclingStockAdapter(
     private var stockList: MutableList<Stock> = stocks.toMutableList()
     private var deletedStocks = Stack<Stock>()
     private var currentPrices: MutableMap<Long, Pair<Double,String>> = mutableMapOf()
+    private var callback: StockInterface? = null
+
+    init {
+        try {
+            if (context is MainActivity) {
+                this.callback = context as StockInterface
+            }
+        } catch (classCastException: ClassCastException) {
+            throw ClassCastException("Activity must implement StockInterface")
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ItemViewHolder {
         return ItemViewHolder(LayoutInflater
@@ -56,14 +69,14 @@ class RecyclingStockAdapter(
         val stockOrCrypto = if (stock.crypto == 0L) "Stock" else "Crypto"
         val targetOperator = if (stock.above == 1L) ">" else "<"
 
-        holder.rowStockAndAlarm.text = context.resources.getString(R.string.rowStockAndAlarm,
+        holder.rowStockAndAlarm?.text = context.resources.getString(R.string.rowStockAndAlarm,
                 stockOrCrypto,
                 stock.ticker,
                 targetOperator,
                 stock.target
         )
         val currentPrice = currentPrices[stock.stockid]?.toString() ?: context.resources.getString(R.string.notUpdatedRecently)
-        holder.rowCurrentPrice.text = context.resources.getString(R.string.rowCurrentPrice, position, currentPrice)
+        holder.rowCurrentPrice?.text = context.resources.getString(R.string.rowCurrentPrice, position, currentPrice)
         //To be passed for "edit" function
         holder.thestock = stock
 
@@ -80,25 +93,19 @@ class RecyclingStockAdapter(
     override fun onItemDismiss(view: RecyclerView.ViewHolder, position: Int) {
 
         Log.v(TAG, "Delete $position clicked.")
-        with(view.itemView.context) {
-            alert(resources.getString(R.string.areyousure, position)) {
-                positiveButton(R.string.yes) {
-                    if (view is ItemViewHolder) {
-                        if (dbFunctions.deleteStockByStockId(view.thestock.stockid)) {
-                            deletedStocks.push(view.thestock)
-                            val mySnackbar = Snackbar.make(view.itemView, resources.getString(R.string.deletesuccess), Snackbar.LENGTH_SHORT)
-                            mySnackbar.setAction(R.string.undo_string, MyUndoListener())
-                            mySnackbar.show()
-
-                        } else {
-                            toast(R.string.deletefailure)
-                        }
-                    } else {
-                        toast("Internal error: ViewHolder passed was not ItemViewHolder. Delete this stock through edit.")
-                    }
-                }
-                negativeButton(R.string.no) { toast(R.string.oknodelete) }
-            }.show()
+        if (view is ItemViewHolder) {
+            if (callback?.deleteStockByStockId(view.thestock.stockid) == true) {
+                deletedStocks.push(view.thestock)
+                val mySnackbar = Snackbar.make(view.itemView,
+                        view.itemView.context.resources.getString(R.string.deletesuccess),
+                        Snackbar.LENGTH_SHORT)
+                mySnackbar.setAction(R.string.undo_string, MyUndoListener())
+                mySnackbar.show()
+            } else {
+                view.itemView.context.toast(R.string.deletefailure)
+            }
+        } else {
+            view.itemView.context.toast("Internal error: ViewHolder passed was not ItemViewHolder. Delete this stock through edit.")
         }
     }
 
@@ -114,18 +121,25 @@ class RecyclingStockAdapter(
      */
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ItemTouchHelperViewHolder {
 
-        var rowStockAndAlarm = itemView.findViewById<TextView>(R.id.txtName)
-        var rowCurrentPrice = itemView.findViewById<TextView>(R.id.txtComment)
+        var rowStockAndAlarm: TextView? = itemView.findViewById(R.id.txtName)
+        var rowCurrentPrice: TextView? = itemView.findViewById(R.id.txtComment)
         private var btnEdit = itemView.findViewById<ImageView>(R.id.imgEditStock)
         lateinit var thestock : Stock //Accursed violation of separation of concerns
 
         init {
             btnEdit.setOnClickListener { view ->
                 Log.v(TAG, "Edit $adapterPosition clicked.")
-                with(view.context) {
-                    startActivity<AddEditStockActivity>("EditingExisting" to true,
-                            "EditingCrypto" to (thestock.crypto > 0), "TheStock" to thestock)
+                if (!::thestock.isInitialized) {
+                    Log.d("RecyclingStockAdapter", "thestock is not initialized; I can't pass to AddEditActivity!")
                 }
+
+                val intent = Intent(view.context as Activity, AddEditStockActivity::class.java)
+                intent.putExtra("isEditingCrypto", thestock.crypto > 0L)
+                        .putExtra("isEditingExisting", true)
+                        .putExtra("TheStock", thestock)
+
+                val activity = view.context as Activity
+                activity.startActivityForResult(intent, EDIT_SOMETHING)
             }
         }
 
@@ -144,7 +158,7 @@ class RecyclingStockAdapter(
                 if (deletedStocks.isEmpty()) toast("Cannot restore stock; deletedStocks list is empty")
                 else {
                     val stockToRestore = deletedStocks.pop()
-                    if (dbFunctions.addOrEditStock(stockToRestore)) {
+                    if (callback?.addOrEditStock(stockToRestore) == true) {
                         toast("Successfully restored stock ${stockToRestore.ticker}")
                     } else {
                         toast("Could not re-add stock ${stockToRestore.ticker}")

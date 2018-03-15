@@ -9,7 +9,7 @@ import io.reactivex.Flowable
  * Database stuff done here. Not necessarily on its own thread...
  */
 
-class WrapperAroundDao(val context: Context) {
+class DatabaseFunctions(val context: Context) : StockInterface {
     var stockDatabase = StockDatabase.getInstance(context)
     var stockDao = stockDatabase?.stockDao()
 
@@ -24,18 +24,16 @@ class WrapperAroundDao(val context: Context) {
     }
 
     @Synchronized
-    fun deleteStockByStockId(stockid: Long) : Boolean {
+    override fun deleteStockByStockId(stockId: Long) : Boolean {
         var rez: Int? = 0
 
-        val stock = stockDao?.findStockById(stockid)
-
-
+        val stock = stockDao?.findStockById(stockId)
 
         if (stock != null) {
             try {
                 rez = stockDao?.delete(stock)
             } catch (e: SQLiteException) {
-                Log.e("WrapperAroundDao", "could not delete $stockid: " + e.toString())
+                Log.e("DatabaseFunctions", "could not delete $stockId: " + e.toString())
             }
         }
 
@@ -56,7 +54,7 @@ class WrapperAroundDao(val context: Context) {
         try {
             results = stockDatabase?.stockDao()?.getAllStocks()
         } catch (e: SQLiteException) {
-            Log.e("WrapperAroundDao", "getStockList exception: " + e.toString())
+            Log.e("DatabaseFunctions", "getStockList exception: " + e.toString())
         }
 
         return results ?: emptyList()
@@ -71,13 +69,19 @@ class WrapperAroundDao(val context: Context) {
     }
 
     @Synchronized
-    fun addOrEditStock(stock: Stock): Boolean {
+    override fun addOrEditStock(stock: Stock): Boolean {
 
-        val rownum: Long? = stockDao?.insert(stock)
-
-        if (rownum == null || rownum == -1L) {
-            Log.d("WrapperAroundDao", "That was a fail.")
+        if (stockDao == null) {
+            Log.d("DatabaseFunctions", "stockDao is null; I cannot add or edit")
             return false
+        } else {
+            val rownum: Long? = stockDao!!.insert(stock)
+            if (rownum == null || rownum == -1L) {
+                Log.d("DatabaseFunctions", "SQL function for add/edit failed.")
+                return false
+            } else {
+                Log.v("DatabaseFunctions", "Looks like that addition was a success.")
+            }
         }
 
         return true

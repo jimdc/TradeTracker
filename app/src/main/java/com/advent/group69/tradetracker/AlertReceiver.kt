@@ -28,7 +28,7 @@ class AlertReceiver : BroadcastReceiver() {
 
         val notificIntent = PendingIntent.getActivity(context, 0,
                 Intent(context, MainActivity::class.java), 0)
-        val builder = NotificationCompat.Builder(context)
+        val builder = NotificationCompat.Builder(context, "SoundOverheadChannel")
                 .setSmallIcon(R.drawable.stocklogo)
                 .setContentTitle(msg)
                 .setTicker(msgAlert)
