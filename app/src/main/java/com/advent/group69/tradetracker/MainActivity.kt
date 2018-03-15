@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     var currentPriceReceiver = createPriceBroadcastReceiver()
 
     lateinit var fragment: RecyclerViewFragment
-    private val adapter: RecyclingStockAdapter by lazy { fragment.mAdapter }
+    private val adapter: RecyclingStockAdapter by lazy { fragment.recyclingStockAdapter }
 
     /**
      * Registers broadcast receiver, populates stock listview.
