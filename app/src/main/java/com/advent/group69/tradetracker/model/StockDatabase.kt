@@ -15,7 +15,7 @@ abstract class StockDatabase : RoomDatabase() {
     companion object {
         private var INSTANCE: StockDatabase? = null
 
-        public fun getInstance(context: Context): StockDatabase? {
+        fun getInstance(context: Context): StockDatabase? {
             if (INSTANCE == null) {
                 synchronized(StockDatabase::class) {
                     INSTANCE = Room.databaseBuilder(context.applicationContext,

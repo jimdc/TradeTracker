@@ -16,7 +16,6 @@ import android.support.test.espresso.contrib.RecyclerViewActions
 import android.support.test.espresso.intent.Intents
 import android.support.test.espresso.intent.Intents.intended
 import android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent
-import android.support.test.espresso.matcher.RootMatchers.isDialog
 import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.v7.widget.RecyclerView
 import com.advent.group69.tradetracker.*
@@ -29,7 +28,7 @@ import com.advent.group69.tradetracker.model.Stock
  */
 
 @Rule @JvmField
-val mActivityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+val activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
 @RunWith(AndroidJUnit4::class)
 class MainActivitytest {
@@ -39,7 +38,7 @@ class MainActivitytest {
     @Before
     fun setup() {
         val intent = Intent()
-        activity = mActivityRule.launchActivity(intent)
+        activity = activityTestRule.launchActivity(intent)
     }
 
     @Test

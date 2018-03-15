@@ -16,11 +16,11 @@ import java.util.regex.Pattern
 
 object Geldmonitor {
 
-    private val INTERNET_EXCEPTION = -2.0
-    private val SKIPPEDPARSE_ERROR = -3.0
-    private val DOUBLE_CONVERSION_ERROR = -4.0
-    private val JSON_DATA_ERROR = -5.0
-    private val IO_ERROR = -6.0
+    private const val INTERNET_EXCEPTION = -2.0
+    private const val SKIPPED_PARSE_ERROR = -3.0
+    private const val DOUBLE_CONVERSION_ERROR = -4.0
+    private const val JSON_DATA_ERROR = -5.0
+    private const val IO_ERROR = -6.0
 
     /**
      * Scrapes the NASDAQ website, parses out stock info
@@ -29,24 +29,24 @@ object Geldmonitor {
      */
     fun getStockPrice(ticker: String): Double {
 
-        val tickerL = ticker.toLowerCase()
+        val tickerLowercase = ticker.toLowerCase()
 
-        val ret = try {
-            val url = URL("https://www.nasdaq.com/symbol/$tickerL/real-time")
+        val returnValue = try {
+            val url = URL("https://www.nasdaq.com/symbol/$tickerLowercase/real-time")
             val urlConn = url.openConnection()
             val inStream = InputStreamReader(urlConn.getInputStream())
             parseLiveStockPrice(BufferedReader(inStream as Reader?))
-        } catch (ie: IOException) {
-            ie.printStackTrace()
+        } catch (exception: IOException) {
+            exception.printStackTrace()
             INTERNET_EXCEPTION
         }
 
-        if ((ret == INTERNET_EXCEPTION) ||
-                (ret == SKIPPEDPARSE_ERROR) ||
-                (ret == DOUBLE_CONVERSION_ERROR))
+        if ((returnValue == INTERNET_EXCEPTION) ||
+                (returnValue == SKIPPED_PARSE_ERROR) ||
+                (returnValue == DOUBLE_CONVERSION_ERROR))
             return getLateStockPrice(ticker)
 
-        return ret
+        return returnValue
     }
 
     /**
@@ -54,7 +54,7 @@ object Geldmonitor {
      * @param[url] The webpage you want to open
      * @return A string of the HTML output
      */
-    private fun linez(url: String): String {
+    private fun urlHtml(url: String): String {
         val inStream = InputStreamReader(URL(url).openConnection().getInputStream())
         return BufferedReader(inStream).use { it.readText() }
     }
@@ -67,7 +67,7 @@ object Geldmonitor {
      */
     fun getCryptoPrice(ticker: String): Double {
         return try {
-            parseCryptoPrice(linez
+            parseCryptoPrice(urlHtml
             ("https://min-api.cryptocompare.com/data/price?fsym=${ticker.toUpperCase()}&tsyms=USD"))
         } catch (ie: IOException) {
             INTERNET_EXCEPTION
@@ -81,12 +81,12 @@ object Geldmonitor {
      * @sample getStockPrice
      */
     fun getLateStockPrice(ticker: String): Double {
-        val tickerL = ticker.toLowerCase()
+        val tickerLowercase = ticker.toLowerCase()
 
         return try {
-            val url = URL("https://www.nasdaq.com/symbol/" + tickerL)
-            val urlConn = url.openConnection()
-            val inStream = InputStreamReader(urlConn.getInputStream())
+            val url = URL("https://www.nasdaq.com/symbol/" + tickerLowercase)
+            val urlConnection = url.openConnection()
+            val inStream = InputStreamReader(urlConnection.getInputStream())
             parseLateStockPrice(BufferedReader(inStream as Reader?))
         } catch (ie: IOException) {
             INTERNET_EXCEPTION
@@ -95,22 +95,22 @@ object Geldmonitor {
 
     /**
      * Looks for NUM.NUM pattern with any number of digits by default, or applies stricter filter
-     * @param[BufferedReader] The HTML string result
+     * @param[source] The HTML string result
      * @param[isStock] checks only a certain line
-     * @param[isLatestock] checks only a certain line
-     * @return crypto price if successful, [SKIPPEDPARSE_ERROR], [DOUBLE_CONVERSION_ERROR]
+     * @param[isLateStock] checks only a certain line
+     * @return crypto price if successful, [SKIPPED_PARSE_ERROR], [DOUBLE_CONVERSION_ERROR]
      */
-    fun parseStockCryptoPrice(bae: BufferedReader, isStock: Boolean, isLatestock: Boolean): Double {
+    fun parseStockOrCryptoPrice(source: BufferedReader, isStock: Boolean, isLateStock: Boolean): Double {
 
-        var ret = SKIPPEDPARSE_ERROR
-        val iterator = bae.lineSequence().iterator()
+        var ret = SKIPPED_PARSE_ERROR
+        val iterator = source.lineSequence().iterator()
 
         while(iterator.hasNext()) {
 
             val line = iterator.next()
 
             if (isStock) { if (!line.contains("quotes_content_left__LastSale")) continue }
-            if (isLatestock) { if (!line.contains("qwidget_lastsale")) continue }
+            if (isLateStock) { if (!line.contains("qwidget_lastsale")) continue }
 
             val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
             matcher.find()
@@ -118,7 +118,7 @@ object Geldmonitor {
 
             try { ret = java.lang.Double.parseDouble(matcher.group())
             } catch (ne: NumberFormatException) { ret = DOUBLE_CONVERSION_ERROR }
-            catch (me: IllegalStateException) { ret = SKIPPEDPARSE_ERROR }
+            catch (me: IllegalStateException) { ret = SKIPPED_PARSE_ERROR }
         }
 
         return ret
@@ -138,17 +138,14 @@ object Geldmonitor {
             return JSON_DATA_ERROR
         }
 
-        return if (currenC == null)
-            SKIPPEDPARSE_ERROR
-        else
-            currenC.USD
+        return if (currenC == null) SKIPPED_PARSE_ERROR else currenC.USD
     }
 
-    fun parseLiveStockPrice(bae: BufferedReader): Double {
-        return parseStockCryptoPrice(bae, true, false)
+    fun parseLiveStockPrice(source: BufferedReader): Double {
+        return parseStockOrCryptoPrice(source, true, false)
     }
 
-    fun parseLateStockPrice(bae: BufferedReader): Double {
-        return parseStockCryptoPrice(bae, false, true)
+    fun parseLateStockPrice(source: BufferedReader): Double {
+        return parseStockOrCryptoPrice(source, false, true)
     }
 }

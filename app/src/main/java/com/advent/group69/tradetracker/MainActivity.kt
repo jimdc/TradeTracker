@@ -29,9 +29,7 @@ import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
 
-
-
-lateinit var dbFunctions: WrapperAroundDao
+lateinit var dbFunctions: WrapperAroundDao //@todo: take out of static. WrapperAroundDao has field context, leaking memory
 
 //these can be used in other kotlin files
 var powerSavingOn = true

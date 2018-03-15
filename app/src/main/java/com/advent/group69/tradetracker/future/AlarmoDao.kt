@@ -4,7 +4,7 @@ import android.arch.persistence.room.*
 import com.advent.group69.tradetracker.future.Alarmo
 
 @Dao
-public interface AlarmoDao {
+interface AlarmoDao {
     @Insert
     fun insert (alarmo: Alarmo)
 

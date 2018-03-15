@@ -19,7 +19,7 @@ class MyDiffCallback(internal var newStocks: List<Stock>, internal var oldStocks
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldStocks[oldItemPosition].stockid === newStocks[newItemPosition].stockid
+        return oldStocks[oldItemPosition].stockid == newStocks[newItemPosition].stockid
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
