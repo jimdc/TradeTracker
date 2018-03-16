@@ -1,7 +1,7 @@
 package com.advent.group69.tradetracker
 
-import com.advent.group69.tradetracker.Geldmonitor.INTERNET_EXCEPTION
-import com.advent.group69.tradetracker.Geldmonitor.parseCryptoPrice
+import com.advent.group69.tradetracker.StockDownloader.INTERNET_EXCEPTION
+import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.group69.tradetracker.model.Cryptocurrency
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory
@@ -14,7 +14,7 @@ import java.lang.NumberFormatException
 import java.net.URL
 import java.util.regex.Pattern
 
-object Geldmonitor {
+object StockDownloader {
 
     private const val INTERNET_EXCEPTION = -2.0
     private const val SKIPPED_PARSE_ERROR = -3.0

@@ -1,13 +1,13 @@
-import com.advent.group69.tradetracker.Geldmonitor
+import com.advent.group69.tradetracker.StockDownloader
 import org.junit.Test
 import java.io.StringReader
 import java.io.BufferedReader
-import com.advent.group69.tradetracker.Geldmonitor.parseLiveStockPrice
-import com.advent.group69.tradetracker.Geldmonitor.parseLateStockPrice
-import com.advent.group69.tradetracker.Geldmonitor.parseCryptoPrice
-import com.advent.group69.tradetracker.Geldmonitor.getStockPrice
-import com.advent.group69.tradetracker.Geldmonitor.getLateStockPrice
-import com.advent.group69.tradetracker.Geldmonitor.getCryptoPrice
+import com.advent.group69.tradetracker.StockDownloader.parseLiveStockPrice
+import com.advent.group69.tradetracker.StockDownloader.parseLateStockPrice
+import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
+import com.advent.group69.tradetracker.StockDownloader.getStockPrice
+import com.advent.group69.tradetracker.StockDownloader.getLateStockPrice
+import com.advent.group69.tradetracker.StockDownloader.getCryptoPrice
 import org.amshove.kluent.*
 
 /**
@@ -38,7 +38,7 @@ class Geldmonitortest {
 
     @Test
     fun testTickerMismatch() {
-        getStockPrice("ETH").shouldNotBe(Geldmonitor.getCryptoPrice("ETH")) //Ethan Allen Interiors != Ethereum
+        getStockPrice("ETH").shouldNotBe(StockDownloader.getCryptoPrice("ETH")) //Ethan Allen Interiors != Ethereum
         getStockPrice("BTC").shouldBeNegative() //BTC is a cryptocurrency but not a stock ticker
         getCryptoPrice("MSFT").shouldBeNegative() //MSFT is a stock but not a cryptocurrency
     }
@@ -52,7 +52,7 @@ class Geldmonitortest {
         getLateStockPrice("MSFT").shouldBePositive()
 
         //Sanity check: more expensive vs cheaper stocks
-        val salliemae = Geldmonitor.getStockPrice("SLM")
+        val salliemae = StockDownloader.getStockPrice("SLM")
         goog.shouldBeGreaterThan(salliemae)
     }
 

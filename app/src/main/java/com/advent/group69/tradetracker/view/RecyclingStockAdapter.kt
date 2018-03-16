@@ -20,6 +20,9 @@ import com.advent.group69.tradetracker.*
 import com.advent.group69.tradetracker.model.AlphabeticalStocks
 import com.advent.group69.tradetracker.model.Stock
 import com.advent.group69.tradetracker.model.StockInterface
+import com.advent.group69.tradetracker.viewmodel.AddEditStockActivity
+import com.advent.group69.tradetracker.viewmodel.EDIT_SOMETHING
+import com.advent.group69.tradetracker.viewmodel.MainActivity
 
 
 /**

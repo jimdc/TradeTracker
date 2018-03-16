@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.viewmodel
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.support.v7.widget.helper.ItemTouchHelper
+import com.advent.group69.tradetracker.R
 import com.advent.group69.tradetracker.model.Stock
 import com.advent.group69.tradetracker.view.OnStartDragListener
 import com.advent.group69.tradetracker.view.RecyclingStockAdapter

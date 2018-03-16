@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.view
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -9,6 +9,8 @@ import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.NotificationCompat
 import android.support.v7.preference.PreferenceManager
+import com.advent.group69.tradetracker.viewmodel.MainActivity
+import com.advent.group69.tradetracker.R
 
 
 class AlertReceiver : BroadcastReceiver() {

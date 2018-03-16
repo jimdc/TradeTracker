@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.viewmodel
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -11,7 +11,7 @@ import android.widget.*
 import com.advent.group69.tradetracker.model.Stock
 import android.app.Activity
 import android.content.Intent
-
+import com.advent.group69.tradetracker.R
 
 
 const val ADD_SOMETHING = 1

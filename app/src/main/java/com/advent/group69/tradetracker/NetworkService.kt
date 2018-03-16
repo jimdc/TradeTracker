@@ -12,18 +12,19 @@ import android.os.HandlerThread
 import java.lang.Thread.*
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
+import com.advent.group69.tradetracker.viewmodel.*
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainService : Service() {
+class NetworkService : Service() {
     private var runTargetScan = true
     private lateinit var serviceLooper: Looper
     private lateinit var serviceHandler: ServiceHandler
     private var updateFrequencyPref: Long = 8000
     private val targetScanThread = HandlerThread("TutorialService",
             Process.THREAD_PRIORITY_BACKGROUND)
-    var updat = Updaten(this@MainService)
+    var updat = StockScanner(this@NetworkService)
 
     /**
      * Avoids CPU blocking by creating background handler [serviceHandler] for the service
@@ -34,7 +35,7 @@ class MainService : Service() {
         toast("scanning")
 
         if (!updat.isRunning) {
-            Log.v("MainService", "updat.isRunning == false, so starting up service.")
+            Log.v("NetworkService", "updat.isRunning == false, so starting up service.")
             updat.isRunning = true
             updat.startup()
             targetScanThread.start()
@@ -70,7 +71,7 @@ class MainService : Service() {
      * Interrupts [targetScanThread] and cancels [updat]
      */
     override fun onDestroy() {
-        Log.i("MainService", "onDestroy called")
+        Log.i("NetworkService", "onDestroy called")
         runTargetScan = false
         targetScanThread.interrupt()
         if (updat.isRunning) {
@@ -111,7 +112,7 @@ class MainService : Service() {
                     }
                     wakeLock.release()
                 } else {
-                    Log.i("MainService", "HandleMessage call updat.scanNetwork() iteration #" + ++iteration)
+                    Log.i("NetworkService", "HandleMessage call updat.scanNetwork() iteration #" + ++iteration)
                     wakeLock.acquire(60000)
 
                     val simpleDate = SimpleDateFormat("MM/dd yyyy, HH:mm:ss", Locale.US)
@@ -140,13 +141,13 @@ class MainService : Service() {
 
     fun logUpdateTimeToFile(lastTime: String) {
         try {
-            this@MainService.openFileOutput("UpdatenLog.txt",
+            this@NetworkService.openFileOutput("UpdatenLog.txt",
                     Context.MODE_PRIVATE or Context.MODE_APPEND).use {
                 it.write(lastTime.toByteArray())
             }
         } catch (fnfe: FileNotFoundException) {
-            Log.d("MainService", fnfe.toString())
+            Log.d("NetworkService", fnfe.toString())
         }
-        Log.i("MainService", "wrote: $lastTime")
+        Log.i("NetworkService", "wrote: $lastTime")
     }
 }

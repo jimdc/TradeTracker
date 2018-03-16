@@ -1,4 +1,4 @@
-package com.advent.group69.tradetracker
+package com.advent.group69.tradetracker.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.*
@@ -20,6 +20,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import android.os.Build
+import com.advent.group69.tradetracker.*
 import com.advent.group69.tradetracker.model.DatabaseFunctions
 import com.advent.group69.tradetracker.model.Stock
 import com.advent.group69.tradetracker.model.StockInterface
@@ -133,12 +134,12 @@ class MainActivity : StockInterface, AppCompatActivity() {
         inflater.inflate(R.menu.main_activity_action_menu, menu)
 
         val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
-        mSwitchScanningOrNot?.isChecked = isMyServiceRunning(MainService::class.java)
-        val serviceIntent = Intent(this, MainService::class.java)
+        mSwitchScanningOrNot?.isChecked = isMyServiceRunning(NetworkService::class.java)
+        val serviceIntent = Intent(this, NetworkService::class.java)
 
         mSwitchScanningOrNot?.setOnCheckedChangeListener { _, boo -> when(boo) {
                 true -> {
-                    if (!isMyServiceRunning(MainService::class.java))
+                    if (!isMyServiceRunning(NetworkService::class.java))
                         startService(serviceIntent)
                     else
                         toast("Scan already isRunning")
@@ -209,7 +210,7 @@ class MainActivity : StockInterface, AppCompatActivity() {
     private fun openSnoozeDialog() {
         if (isSnoozing) { toast(R.string.alreadysnoozing); return }
         Log.i("MainActivity","Opening snooze dialog")
-        if (isMyServiceRunning(MainService::class.java)) {
+        if (isMyServiceRunning(NetworkService::class.java)) {
             val mBuilder = AlertDialog.Builder(this@MainActivity)
             val mView = layoutInflater.inflate(R.layout.snooze_dialog, null)
             val iHour = mView.findViewById(R.id.inputHour) as EditText
