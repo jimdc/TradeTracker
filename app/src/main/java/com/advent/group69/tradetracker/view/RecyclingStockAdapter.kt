@@ -34,7 +34,7 @@ private const val TAG = "RecyclingStockAdapter"
 class RecyclingStockAdapter(
         stocks: List<Stock>,
         private var dragStartListener: OnStartDragListener,
-        private var context: Context)
+        private var context: Context?)
     : ItemTouchHelperAdapter, RecyclerView.Adapter<RecyclingStockAdapter.ItemViewHolder>() {
 
     private var stockList: MutableList<Stock> = stocks.toMutableList()
@@ -52,7 +52,7 @@ class RecyclingStockAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ItemViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         return ItemViewHolder(LayoutInflater
                 .from(parent?.context)
                 .inflate(R.layout.stock_list_row, parent, false)
@@ -70,14 +70,14 @@ class RecyclingStockAdapter(
         val stockOrCrypto = if (stock.crypto == 0L) "Stock" else "Crypto"
         val targetOperator = if (stock.above == 1L) ">" else "<"
 
-        holder.rowStockAndAlarm?.text = context.resources.getString(R.string.rowStockAndAlarm,
+        holder.rowStockAndAlarm?.text = context?.resources?.getString(R.string.rowStockAndAlarm,
                 stockOrCrypto,
                 stock.ticker,
                 targetOperator,
                 stock.target
         )
-        val currentPrice = currentPrices[stock.stockid]?.toString() ?: context.resources.getString(R.string.notUpdatedRecently)
-        holder.rowCurrentPrice?.text = context.resources.getString(R.string.rowCurrentPrice, position, currentPrice)
+        val currentPrice = currentPrices[stock.stockid]?.toString() ?: context?.resources?.getString(R.string.notUpdatedRecently)
+        holder.rowCurrentPrice?.text = context?.resources?.getString(R.string.rowCurrentPrice, position, currentPrice)
         //To be passed for "edit" function
         holder.thestock = stock
 

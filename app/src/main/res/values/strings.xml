@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="alarm">Alarm</string>
     <string name="app_name">TradeTracker</string>
     <string name="hotstock">Hot Stocks</string>
@@ -58,7 +58,7 @@
     <string name="onlysnoozewhenscanning">I can only snooze when scanning.</string>
     <string name="alreadysnoozing">I am already snoozing.</string>
     <string name="notsnoozing">Not snoozing.</string>
-    <string name="snoozingfor">I will snooze for %1$d milliseconds.</string>
+    <string name="snoozingfor" tools:ignore="PluralsCandidate">I will snooze for %1$d milliseconds.</string>
     <string name="snoozedfor">I snoozed for %1$d / %2$d ms.</string>
     <string name="snoozeremain">%1$d / %2$d ms of snooze remaining.</string>
     <string name="appearance">Appearance</string>

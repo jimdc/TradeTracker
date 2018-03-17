@@ -44,7 +44,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         initDataset()
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater?.inflate(R.layout.recycler_view_frag, container, false)
         rootView?.tag = TAG
 
@@ -103,7 +103,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         recyclerView.scrollToPosition(scrollPosition)
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         outState?.putSerializable(KEY_LAYOUT_MANAGER, currentLayoutManagerType)
         super.onSaveInstanceState(outState)
     }
@@ -119,7 +119,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
 
     private var itemTouchHelper: ItemTouchHelper? = null
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val callback = SimpleItemTouchHelperCallback(recyclingStockAdapter)

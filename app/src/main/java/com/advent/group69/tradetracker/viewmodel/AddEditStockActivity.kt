@@ -19,7 +19,6 @@ const val EDIT_SOMETHING = 2
 
 class AddEditStockActivity : AppCompatActivity() {
 
-    private lateinit var stockticker: String
     private lateinit var tickerName: EditText
     private lateinit var tickerPrice: EditText
     private lateinit var aboveChecked: RadioButton

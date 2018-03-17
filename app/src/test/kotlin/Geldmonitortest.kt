@@ -18,9 +18,9 @@ const val MSFT_20181213 = "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\"
 const val GOOG_20181213 = "<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>"
 
 class Geldmonitortest {
-    val readEthereum = reader(ETH_USD_20181213)
-    val readMicrosoft = reader(MSFT_20181213)
-    val readGoogle = reader(GOOG_20181213)
+    private val readEthereum = reader(ETH_USD_20181213)
+    private val readMicrosoft = reader(MSFT_20181213)
+    private val readGoogle = reader(GOOG_20181213)
 
     @Test
     fun testParsingHappyPath () {
