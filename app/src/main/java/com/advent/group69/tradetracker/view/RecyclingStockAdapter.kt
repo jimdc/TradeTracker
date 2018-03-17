@@ -40,12 +40,12 @@ class RecyclingStockAdapter(
     private var stockList: MutableList<Stock> = stocks.toMutableList()
     private var deletedStocks = Stack<Stock>()
     private var currentPrices: MutableMap<Long, Pair<Double,String>> = mutableMapOf()
-    private var callback: StockInterface? = null
+    private var callBackMainActivity: StockInterface? = null
 
     init {
         try {
             if (context is MainActivity) {
-                this.callback = context as StockInterface
+                this.callBackMainActivity = context as StockInterface
             }
         } catch (classCastException: ClassCastException) {
             throw ClassCastException("Activity must implement StockInterface")
@@ -95,7 +95,7 @@ class RecyclingStockAdapter(
 
         Log.v(TAG, "Delete $position clicked.")
         if (view is ItemViewHolder) {
-            if (callback?.deleteStockByStockId(view.thestock.stockid) == true) {
+            if (callBackMainActivity?.deleteStockByStockId(view.thestock.stockid) == true) {
                 deletedStocks.push(view.thestock)
                 val mySnackbar = Snackbar.make(view.itemView,
                         view.itemView.context.resources.getString(R.string.deletesuccess),
@@ -159,7 +159,7 @@ class RecyclingStockAdapter(
                 if (deletedStocks.isEmpty()) toast("Cannot restore stock; deletedStocks list is empty")
                 else {
                     val stockToRestore = deletedStocks.pop()
-                    if (callback?.addOrEditStock(stockToRestore) == true) {
+                    if (callBackMainActivity?.addOrEditStock(stockToRestore) == true) {
                         toast("Successfully restored stock ${stockToRestore.ticker}")
                     } else {
                         toast("Could not re-add stock ${stockToRestore.ticker}")

@@ -12,6 +12,12 @@ import android.os.HandlerThread
 import java.lang.Thread.*
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
+import com.advent.group69.tradetracker.BatteryAwareness.notif1
+import com.advent.group69.tradetracker.BatteryAwareness.notifiedOfPowerSaving
+import com.advent.group69.tradetracker.SnoozeManager.isSnoozing
+import com.advent.group69.tradetracker.SnoozeManager.snoozeMsecInterval
+import com.advent.group69.tradetracker.SnoozeManager.snoozeTimeRemaining
+import com.advent.group69.tradetracker.SnoozeManager.wakeupSystemTime
 import com.advent.group69.tradetracker.viewmodel.*
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat

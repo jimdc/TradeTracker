@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import io.reactivex.Flowable
+import io.reactivex.disposables.CompositeDisposable
 
 /**
  * Database stuff done here. Not necessarily on its own thread...
@@ -13,15 +14,8 @@ class DatabaseFunctions(val context: Context) : StockInterface {
     private var stockDatabase = StockDatabase.getInstance(context)
     private var stockDao = stockDatabase?.stockDao()
 
-    fun cleanup() {
-        StockDatabase.destroyInstance()
-    }
-
-    fun deleteStockByPosition(position: Int) : Boolean {
-        val stocks: List<Stock> = getStockList()
-        val stockid = stocks[position].stockid
-        return deleteStockByStockId(stockid)
-    }
+    override fun getCompositeDisposable() = CompositeDisposable()
+    override fun getFlowingStockList(): Flowable<List<Stock>> = Flowable.empty()
 
     @Synchronized
     override fun deleteStockByStockId(stockId: Long) : Boolean {
@@ -85,5 +79,15 @@ class DatabaseFunctions(val context: Context) : StockInterface {
         }
 
         return true
+    }
+
+    fun cleanup() {
+        StockDatabase.destroyInstance()
+    }
+
+    fun deleteStockByPosition(position: Int) : Boolean {
+        val stocks: List<Stock> = getStockList()
+        val stockid = stocks[position].stockid
+        return deleteStockByStockId(stockid)
     }
 }

@@ -1,7 +1,12 @@
 package com.advent.group69.tradetracker.viewmodel
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.preference.PreferenceManager
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -10,11 +15,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.support.v7.widget.helper.ItemTouchHelper
+import android.util.Log
 import com.advent.group69.tradetracker.R
 import com.advent.group69.tradetracker.model.Stock
+import com.advent.group69.tradetracker.model.StockInterface
 import com.advent.group69.tradetracker.view.OnStartDragListener
 import com.advent.group69.tradetracker.view.RecyclingStockAdapter
 import com.advent.group69.tradetracker.view.SimpleItemTouchHelperCallback
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 
 /**
@@ -39,9 +49,43 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
     private lateinit var layoutManager: RecyclerView.LayoutManager
     private var dataSet: List<Stock> = emptyList()
 
+    private var callBackMainActivity: StockInterface? = null
+    private var subscriptionToStockListUpdates: Disposable? = null
+    private var itemTouchHelper: ItemTouchHelper? = null
+
+    init {
+        try {
+            if (context is MainActivity) {
+                this.callBackMainActivity = context as StockInterface
+            }
+        } catch (classCastException: ClassCastException) {
+            throw ClassCastException("Activity must implement StockInterface")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        callBackMainActivity?.getCompositeDisposable()?.remove(subscriptionToStockListUpdates!!)
+        LocalBroadcastManager.getInstance(this.context!!.applicationContext)
+                .registerReceiver(currentPriceReceiver, IntentFilter("PRICEUPDATE"))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        callBackMainActivity?.getCompositeDisposable()?.add(subscriptionToStockListUpdates!!)
+        LocalBroadcastManager.getInstance(this.context!!.applicationContext)
+                .unregisterReceiver(currentPriceReceiver)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initDataset()
+        subscriptionToStockListUpdates = callBackMainActivity?.getFlowingStockList()
+                ?.subscribeOn(Schedulers.io())
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe(
+                        { stockList -> recyclingStockAdapter.refresh(stockList)},
+                        { throwable -> Log.d("Disposable::fail", throwable.message)}
+                )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -49,14 +93,9 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         rootView?.tag = TAG
 
         recyclerView = rootView!!.findViewById(R.id.recyclerView)
-
-        // LinearLayoutManager is used here, this will layout the elements in a similar fashion
-        // to the way ListView would layout elements. The RecyclerView.LayoutManager defines how
-        // elements are laid out.
         layoutManager = LinearLayoutManager(activity)
 
         currentLayoutManagerType = if (savedInstanceState != null) {
-            // Restore saved layout manager type.
             savedInstanceState.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
         } else {
             val sharedPref = PreferenceManager.getDefaultSharedPreferences(this.context)
@@ -68,10 +107,26 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         setRecyclerViewLayoutManager(currentLayoutManagerType)
 
         recyclingStockAdapter = RecyclingStockAdapter(dataSet, this, this.context)
-
-        // Set CustomAdapter as the adapter for RecyclerView.
         recyclerView.adapter = recyclingStockAdapter
+
         return rootView
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState?.putSerializable(KEY_LAYOUT_MANAGER, currentLayoutManagerType)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val callback = SimpleItemTouchHelperCallback(recyclingStockAdapter)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper?.attachToRecyclerView(recyclerView)
+    }
+
+    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
+        itemTouchHelper?.startDrag(viewHolder)
     }
 
     /**
@@ -103,32 +158,17 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         recyclerView.scrollToPosition(scrollPosition)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState?.putSerializable(KEY_LAYOUT_MANAGER, currentLayoutManagerType)
-        super.onSaveInstanceState(outState)
+    private val currentPriceReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "PRICEUPDATE" -> {
+                    val stockId = intent?.getLongExtra("stockid", -666)
+                    val price = intent?.getDoubleExtra("currentprice", -666.0)
+                    val time = intent?.getStringExtra("time") ?: "not found"
+                    Log.v(TAG, "Received price update of $stockId as $price at $time")
+                    recyclingStockAdapter.setCurrentPrice(stockId!!, price!!, time!!)
+                }
+            }
+        }
     }
-
-    /**
-     * Generates Stocks for RecyclerView's adapter. This data would usually come
-     * from a local content provider or remote server.
-     */
-    private fun initDataset() {
-        //dbsBound would be true only when the recyclerview is recreated after hitting "back"
-        //dataSet = dbFunctions.getStockList()
-    }
-
-    private var itemTouchHelper: ItemTouchHelper? = null
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val callback = SimpleItemTouchHelperCallback(recyclingStockAdapter)
-        itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper?.attachToRecyclerView(recyclerView)
-    }
-
-    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
-        itemTouchHelper?.startDrag(viewHolder)
-    }
-
 }

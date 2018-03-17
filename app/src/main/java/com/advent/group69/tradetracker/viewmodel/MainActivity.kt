@@ -1,56 +1,43 @@
 package com.advent.group69.tradetracker.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import org.jetbrains.anko.*
-import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
 import android.support.v7.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import android.os.Build
 import com.advent.group69.tradetracker.*
+import com.advent.group69.tradetracker.BatteryAwareness.isPowerSavingOn
+import com.advent.group69.tradetracker.SnoozeManager.openSnoozeDialog
 import com.advent.group69.tradetracker.model.DatabaseFunctions
+import com.advent.group69.tradetracker.model.SnoozeInterface
 import com.advent.group69.tradetracker.model.Stock
 import com.advent.group69.tradetracker.model.StockInterface
-import com.advent.group69.tradetracker.view.MoreInfoNotification
-import com.advent.group69.tradetracker.view.RecyclingStockAdapter
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
+import io.reactivex.Flowable
 
-//these can be used in other kotlin files
-var powerSavingOn = true
-var isSnoozing: Boolean = false
+class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
 
-var wakeupSystemTime: Long = 0
-var snoozeTimeRemaining: Long = 0
-var snoozeMsecInterval: Long = 1000
-
-var notifiedOfPowerSaving: Boolean = false
-var notif1: Boolean = false
-
-class MainActivity : StockInterface, AppCompatActivity() {
-
-    private lateinit var notificationManager: NotificationManager
-
-    private var notificationID = 33
-    private var currentPriceReceiver = createPriceBroadcastReceiver()
-
-    private lateinit var fragment: RecyclerViewFragment
     private lateinit var dbFunctions: DatabaseFunctions
-    private val adapter: RecyclingStockAdapter by lazy { fragment.recyclingStockAdapter }
+    private val compositeDisposable = CompositeDisposable()
+    override fun getCompositeDisposable() = compositeDisposable
+
+    private var infoSnoozer: TextView? = null
+    private var progressSnoozer: ProgressBar? = null
+    override fun setSnoozeInfo(info: String) { infoSnoozer?.text = info }
+    override fun setSnoozeProgress(progress: Int) { progressSnoozer?.progress = progress }
+    override fun setMaxSnoozeProgress(progress: Int) { progressSnoozer?.max = progress }
 
     override fun addOrEditStock(stock: Stock): Boolean {
         return if (::dbFunctions.isInitialized) {
@@ -70,6 +57,15 @@ class MainActivity : StockInterface, AppCompatActivity() {
         }
     }
 
+    override fun getFlowingStockList(): Flowable<List<Stock>> {
+        return if (::dbFunctions.isInitialized)
+            dbFunctions.getFlowableStockList()
+        else {
+            Log.d("MainActivity","dbFunctions is not initialized yet; could not return flowable list")
+            Flowable.empty()
+        }
+    }
+
     /**
      * Registers broadcast receiver, populates stock listview.
      */
@@ -80,50 +76,27 @@ class MainActivity : StockInterface, AppCompatActivity() {
         Fabric.with(this, Answers())
 
         dbFunctions = DatabaseFunctions(this.applicationContext)
+
         setContentView(R.layout.activity_main)
+        infoSnoozer = findViewById(R.id.infoSnoozing)
+        progressSnoozer = findViewById(R.id.snoozeProgressBar)
 
         if (savedInstanceState == null) {
             val transaction = supportFragmentManager.beginTransaction()
-            fragment = RecyclerViewFragment()
+            val fragment = RecyclerViewFragment()
             transaction.replace(R.id.stock_content_fragment, fragment)
             transaction.commit()
         }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                currentPriceReceiver, IntentFilter("PRICEUPDATE"))
-
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
-        infoSnoozer = findViewById(R.id.infoSnoozing)
-        progressSnoozer = findViewById(R.id.snoozeProgressBar)
         setSupportActionBar(toolbar)
+
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(BatteryAwareness.powerSaverOffPleaseReceiver, IntentFilter(BatteryAwareness.INTENT_FILTER))
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode) {
-            powerSavingOn = true
+            isPowerSavingOn = true
         }
+
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
-    }
-
-    private lateinit var infoSnoozer: TextView
-    private lateinit var progressSnoozer: ProgressBar
-
-    private val disposable = CompositeDisposable()
-    override fun onStart() {
-        super.onStart()
-        // Subscribe to stock emissions from the database
-        // On every onNext emission update textview or log exception
-
-        disposable.add(dbFunctions.getFlowableStockList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { Stocklist -> adapter.refresh(Stocklist)},
-                        { throwable -> Log.d("Disposable::fail", throwable.message)}
-                )
-        )
-    }
-
-    override fun onStop() {
-        super.onStop()
-        disposable.clear() //Unsubscribe from database updates of stocklist
     }
 
     /**
@@ -158,7 +131,7 @@ class MainActivity : StockInterface, AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_settings -> startActivity<SettingsActivity>()
-            R.id.action_snooze -> openSnoozeDialog()
+            R.id.action_snooze -> openSnoozeDialog(this, isMyServiceRunning(NetworkService::class.java))
             R.id.action_add_stock -> {
                 val intent = Intent(this, AddEditStockActivity::class.java)
                 intent.putExtra("isEditingCrypto", false)
@@ -206,96 +179,6 @@ class MainActivity : StockInterface, AppCompatActivity() {
         }
     }
 
-    @SuppressLint("InflateParams")
-    private fun openSnoozeDialog() {
-        if (isSnoozing) { toast(R.string.alreadysnoozing); return }
-        Log.i("MainActivity","Opening snooze dialog")
-        if (isMyServiceRunning(NetworkService::class.java)) {
-            val mBuilder = AlertDialog.Builder(this@MainActivity)
-            val mView = layoutInflater.inflate(R.layout.snooze_dialog, null)
-            val iHour = mView.findViewById(R.id.inputHour) as EditText
-            val iMinute = mView.findViewById(R.id.inputMinute) as EditText
-            val bConfirmSnooze = mView.findViewById(R.id.btnSnooze) as Button
-
-            mBuilder.setView(mView)
-            val dialog = mBuilder.create()
-            dialog.show()
-            bConfirmSnooze.setOnClickListener {
-                val iHourt = iHour.text.trim().toString()
-                val iMinutet = iMinute.text.trim().toString()
-
-                if (iHourt.isEmpty() && iMinutet.isEmpty())
-                    Toast.makeText(this@MainActivity,
-                            getString(R.string.invalid_entry), Toast.LENGTH_SHORT).show()
-                else {
-                    var snoozeMsecTotal: Long = 0
-                    try {
-                        val hours = if (iHourt.isEmpty()) 0L else iHourt.toLong()
-                        val minutes = if (iMinutet.isEmpty()) 0L else iMinutet.toLong()
-                        snoozeMsecTotal = 1000*(hours*3600 + minutes*60)
-                        snoozeTimeRemaining = snoozeMsecTotal
-                        wakeupSystemTime = System.currentTimeMillis()+snoozeMsecTotal
-
-                    } catch (numberFormatException: NumberFormatException) {
-                        Toast.makeText(this@MainActivity, getString(R.string.NaN, "$iHourt/$iMinutet"), Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                        finish()
-                    }
-
-                    isSnoozing = true
-                    infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
-                    Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
-                    async {
-                        progressSnoozer.max = snoozeMsecTotal.toInt()
-                        while(isSnoozing) {
-                            uiThread {
-                                progressSnoozer.progress = snoozeTimeRemaining.toInt()
-                                infoSnoozer.text = resources.getString(R.string.snoozeremain, snoozeTimeRemaining, snoozeMsecTotal)
-                            }
-                            Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
-                        }
-
-                        uiThread {
-                            infoSnoozer.text = resources.getString(R.string.notsnoozing)
-                        }
-                    }
-
-                    /**
-                     * RX version of timer. It did not persist through activity changes so not used for now.
-                     */
-                    /*val iterationsWhenDone = snoozeMsecTotal / snoozeMsecInterval
-                    val timerDisposable = Observable.interval(snoozeMsecInterval, TimeUnit.MILLISECONDS, Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread()) //To show things on UI
-                            .take(iterationsWhenDone)
-                            .map({ v -> iterationsWhenDone - v })
-                            .subscribe(
-                                    { onNext ->
-                                        snoozeTimeRemaining += snoozeMsecInterval
-                                        progressSnoozer.setProgress(snoozeTimeRemaining.toInt())
-                                        infoSnoozer.text = resources.getString(R.string.snoozedfor, snoozeTimeRemaining, snoozeMsecTotal)
-                                    },
-                                    { onError ->
-                                        toast("Something went wrong with the snoozer timer.")
-                                    },
-                                    {
-                                        isSnoozing = false //done
-                                        infoSnoozer.text = resources.getString(R.string.notsnoozing)
-                                    },
-                                    { onSubscribe ->
-                                        isSnoozing = true //start
-                                        progressSnoozer.max = snoozeMsecTotal.toInt()
-                                        infoSnoozer.text = resources.getString(R.string.snoozingfor, snoozeMsecTotal)
-                                    })
-                    */
-                    dialog.dismiss()
-                }
-            }
-
-        } else {
-            toast(R.string.onlysnoozewhenscanning)
-        }
-    }
-
     /**
      * Query the system for if a service is already isRunning.
      * @param[serviceClass] the service class
@@ -315,63 +198,10 @@ class MainActivity : StockInterface, AppCompatActivity() {
         return false
     }
 
-    fun showDisablePowerSavingRequestNotification() {
 
-        val notificBuilder = NotificationCompat.Builder(this, "DisablePowerChannel")
-                .setContentTitle("please disable power saving mode to keep scanning while phone screen is off")
-                .setContentText("CLICK THIS NOTIFICATION for more information")
-                .setTicker("C")
-                .setSmallIcon(R.drawable.stocklogo)
-
-        val moreInfoIntent = Intent(this, MoreInfoNotification::class.java)
-        val taskStackBuilder = TaskStackBuilder.create(this)
-
-        taskStackBuilder.addParentStack(MoreInfoNotification::class.java)
-        taskStackBuilder.addNextIntent(moreInfoIntent)
-
-        val pendingIntent = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-        notificBuilder.setContentIntent(pendingIntent)
-
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notificationID, notificBuilder.build())
-    }
-
-    /**
-     * @return BroadcastReceiver that logs when it is registered
-     */
-
-    private fun createPriceBroadcastReceiver(): BroadcastReceiver {
-        return object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                val stockId = intent.getLongExtra("stockid", -666)
-                val price = intent.getDoubleExtra("currentprice", -666.0)
-                val time = intent.getStringExtra("time") ?: "not found"
-                Log.v("MainActivity", "Received price update of $stockId as $price")
-
-                if(stockId == 1111111111111111111 && powerSavingOn) {
-                    if (notif1) {
-                        showDisablePowerSavingRequestNotification()
-                        toast("Turn off power saving mode so scan can run while phone is sleeping")
-                        notifiedOfPowerSaving = true
-                    } else {
-                        notif1 = true
-                    }
-
-                    return
-                }
-                when (intent.action) {
-                    "PRICEUPDATE" -> adapter.setCurrentPrice(stockId, price, time)
-                }
-            }
-        }
-    }
-
-    /**
-     * Unregister the result receiver
-     */
     override fun onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(currentPriceReceiver)
         dbFunctions.cleanup() //Close database access
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(BatteryAwareness.powerSaverOffPleaseReceiver)
         super.onDestroy()
     }
 }

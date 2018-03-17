@@ -13,10 +13,9 @@ import java.util.*
 import com.advent.group69.tradetracker.Utility.withDollarSignAndDecimal
 import android.os.VibrationEffect
 import android.os.Build
+import com.advent.group69.tradetracker.BatteryAwareness
 import com.advent.group69.tradetracker.model.DatabaseFunctions
-import com.advent.group69.tradetracker.view.AlertReceiver
-import com.advent.group69.tradetracker.viewmodel.notifiedOfPowerSaving
-import com.advent.group69.tradetracker.viewmodel.powerSavingOn
+import com.advent.group69.tradetracker.view.PriceAlertBroadcastReceiver
 
 
 /**
@@ -44,7 +43,10 @@ class StockScanner(private val callerContext: Context) {
         Log.d("StockScanner","scanNetwork start")
         var failCount = 0
 
-        if(powerSavingOn && !notifiedOfPowerSaving) notifyUserToTurnOffPowerSaving()
+        if(BatteryAwareness.isPowerSavingOn && !BatteryAwareness.notifiedOfPowerSaving) {
+            val intent = Intent(BatteryAwareness.INTENT_FILTER)
+            LocalBroadcastManager.getInstance(callerContext).sendBroadcast(intent)
+        }
 
         deletePendingFinishedStock()
 
@@ -77,12 +79,6 @@ class StockScanner(private val callerContext: Context) {
         }
     }
 
-    private fun notifyUserToTurnOffPowerSaving() {
-        val intent = Intent("com.example.group69.alarm")
-        intent.putExtra("stockid", 1111111111111111111)
-        LocalBroadcastManager.getInstance(this.callerContext).sendBroadcast(intent)
-    }
-
     /**
      * @param[stockId] The stock you want to mark for [deletePendingFinishedStock]
      */
@@ -110,7 +106,7 @@ class StockScanner(private val callerContext: Context) {
 
     /**
      * Create a 5sec alert message for what the ticker "rose to" or "dropped to"
-     * To be passed on to [AlertReceiver]
+     * To be passed on to [PriceAlertBroadcastReceiver]
      * Set the system service [alarmManager] as FLAG_UPDATE_CURRENT
      * @param[ticker] The relevant ticker
      * @param[price] The new, noteworthy price
@@ -121,7 +117,7 @@ class StockScanner(private val callerContext: Context) {
         Log.v("StockScanner", "Building tradetracker with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5
 
-        val alertIntent = Intent(callerContext, AlertReceiver::class.java)
+        val alertIntent = Intent(callerContext, PriceAlertBroadcastReceiver::class.java)
 
         alertIntent
                 .putExtra(callerContext.resources.getString(R.string.tickerRoseDroppedMsg), "${ticker.toUpperCase()} ${if (ab == "1") "rose to" else "dropped to ${price.withDollarSignAndDecimal()}"}")
@@ -139,19 +135,16 @@ class StockScanner(private val callerContext: Context) {
 
     private fun vibrate() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(callerContext)
-        if (sharedPreferences.getBoolean(callerContext.resources.getString(R.string.vibrate_key), true))
-            shakeItBaby()
-    }
+        if (sharedPreferences.getBoolean(callerContext.resources.getString(R.string.vibrate_key), true)) {
+            val vibrator = callerContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            val vibratorPattern = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
 
-    private fun shakeItBaby() {
-        val vibrator = callerContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val vibratorPattern = longArrayOf(0, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500)
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            vibrator.vibrate(VibrationEffect.createWaveform(vibratorPattern, 10))
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(vibratorPattern, -1)
+            if (Build.VERSION.SDK_INT >= 26) {
+                vibrator.vibrate(VibrationEffect.createWaveform(vibratorPattern, 10))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(vibratorPattern, -1)
+            }
         }
     }
 }

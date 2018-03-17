@@ -27,14 +27,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.advent.group69.tradetracker.view.MoreInfoNotification"
+            android:name="com.advent.group69.tradetracker.view.MorePowerInfoNotification"
             android:label="@string/moar"
             android:parentActivityName="com.advent.group69.tradetracker.viewmodel.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.advent.group69.tradetracker.viewmodel.MainActivity" />
         </activity>
-        <receiver android:name="com.advent.group69.tradetracker.view.AlertReceiver" />
+        <receiver android:name="com.advent.group69.tradetracker.view.PriceAlertBroadcastReceiver" />
 
         <activity
             android:name="com.advent.group69.tradetracker.viewmodel.AddEditStockActivity"

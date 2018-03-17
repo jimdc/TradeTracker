@@ -6,13 +6,8 @@ import android.support.v7.widget.helper.ItemTouchHelper
 
 class SimpleItemTouchHelperCallback(private val itemTouchHelperAdapter: ItemTouchHelperAdapter) : ItemTouchHelper.Callback() {
 
-    override fun isLongPressDragEnabled(): Boolean {
-        return true
-    }
-
-    override fun isItemViewSwipeEnabled(): Boolean {
-        return true
-    }
+    override fun isLongPressDragEnabled() = true
+    override fun isItemViewSwipeEnabled() = true
 
     override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
