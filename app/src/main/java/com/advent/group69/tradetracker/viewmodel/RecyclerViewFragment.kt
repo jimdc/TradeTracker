@@ -53,39 +53,51 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
     private var subscriptionToStockListUpdates: Disposable? = null
     private var itemTouchHelper: ItemTouchHelper? = null
 
-    init {
-        try {
-            if (context is MainActivity) {
-                this.callBackMainActivity = context as StockInterface
-            }
-        } catch (classCastException: ClassCastException) {
-            throw ClassCastException("Activity must implement StockInterface")
-        }
-    }
-
     override fun onResume() {
         super.onResume()
-        callBackMainActivity?.getCompositeDisposable()?.remove(subscriptionToStockListUpdates!!)
+
+        if (callBackMainActivity == null) Log.d(TAG, "callBackMainActivity==null onResume")
+        else callBackMainActivity?.getCompositeDisposable()?.remove(subscriptionToStockListUpdates!!)
+
         LocalBroadcastManager.getInstance(this.context!!.applicationContext)
                 .registerReceiver(currentPriceReceiver, IntentFilter("PRICEUPDATE"))
     }
 
     override fun onPause() {
         super.onPause()
+
+        if (callBackMainActivity == null) Log.d(TAG, "callBackMainActivity==null onPause")
         callBackMainActivity?.getCompositeDisposable()?.add(subscriptionToStockListUpdates!!)
+
         LocalBroadcastManager.getInstance(this.context!!.applicationContext)
                 .unregisterReceiver(currentPriceReceiver)
     }
 
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (context == null) Log.d(TAG, "context==null onAttach")
+        try {
+            if (context is MainActivity) {
+                this.callBackMainActivity = context as StockInterface
+                Log.v(TAG, "callBackMainActivity assigned in onAttach")
+
+                subscriptionToStockListUpdates = callBackMainActivity?.getFlowingStockList()
+                        ?.subscribeOn(Schedulers.io())
+                        ?.observeOn(AndroidSchedulers.mainThread())
+                        ?.subscribe(
+                                { stockList -> recyclingStockAdapter.refresh(stockList)},
+                                { throwable -> Log.d("Disposable::fail", throwable.message)}
+                        )
+            } else {
+                Log.d(TAG, "context.applicationContext isn't MainActivity but rather $context")
+            }
+        } catch (classCastException: ClassCastException) {
+            throw ClassCastException("Activity must implement StockInterface")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        subscriptionToStockListUpdates = callBackMainActivity?.getFlowingStockList()
-                ?.subscribeOn(Schedulers.io())
-                ?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe(
-                        { stockList -> recyclingStockAdapter.refresh(stockList)},
-                        { throwable -> Log.d("Disposable::fail", throwable.message)}
-                )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

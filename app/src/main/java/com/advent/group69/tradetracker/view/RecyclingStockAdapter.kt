@@ -54,7 +54,7 @@ class RecyclingStockAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         return ItemViewHolder(LayoutInflater
-                .from(parent?.context)
+                .from(parent.context)
                 .inflate(R.layout.stock_list_row, parent, false)
         )
     }
