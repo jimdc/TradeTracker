@@ -3,7 +3,7 @@ import com.advent.group69.tradetracker.Utility.withDollarSignAndDecimal
 import com.advent.group69.tradetracker.Utility.isValidTickerSymbol
 import org.amshove.kluent.shouldEqual
 
-class Utilitytest {
+class UtilityTest {
 
     @Test
     fun shouldFormatDollarsCorrectly() {

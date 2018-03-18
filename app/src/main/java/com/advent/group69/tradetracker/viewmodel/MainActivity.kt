@@ -17,11 +17,11 @@ import io.reactivex.disposables.CompositeDisposable
 import android.os.Build
 import com.advent.group69.tradetracker.*
 import com.advent.group69.tradetracker.BatteryAwareness.isPowerSavingOn
-import com.advent.group69.tradetracker.SnoozeManager.openSnoozeDialog
 import com.advent.group69.tradetracker.model.DatabaseFunctions
 import com.advent.group69.tradetracker.model.SnoozeInterface
 import com.advent.group69.tradetracker.model.Stock
 import com.advent.group69.tradetracker.model.StockInterface
+import com.advent.group69.tradetracker.view.SnoozeDialog
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
@@ -131,7 +131,10 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_settings -> startActivity<SettingsActivity>()
-            R.id.action_snooze -> openSnoozeDialog(this, isMyServiceRunning(NetworkService::class.java))
+            R.id.action_snooze -> {
+                val snoozeDialog = SnoozeDialog()
+                snoozeDialog.open(this, isMyServiceRunning(NetworkService::class.java))
+            }
             R.id.action_add_stock -> {
                 val intent = Intent(this, AddEditStockActivity::class.java)
                 intent.putExtra("isEditingCrypto", false)

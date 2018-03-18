@@ -14,11 +14,7 @@ import android.support.v7.preference.PreferenceManager
 import android.util.Log
 import com.advent.group69.tradetracker.BatteryAwareness.notif1
 import com.advent.group69.tradetracker.BatteryAwareness.notifiedOfPowerSaving
-import com.advent.group69.tradetracker.SnoozeManager.isSnoozing
-import com.advent.group69.tradetracker.SnoozeManager.snoozeMsecInterval
-import com.advent.group69.tradetracker.SnoozeManager.snoozeTimeRemaining
-import com.advent.group69.tradetracker.SnoozeManager.wakeupSystemTime
-import com.advent.group69.tradetracker.viewmodel.*
+import com.advent.group69.tradetracker.model.SnoozeManager
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -103,19 +99,15 @@ class NetworkService : Service() {
             // Add your cpu-blocking activity here
             var secondsSinceScanStarted = 0
             var iteration = 0
+            val snoozeMsecInterval = 1000L
             updat.isRunning = true
 
             while (!currentThread().isInterrupted) {
                 val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
                 val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag")
-                if (isSnoozing) {
+                if (SnoozeManager.isSnoozing()) {
                     wakeLock.acquire(60000)
                     Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
-                    snoozeTimeRemaining = wakeupSystemTime - System.currentTimeMillis()
-                    if (snoozeTimeRemaining <= 0) {
-                        snoozeTimeRemaining = 0
-                        isSnoozing = false
-                    }
                     wakeLock.release()
                 } else {
                     Log.i("NetworkService", "HandleMessage call updat.scanNetwork() iteration #" + ++iteration)
