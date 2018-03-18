@@ -23,10 +23,10 @@ class NetworkService : Service() {
     private var runTargetScan = true
     private lateinit var serviceLooper: Looper
     private lateinit var serviceHandler: ServiceHandler
-    private var updateFrequencyPref: Long = 8000
+    private var updateFrequencyPreference: Long = 8000
     private val targetScanThread = HandlerThread("TutorialService",
             Process.THREAD_PRIORITY_BACKGROUND)
-    var updat = StockScanner(this@NetworkService)
+    var stockScanner = StockScanner(this@NetworkService)
 
     /**
      * Avoids CPU blocking by creating background handler [serviceHandler] for the service
@@ -36,10 +36,10 @@ class NetworkService : Service() {
         super.onCreate()
         toast("scanning")
 
-        if (!updat.isRunning) {
-            Log.v("NetworkService", "updat.isRunning == false, so starting up service.")
-            updat.isRunning = true
-            updat.startup()
+        if (!stockScanner.isRunning) {
+            Log.v("NetworkService", "stockScanner.isRunning == false, so starting up service.")
+            stockScanner.isRunning = true
+            stockScanner.startup()
             targetScanThread.start()
 
             serviceLooper = targetScanThread.looper
@@ -59,7 +59,7 @@ class NetworkService : Service() {
         serviceHandler.sendMessage(message)
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        updateFrequencyPref =
+        updateFrequencyPreference =
                 try {
                     sharedPref.getString(this.resources.getString(R.string.stockupdate_key), "8000").toLong()
                 } catch (nfe: NumberFormatException) {
@@ -70,15 +70,15 @@ class NetworkService : Service() {
     }
 
     /**
-     * Interrupts [targetScanThread] and cancels [updat]
+     * Interrupts [targetScanThread] and cancels [stockScanner]
      */
     override fun onDestroy() {
         Log.i("NetworkService", "onDestroy called")
         runTargetScan = false
         targetScanThread.interrupt()
-        if (updat.isRunning) {
-            updat.isRunning = false
-            updat.cleanup()
+        if (stockScanner.isRunning) {
+            stockScanner.isRunning = false
+            stockScanner.cleanup()
         }
         toast("Stopping scan")
         notifiedOfPowerSaving = false
@@ -92,7 +92,7 @@ class NetworkService : Service() {
     private inner class ServiceHandler(looper: Looper) : Handler(looper) {
 
         /**
-         * Vibrates, executes [updat], waits for an interrupt, then shuts down
+         * Vibrates, executes [stockScanner], waits for an interrupt, then shuts down
          * We are invoked when [onStartCommand] calls [serviceHandler]'s sendMessage
          */
         override fun handleMessage(msg: Message) {
@@ -100,7 +100,8 @@ class NetworkService : Service() {
             var secondsSinceScanStarted = 0
             var iteration = 0
             val snoozeMsecInterval = 1000L
-            updat.isRunning = true
+            val logger = Logger(this@NetworkService, "Updaten.txt")
+            stockScanner.isRunning = true
 
             while (!currentThread().isInterrupted) {
                 val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -110,42 +111,23 @@ class NetworkService : Service() {
                     Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
                     wakeLock.release()
                 } else {
-                    Log.i("NetworkService", "HandleMessage call updat.scanNetwork() iteration #" + ++iteration)
+                    Log.i("NetworkService", "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
                     wakeLock.acquire(60000)
 
-                    val simpleDate = SimpleDateFormat("MM/dd yyyy, HH:mm:ss", Locale.US)
-                    val dateString = simpleDate.format(Date())
+                    logger.logHowLongItTakesToRun { stockScanner.scanNetwork() }
+                    Utility.sleepWithThreadInterruptIfWokenUp(updateFrequencyPreference)
 
-                    val timeBeforeScan = System.currentTimeMillis()
-                    updat.scanNetwork()
-                    val timeAfterScan = System.currentTimeMillis()
-                    val scanDuration = timeAfterScan - timeBeforeScan
-                    logUpdateTimeToFile("Scan at $dateString took $scanDuration ms.\r\n")
-
-                    Utility.sleepWithThreadInterruptIfWokenUp(updateFrequencyPref)
                     wakeLock.release()
                 }
                 secondsSinceScanStarted++
             }
 
             toast("Scan stopped after $secondsSinceScanStarted iterations")
-            updat.isRunning = false
+            stockScanner.isRunning = false
 
             //this would stop the service on it's own. we don't want that unless the user toggles scanning button to off
             stopSelf(msg.arg1)
             return
         }
-    }
-
-    fun logUpdateTimeToFile(lastTime: String) {
-        try {
-            this@NetworkService.openFileOutput("UpdatenLog.txt",
-                    Context.MODE_PRIVATE or Context.MODE_APPEND).use {
-                it.write(lastTime.toByteArray())
-            }
-        } catch (fnfe: FileNotFoundException) {
-            Log.d("NetworkService", fnfe.toString())
-        }
-        Log.i("NetworkService", "wrote: $lastTime")
     }
 }
