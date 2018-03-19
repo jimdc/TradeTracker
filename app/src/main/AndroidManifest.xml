@@ -12,7 +12,7 @@
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/my_backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/tradetracker"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">

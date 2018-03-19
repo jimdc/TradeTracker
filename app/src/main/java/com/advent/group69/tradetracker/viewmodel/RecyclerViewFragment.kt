@@ -78,7 +78,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         if (context == null) Log.d(TAG, "context==null onAttach")
         try {
             if (context is MainActivity) {
-                this.callBackMainActivity = context as StockInterface
+                this.callBackMainActivity = context
                 Log.v(TAG, "callBackMainActivity assigned in onAttach")
 
                 subscriptionToStockListUpdates = callBackMainActivity?.getFlowingStockList()
