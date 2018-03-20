@@ -1,8 +1,8 @@
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
-import com.advent.group69.tradetracker.Stock
-import com.advent.group69.tradetracker.StockDao
-import com.advent.group69.tradetracker.StockDatabase
+import com.advent.group69.tradetracker.model.Stock
+import com.advent.group69.tradetracker.model.StockDao
+import com.advent.group69.tradetracker.model.StockDatabase
 import io.reactivex.subscribers.TestSubscriber
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -19,9 +19,9 @@ open class StockDaoTest {
     private lateinit var stocksDatabase: StockDatabase
     private lateinit var stockDao: StockDao
 
-    val samplestock1 = Stock(12345, "JPM", 500.0, aboveB = true, phoneB = false, crypto = false)
-    val samplestock2 = Stock(12346, "SNAP", 18.25, aboveB = false, phoneB = true, crypto = false)
-    val samplestock3 = Stock(12347, "LTC", 211.12, aboveB = true, phoneB = true, crypto = true)
+    private val samplestock1 = Stock(12345, "JPM", 500.0, above = 1L, phone = 0L, crypto = 0L)
+    private val samplestock2 = Stock(12346, "SNAP", 18.25, above = 0L, phone = 0L, crypto = 0L)
+    private val samplestock3 = Stock(12347, "LTC", 211.12, above = 0L, phone = 0L, crypto = 0L)
 
     @Before
     fun initDb() {
@@ -41,7 +41,7 @@ open class StockDaoTest {
         var ssget = stockDao.findStockById(samplestock1.stockid)
         assertNull("samplestock1 already in db before I added it?!", ssget)
 
-        var subscriber: TestSubscriber<List<Stock>> = stockDao.getAllStocksF().test()
+        val subscriber: TestSubscriber<List<Stock>> = stockDao.getFlowableStocks().test()
 
         stockDao.insert(samplestock1)
         ssget = stockDao.findStockById(samplestock1.stockid)

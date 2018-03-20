@@ -6,7 +6,7 @@ import org.hamcrest.Matcher;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 
-public class MyViewAction {
+class MyViewAction {
 
     public static ViewAction clickChildViewWithId(final int id) {
         return new ViewAction() {

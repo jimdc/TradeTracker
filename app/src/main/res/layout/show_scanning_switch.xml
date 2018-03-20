@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@null"
-        android:drawableLeft="@drawable/check"
+        android:drawableStart="@drawable/check"
         android:textOff="@string/notscanning"
         android:textOn="@string/scanning"/>
 </RelativeLayout>
