@@ -106,11 +106,11 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
         val inflater = menuInflater
         inflater.inflate(R.menu.main_activity_action_menu, menu)
 
-        val mSwitchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
-        mSwitchScanningOrNot?.isChecked = isMyServiceRunning(NetworkService::class.java)
+        val switchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
+        switchScanningOrNot?.isChecked = isMyServiceRunning(NetworkService::class.java)
         val serviceIntent = Intent(this, NetworkService::class.java)
 
-        mSwitchScanningOrNot?.setOnCheckedChangeListener { _, boo -> when(boo) {
+        switchScanningOrNot?.setOnCheckedChangeListener { _, boo -> when(boo) {
                 true -> {
                     if (!isMyServiceRunning(NetworkService::class.java))
                         startService(serviceIntent)

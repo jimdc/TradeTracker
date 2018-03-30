@@ -12,6 +12,11 @@ import com.advent.group69.tradetracker.model.Stock
 import android.app.Activity
 import android.content.Intent
 import com.advent.group69.tradetracker.R
+import android.text.Editable
+import android.text.TextWatcher
+import io.reactivex.subjects.PublishSubject
+import android.widget.EditText
+import io.reactivex.Observable
 
 
 const val ADD_SOMETHING = 1
@@ -132,4 +137,26 @@ class AddEditStockActivity : AppCompatActivity() {
         setResult(Activity.RESULT_OK, resultIntent)
         finish()
     }
+
+    fun getTextWatcherObservable(editText: EditText): Observable<String> {
+
+        val subject = PublishSubject.create<String>()
+
+        editText.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+
+            }
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+
+            }
+            override fun afterTextChanged(s: Editable) {
+                subject.onNext(s.toString())
+            }
+
+        })
+
+        return subject
+    }
+
 }
