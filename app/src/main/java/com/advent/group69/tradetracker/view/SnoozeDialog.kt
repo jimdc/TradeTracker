@@ -40,26 +40,28 @@ class SnoozeDialog {
             Log.d("SnoozeManager", "Could not cast $snoozeInterface as StockInterface. Implement in MainActivity?")
         }
 
-        if (!SnoozeManager.isSnoozing()) {
-            if (!isNetworkServiceRunning) {
-                val mBuilder = AlertDialog.Builder(context)
-                val mView = context.layoutInflater.inflate(R.layout.snooze_dialog, null)
-                mBuilder.setView(mView)
-
-                Log.i("SnoozeDialog", "Opening snooze dialog")
-                dialog = mBuilder.create()
-                textHour = mView.findViewById(R.id.inputHour) as EditText
-                textMinute = mView.findViewById(R.id.inputMinute) as EditText
-                dialog.show()
-
-                val btnConfirmSnooze = mView.findViewById(R.id.btnSnooze) as Button
-                btnConfirmSnooze.setOnClickListener(onPressSnooze)
-            } else {
-                context.toast(R.string.onlysnoozewhenscanning)
-            }
-        } else {
+        if (SnoozeManager.isSnoozing()) {
             context.toast(R.string.alreadysnoozing)
+            return
         }
+
+        if (!isNetworkServiceRunning) {
+            context.toast(R.string.onlysnoozewhenscanning)
+            return
+        }
+
+        val mBuilder = AlertDialog.Builder(context)
+        val mView = context.layoutInflater.inflate(R.layout.snooze_dialog, null)
+        mBuilder.setView(mView)
+
+        Log.i("SnoozeDialog", "Opening snooze dialog")
+        dialog = mBuilder.create()
+        textHour = mView.findViewById(R.id.inputHour) as EditText
+        textMinute = mView.findViewById(R.id.inputMinute) as EditText
+        dialog.show()
+
+        val btnConfirmSnooze = mView.findViewById(R.id.btnSnooze) as Button
+        btnConfirmSnooze.setOnClickListener(onPressSnooze)
     }
 
     private val onPressSnooze = View.OnClickListener {
@@ -87,6 +89,7 @@ class SnoozeDialog {
                 Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
                 async {
                     snoozeInterface?.setMaxSnoozeProgress(snoozeMsecTotal.toInt())
+                    SnoozeManager.snoozeMsecTotal = snoozeMsecTotal
                     while (SnoozeManager.isSnoozing()) {
                         uiThread {
                             snoozeInterface?.setSnoozeProgress(SnoozeManager.getSnoozeTimeRemaining().toInt())
