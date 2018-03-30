@@ -47,7 +47,7 @@ class SnoozeDialog {
 
         if (!isNetworkServiceRunning) {
             context.toast(R.string.onlysnoozewhenscanning)
-            return;
+            return
         }
 
         val mBuilder = AlertDialog.Builder(context)
@@ -89,6 +89,7 @@ class SnoozeDialog {
                 Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
                 async {
                     snoozeInterface?.setMaxSnoozeProgress(snoozeMsecTotal.toInt())
+                    SnoozeManager.snoozeMsecTotal = snoozeMsecTotal
                     while (SnoozeManager.isSnoozing()) {
                         uiThread {
                             snoozeInterface?.setSnoozeProgress(SnoozeManager.getSnoozeTimeRemaining().toInt())

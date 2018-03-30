@@ -17,10 +17,7 @@ import io.reactivex.disposables.CompositeDisposable
 import android.os.Build
 import com.advent.group69.tradetracker.*
 import com.advent.group69.tradetracker.BatteryAwareness.isPowerSavingOn
-import com.advent.group69.tradetracker.model.DatabaseFunctions
-import com.advent.group69.tradetracker.model.SnoozeInterface
-import com.advent.group69.tradetracker.model.Stock
-import com.advent.group69.tradetracker.model.StockInterface
+import com.advent.group69.tradetracker.model.*
 import com.advent.group69.tradetracker.view.SnoozeDialog
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
@@ -182,6 +179,35 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        dbFunctions.cleanup() //Close database access
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(BatteryAwareness.powerSaverOffPleaseReceiver)
+        super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if ((SnoozeManager.isSnoozing()) && (infoSnoozer!!.text.equals(resources.getString(R.string.notsnoozing)))) {
+            //It is snoozing but the UIthread that SnoozeDialog created in the background was destroyed :(
+            async {
+                setMaxSnoozeProgress(SnoozeManager.snoozeMsecTotal.toInt())
+                while (SnoozeManager.isSnoozing()) {
+                    uiThread {
+                        setSnoozeProgress(SnoozeManager.getSnoozeTimeRemaining().toInt())
+                        setSnoozeInfo(resources.getString(R.string.snoozeremain,
+                                SnoozeManager.getSnoozeTimeRemaining().toInt(),
+                                SnoozeManager.snoozeMsecTotal))
+                    }
+                    Utility.sleepWithThreadInterruptIfWokenUp(1000L)
+                }
+
+                uiThread {
+                    setSnoozeInfo(resources.getString(R.string.notsnoozing))
+                }
+            }
+        }
+    }
+
     /**
      * Query the system for if a service is already isRunning.
      * @param[serviceClass] the service class
@@ -199,12 +225,5 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
         }
         Log.i("isMyServiceRunning?", false.toString() + "")
         return false
-    }
-
-
-    override fun onDestroy() {
-        dbFunctions.cleanup() //Close database access
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(BatteryAwareness.powerSaverOffPleaseReceiver)
-        super.onDestroy()
     }
 }
