@@ -16,6 +16,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import io.reactivex.subjects.PublishSubject
 import android.widget.EditText
+import com.advent.group69.tradetracker.R.id.trailingPercent
 import io.reactivex.Observable
 
 
@@ -30,6 +31,9 @@ class AddEditStockActivity : AppCompatActivity() {
     private lateinit var belowChecked: RadioButton
     private lateinit var phoneChecked: CheckBox
     private lateinit var btnDelete: Button
+    private lateinit var activationPrice: EditText
+    private lateinit var trailingPercent: EditText
+
 
     private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, 0L, 0L, 0L)
 
@@ -44,7 +48,8 @@ class AddEditStockActivity : AppCompatActivity() {
         belowChecked = findViewById(R.id.rbBelow)
         phoneChecked = findViewById(R.id.phoneCallCB)
         btnDelete = findViewById(R.id.delbtn)
-
+        activationPrice = findViewById(R.id.activationPrice)
+        trailingPercent = findViewById(R.id.trailingPercent)
         val btnAdd = findViewById<FloatingActionButton>(R.id.fab)
         btnAdd.setOnClickListener(stockClickListener)
 
@@ -74,8 +79,8 @@ class AddEditStockActivity : AppCompatActivity() {
                 workingStock.stockid = stockFromView.stockid
                 workingStock.ticker = stockFromView.ticker
                 workingStock.target = stockFromView.target
-                workingStock.percent = stockFromView.percent
-                workingStock.stopLossPercent = stockFromView.stopLossPercent
+                workingStock.stopLoss = stockFromView.stopLoss
+                workingStock.trailingPercent = stockFromView.trailingPercent
                 workingStock.activationPrice = stockFromView.activationPrice
                 workingStock.highestPrice = stockFromView.highestPrice
                 workingStock.above = stockFromView.above

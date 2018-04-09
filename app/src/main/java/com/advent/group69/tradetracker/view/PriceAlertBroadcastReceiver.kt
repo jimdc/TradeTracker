@@ -22,11 +22,12 @@ class PriceAlertBroadcastReceiver : BroadcastReceiver() {
         createSoundAndOverheadNotification(context,
                 intent.extras.getString(context.resources.getString(R.string.tickerRoseDroppedMsg)),
                 intent.extras.getString(context.resources.getString(R.string.tickerTargetPrice)),
-                intent.extras.getString(context.resources.getString(R.string.aboveBelow))
+                intent.extras.getString(context.resources.getString(R.string.aboveBelow)),
+                intent.extras.getString("type")
         )
     }
 
-    private fun createSoundAndOverheadNotification(context: Context, msg: String, msgText: String, msgAlert: String) {
+    private fun createSoundAndOverheadNotification(context: Context, msg: String, msgText: String, msgAlert: String, type: String) {
 
         val notificationIntent = PendingIntent.getActivity(context, 0,
                 Intent(context, MainActivity::class.java), 0)
@@ -34,7 +35,7 @@ class PriceAlertBroadcastReceiver : BroadcastReceiver() {
                 .setSmallIcon(R.drawable.stocklogo)
                 .setContentTitle(msg)
                 .setTicker(msgAlert)
-                .setContentText(msgText)
+                .setContentText(msgText + " " + type)
 
         builder.setContentIntent(notificationIntent)
 

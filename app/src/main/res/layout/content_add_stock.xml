@@ -16,7 +16,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginEnd="80dp"
         android:layout_marginTop="24dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="7dp"
         android:ems="10"
         android:hint="@string/tickername"
         android:inputType="textCapCharacters" />
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tickerName"
         android:layout_below="@+id/tickerName"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="7dp"
         android:ems="10"
         android:hint="@string/targetprice"
         android:inputType="numberDecimal" />
@@ -62,10 +62,9 @@
         android:id="@+id/phoneCallCB"
         android:layout_width="139dp"
         android:layout_height="47dp"
-        android:layout_above="@+id/delbtn"
-        android:layout_alignEnd="@+id/tickerName"
-        android:layout_marginBottom="51dp"
-        android:layout_marginEnd="11dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/delbtn"
+        android:layout_marginEnd="51dp"
         android:text="@string/callme"
         android:visibility="invisible" />
 
@@ -77,6 +76,56 @@
         android:layout_alignStart="@+id/tickerPrice"
         android:layout_marginBottom="21dp"
         android:text="@string/delete" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@+id/radioGroup"/>
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider"
+        android:layout_marginBottom="7dp"
+        android:layout_marginLeft="81dp"
+        android:textSize="23sp"
+        android:ems="10"
+        android:text="Trailing stop-loss" />
+    <EditText
+        android:id="@+id/trailingPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tickerName"
+        android:layout_below="@+id/textView2"
+        android:layout_marginBottom="7dp"
+        android:ems="10"
+        android:hint="Trailing stop-loss %"
+        android:inputType="numberDecimal" />
+    <EditText
+        android:id="@+id/activationPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tickerName"
+        android:layout_below="@+id/trailingPercent"
+        android:layout_marginBottom="7dp"
+        android:ems="10"
+        android:hint="Trigger price (optional)"
+        android:inputType="numberDecimal" />
+    <EditText
+        android:id="@+id/stopLoss"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tickerName"
+        android:layout_below="@+id/triggerPrice"
+        android:layout_marginBottom="7dp"
+        android:ems="10"
+        android:hint="Stop loss price (optional)"
+        android:inputType="numberDecimal" />
+
 
 
 </android.widget.RelativeLayout>

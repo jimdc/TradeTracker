@@ -62,16 +62,44 @@ class StockScanner(private val callerContext: Context) {
             if (currentPrice >= 0) {
                 broadcastPriceLocally(stockx.stockid, currentPrice)
                 Log.v("StockScanner", "currentPrice $currentPrice is not null")
-                if (
-                        ((stockx.above == 1L) && (currentPrice > stockx.target)) ||
-                        ((stockx.above == 0L) && (currentPrice < stockx.target))
-                ) {
-                    setPendingFinishedStock(stockx.stockid)
-                    broadcastPriceGlobally(stockx.ticker, stockx.target.toString(), stockx.above.toString())
+                if(stockx.target>0) {
+                    if (
+                            ((stockx.above == 1L) && (currentPrice > stockx.target)) ||
+                            ((stockx.above == 0L) && (currentPrice < stockx.target))
+                    ) {
+                        setPendingFinishedStock(stockx.stockid)
+                        broadcastPriceGlobally(stockx.ticker, stockx.target.toString(), stockx.above.toString(), "regular")
+                        continue
+                    }
+                }
+                else if(stockx.trailingPercent > 0){ //trailing stop loss code here. this would need to be > 0
+                    if(currentPrice <= stockx.stopLoss){
+                        setPendingFinishedStock(stockx.stockid)
+                        broadcastPriceGlobally(stockx.ticker, stockx.stopLoss.toString(), "b", "regular")
+                        continue
+                    }
+                    if(currentPrice > stockx.highestPrice)
+                        stockx.highestPrice = currentPrice
+                    if( !(stockx.activationPrice == -2.0 || stockx.activationPrice == -1.0) ) {
+                        //an activation price of -2.0 denotes that it has already been activated, -1.0 denotes no activation price
+                        if(currentPrice >= stockx.activationPrice) {  //activation price must be higher than the start price @ creation
+                            stockx.activationPrice = -2.0
+                        }
+                    }
+                    if( stockx.activationPrice == -2.0 || stockx.activationPrice == -1.0 ) {
+                        if(currentPrice <= ( stockx.highestPrice * (100 - stockx.trailingPercent)/100 ) ) {
+                            setPendingFinishedStock(stockx.stockid)
+                            broadcastPriceGlobally(stockx.ticker, stockx.trailingPercent.toString(), "b", "trailing")
+                            //have this send in the format of abc dropped x% from the highest point of Y
+                        }
+
+                    }
+
                 }
             } else {
                 Log.v("StockScanner", "currentPrice $currentPrice < 0, ++failCount to " + ++failCount)
             }
+
         }
 
         if (failCount == stocksTargets.size) {
@@ -112,7 +140,7 @@ class StockScanner(private val callerContext: Context) {
      * @param[price] The new, noteworthy price
      * @param[ab] "1" means above, something else like "0" means below
      */
-    private fun broadcastPriceGlobally(ticker: String, price: String, ab: String) {
+    private fun broadcastPriceGlobally(ticker: String, price: String, ab: String, type: String) {
 
         Log.v("StockScanner", "Building tradetracker with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5
@@ -123,6 +151,7 @@ class StockScanner(private val callerContext: Context) {
                 .putExtra(callerContext.resources.getString(R.string.tickerRoseDroppedMsg), "${ticker.toUpperCase()} ${if (ab == "1") "rose to" else "dropped to ${price.withDollarSignAndDecimal()}"}")
                 .putExtra(callerContext.resources.getString(R.string.tickerTargetPrice), price.withDollarSignAndDecimal())
                 .putExtra(callerContext.resources.getString(R.string.aboveBelow), ab)
+                .putExtra("type",type)
 
         val alarmManager = callerContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.set(

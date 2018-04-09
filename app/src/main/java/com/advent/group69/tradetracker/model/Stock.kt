@@ -12,9 +12,9 @@ import kotlinx.android.parcel.Parcelize
 @Entity(tableName="TableView2")
 data class Stock(@PrimaryKey @ColumnInfo(name="_stockid") var stockid: Long = 1337,
                  var ticker: String = "BABA",
-                 var target: Double = 4.20,
-                 var percent: Double = -1.0,
-                 var stopLossPercent: Double = -1.0,
+                 var target: Double = -1.0,
+                 var stopLoss: Double = -1.0, //for trailing
+                 var trailingPercent: Double = -1.0,
                  var activationPrice: Double = -1.0,
                  var highestPrice: Double = -1.0,
                  @ColumnInfo(name="ab") var above: Long = 1,
