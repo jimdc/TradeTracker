@@ -1,82 +1,87 @@
-import com.advent.group69.tradetracker.StockDownloader
-import org.junit.Test
-import java.io.StringReader
-import java.io.BufferedReader
-import com.advent.group69.tradetracker.StockDownloader.parseLiveStockPrice
-import com.advent.group69.tradetracker.StockDownloader.parseLateStockPrice
-import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
-import com.advent.group69.tradetracker.StockDownloader.getStockPrice
-import com.advent.group69.tradetracker.StockDownloader.getLateStockPrice
 import com.advent.group69.tradetracker.StockDownloader.getCryptoPrice
-import org.amshove.kluent.*
-import org.junit.Ignore
+import com.advent.group69.tradetracker.StockDownloader.getStockPrice
+import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
+import com.advent.group69.tradetracker.StockDownloader.parseLateStockPrice
+import org.amshove.kluent.shouldBePositive
+import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldNotEqual
+import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.io.BufferedReader
+import java.io.StringReader
 
 /**
- * Unit test.
- */
-const val ETH_USD_20181213 = "{\"USD\":846.31}"
-const val MSFT_20181213 = "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$89.83</div>\n"
-const val GOOG_20181213 = "<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>"
+ * old hardcoded info: notice MSFT is "late" stock price mode in NASDAQ, GOOG is "live" stock price.
+ * const val ETH_USD_20181213 = "{\"USD\":846.31}"
+ * const val MSFT_20181213 = "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$89.83</div>\n"
+ * const val GOOG_20181213 = "<td>\n<span id=\"quotes_content_left__LastSale\" style=\"display:inline-block;border-style:None;\">1053</span>"
+ *
+ * some old tests which we don't have an equivalent for with these parameters
+ * *sanity check for prices: expensive stock is more than cheaper stock
+ * *confirming that some stock which is not a crypto isn't intepreted as such; likewise for crypto which is not stock ticker
+**/
 
 @RunWith(Parameterized::class)
-class StockDownloaderTest (val unparsed: String, val parsed: Double) {
+class StockDownloaderTest (
+        private val sharedTickerSymbol: String,
+        private val unparsedAsCrypto: String,
+        private val parsedAsCrypto: Double,
+        private val unparsedAsStock: String,
+        private val parsedAsStock: Double
+) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters
+
         fun data() = listOf(
-                arrayOf("{\"USD\":846.31}", 846.31), //Ethereum on December 12, 2018 (???, maybe February)
-                arrayOf("{\"USD\":7655.98}", 7655.98) //Bitcoin on March 12, 2018
+                arrayOf("ETH", //Ethereum and Ethan Allen Interiors on 2018-03-12
+                        "{\"USD\":463.7}", 463.7,
+                        "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$22.3</div>", 22.3
+                        ),
+                arrayOf("LTC", //Litecoin and LTC Properties, Inc. on 2018-03-12
+                        "{\"USD\":120.95}", 120.95,
+                        "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$36.64</div>", 36.64
+                        ),
+                arrayOf("NEO", //NEO currency and NeoGeonomics on 2018-03-12
+                        "{\"USD\":61.17}", 61.17,
+                        "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$8.32</div>", 8.32
+                        )
             )
     }
 
-    private val readEthereum = reader(ETH_USD_20181213)
-    private val readMicrosoft = reader(MSFT_20181213)
-    private val readGoogle = reader(GOOG_20181213)
-
-    @Test
-    fun testParsesCryptoJSON () {
-        parseCryptoPrice(unparsed).shouldEqual(parsed)
+    @Test fun parsesCryptoOutput () {
+        parseCryptoPrice(unparsedAsCrypto).shouldEqual(parsedAsCrypto)
     }
 
-    @Ignore("Not parameterized yet.")
-    @Test
-    fun testParsingHappyPath () {
-        parseCryptoPrice(ETH_USD_20181213).shouldEqual(846.31)
-        parseLiveStockPrice(readGoogle).shouldEqual(1053.0)
-        parseLateStockPrice(readMicrosoft).shouldEqual(89.83)
+    /**
+     * parse"Live"StockPrice will not work because the format is "Late"
+     */
+    @Test fun parsesStockOutput () {
+        parseLateStockPrice(asBufferedReader(unparsedAsStock)).shouldEqual(parsedAsStock)
     }
 
-    @Ignore("Not parameterized yet.")
-    @Test
-    fun testParsingErrors() {
-        parseCryptoPrice(MSFT_20181213).shouldBeNegative()
-        parseLiveStockPrice(readEthereum).shouldBeNegative()
-        parseLateStockPrice(readEthereum).shouldBeNegative()
+    private var asStockPrice = 0.0
+    private var asCryptoPrice = 0.0
+
+    @Before fun initialize() { //So we don't waste time with redundant network calls
+        asStockPrice = getStockPrice(sharedTickerSymbol)
+        asCryptoPrice = getCryptoPrice(sharedTickerSymbol)
     }
 
-    @Ignore("Not parameterized yet.")
-    @Test
-    fun testTickerMismatch() {
-        getStockPrice("ETH").shouldNotBe(StockDownloader.getCryptoPrice("ETH")) //Ethan Allen Interiors != Ethereum
-        getStockPrice("BTC").shouldBeNegative() //BTC is a cryptocurrency but not a stock ticker
-        getCryptoPrice("MSFT").shouldBeNegative() //MSFT is a stock but not a cryptocurrency
+    @Test fun recognizesBothAsStockAndAsCrypto() {
+        asStockPrice.shouldBePositive()
+        asCryptoPrice.shouldBePositive()
     }
 
-    @Ignore("Not parameterized yet.")
-    @Test
-    fun testNetworkAndParsing() {
-        //Stock prices should be positive
-        getCryptoPrice("ETH").shouldBePositive()
-        val goog = getStockPrice("GOOG")
-        goog.shouldBePositive()
-        getLateStockPrice("MSFT").shouldBePositive()
-
-        //Sanity check: more expensive vs cheaper stocks
-        val salliemae = StockDownloader.getStockPrice("SLM")
-        goog.shouldBeGreaterThan(salliemae)
+    @Test fun stockAndCryptoPriceAreDistinct() {
+        asStockPrice.shouldNotEqual(asCryptoPrice)
     }
 
-    private fun reader(s: String): BufferedReader { return BufferedReader(StringReader(s)) }
+    private fun asBufferedReader(htmlResult: String): BufferedReader {
+        return BufferedReader(
+                StringReader(htmlResult)
+        )
+    }
 }
