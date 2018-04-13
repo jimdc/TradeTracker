@@ -12,12 +12,9 @@ import android.os.HandlerThread
 import java.lang.Thread.*
 import android.support.v7.preference.PreferenceManager
 import android.util.Log
-import com.advent.group69.tradetracker.BatteryAwareness.notif1
+import com.advent.group69.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
 import com.advent.group69.tradetracker.BatteryAwareness.notifiedOfPowerSaving
 import com.advent.group69.tradetracker.model.SnoozeManager
-import java.io.FileNotFoundException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class NetworkService : Service() {
     private var runTargetScan = true
@@ -82,7 +79,7 @@ class NetworkService : Service() {
         }
         toast("Stopping scan")
         notifiedOfPowerSaving = false
-        notif1 = false
+        wentThroughFirstTimeFalseAlarm = false
     }
 
     override fun onBind(intent: Intent?): IBinder? {

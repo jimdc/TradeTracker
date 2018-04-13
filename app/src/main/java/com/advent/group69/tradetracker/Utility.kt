@@ -36,7 +36,9 @@ object Utility {
      *
      */
     fun String.isValidTickerSymbol(): Boolean {
-        return Regex(" /^(([a-z]{2,4}):(?![a-z\\d]+\\.))?([a-z]{1,4}|\\d{1,3}(?=\\.)|\\d{4,})(\\.([a-z]{2}))?\$/i")
-                .matches(this)
+        val validTickerFormat = Regex("/^(([a-z]{2,4}):(?![a-z\\d]+\\.))?([a-z]{1,4}|\\d{1,3}(?=\\.)|\\d{4,})(\\.([a-z]{2}))?$/i")
+        val results = validTickerFormat.matchEntire(this)?.groupValues
+
+        return (results != null)
     }
 }

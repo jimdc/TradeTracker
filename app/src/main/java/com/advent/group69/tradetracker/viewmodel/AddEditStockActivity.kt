@@ -96,6 +96,9 @@ class AddEditStockActivity : AppCompatActivity() {
 
             workingStock.stockid = Calendar.getInstance().timeInMillis
 
+            if (isEditingCrypto == true) workingStock.crypto = 1L
+            else workingStock.crypto = 0L
+
             title =
                     if (isEditingCrypto == true) resources.getString(R.string.title_activity_add_crypto)
                     else resources.getString(R.string.title_activity_add_stock)

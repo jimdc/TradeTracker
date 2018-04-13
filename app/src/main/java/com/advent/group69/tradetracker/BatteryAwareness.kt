@@ -14,7 +14,7 @@ object BatteryAwareness {
 
     var notifiedOfPowerSaving = false
     var isPowerSavingOn = true
-    var notif1 = false
+    var wentThroughFirstTimeFalseAlarm = false
 
     private const val POWER_OFF_PLEASE_ID = 33
     const val INTENT_FILTER = "POWERSAVENOTIFY"
@@ -23,12 +23,12 @@ object BatteryAwareness {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 INTENT_FILTER -> if (isPowerSavingOn) {
-                    if (notif1) {
+                    if (wentThroughFirstTimeFalseAlarm) {
                         BatteryAwareness.showDisablePowerSavingRequestNotification(context!!)
                         context.toast("Turn off power saving mode so scan can run while phone is sleeping")
                         notifiedOfPowerSaving = true
                     } else {
-                        notif1 = true
+                        wentThroughFirstTimeFalseAlarm = true
                     }
                 }
             }

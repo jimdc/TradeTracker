@@ -3,9 +3,11 @@ package com.advent.group69.tradetracker
 import com.advent.group69.tradetracker.StockDownloader.INTERNET_EXCEPTION
 import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.group69.tradetracker.model.Cryptocurrency
+import com.advent.group69.tradetracker.model.DataModel
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
+import io.reactivex.Observable
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -75,6 +77,10 @@ object StockDownloader {
             INTERNET_EXCEPTION
         }
     }
+
+    private val dataModel = DataModel()
+    fun getCryptoPriceObservable(ticker: String): Observable<Double>
+            = dataModel.getCryptoPrice(ticker).map { x -> x.USD }
 
     /**
      * As a second resort, check NASDAQ's symbol site, but not the "real-time" one.
