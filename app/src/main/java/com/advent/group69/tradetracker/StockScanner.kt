@@ -98,9 +98,10 @@ class StockScanner(private val callerContext: Context) {
     private fun broadcastPriceLocally(stockId: Long, currentPrice: Double) {
         Log.i("StockScanner", "Sending price update of $stockId as $currentPrice")
         val intent = Intent("PRICEUPDATE")
-        intent.putExtra("stockId", stockId)
-        intent.putExtra("currentPrice", currentPrice)
-        intent.putExtra("time", GregorianCalendar().time)
+
+        intent.putExtra("stockid", stockId)
+        intent.putExtra("currentprice", currentPrice)
+        intent.putExtra("time", GregorianCalendar().time.toString())
         LocalBroadcastManager.getInstance(callerContext).sendBroadcast(intent)
     }
 

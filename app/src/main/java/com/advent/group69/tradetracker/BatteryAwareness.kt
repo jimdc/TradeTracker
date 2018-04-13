@@ -13,7 +13,7 @@ import org.jetbrains.anko.toast
 object BatteryAwareness {
 
     var notifiedOfPowerSaving = false
-    var isPowerSavingOn = true
+    var isPowerSavingOn = false
     var wentThroughFirstTimeFalseAlarm = false
 
     private const val POWER_OFF_PLEASE_ID = 33
