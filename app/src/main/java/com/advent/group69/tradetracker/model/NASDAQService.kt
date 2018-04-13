@@ -1,24 +1,23 @@
 package com.advent.group69.tradetracker.model
 
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface StockRestService {
+interface NASDAQService {
 
     /**
-     * Equivalent to https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD
+     * Equivalent to https://www.nasdaq.com/symbol/goog
+     *
+     * since it's not something like /?symbol=goog, idk how to do in Retrofit
+     * following https://www.thedroidsonroids.com/blog/scraping-web-pages-with-retrofit-jspoon-library
      */
 
-    @GET("price")
-    fun cryptoPrice(
-            @Query("fsym") cryptoTicker: String,
-            @Query("tsyms") realLifeCurrency: String = "USD"
-    ):
+    @GET("symbol")
+    fun stockPrice(stockTicker: String):
             Single<CryptoModel.Result>
 
     /**
@@ -29,15 +28,16 @@ interface StockRestService {
     }
 
     companion object {
-        fun create(): StockRestService {
+        fun create(): NASDAQService {
 
             val retrofit = Retrofit.Builder()
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(MoshiConverterFactory.create())
-                    .baseUrl("https://min-api.cryptocompare.com/data/")
+                    .baseUrl("https://www.nasdaq.com/symbol/")
                     .build()
 
-            return retrofit.create(StockRestService::class.java)
+            return retrofit.create(NASDAQService::class.java)
         }
     }
+
 }

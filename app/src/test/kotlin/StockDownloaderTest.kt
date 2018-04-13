@@ -1,5 +1,4 @@
 import com.advent.group69.tradetracker.StockDownloader.getCryptoPrice
-import com.advent.group69.tradetracker.StockDownloader.getCryptoPriceObservable
 import com.advent.group69.tradetracker.StockDownloader.getStockPrice
 import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.group69.tradetracker.StockDownloader.parseLateStockPrice
@@ -61,11 +60,6 @@ class StockDownloaderTest (
      */
     @Test fun parsesStockOutput () {
         parseLateStockPrice(asBufferedReader(unparsedAsStock)).shouldEqual(parsedAsStock)
-    }
-
-    @Test fun getsCryptoAsObservable() {
-        val cryptoObservable = getCryptoPriceObservable(sharedTickerSymbol)
-        cryptoObservable.blockingSingle().shouldBePositive()
     }
 
     private var asStockPrice = 0.0

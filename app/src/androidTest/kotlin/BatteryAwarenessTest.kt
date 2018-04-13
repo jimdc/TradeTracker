@@ -1,5 +1,3 @@
-package com.advent.group69.tradetracker
-
 import org.junit.Assert.*
 
 /**

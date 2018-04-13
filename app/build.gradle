@@ -83,6 +83,8 @@ dependencies {
     compile 'org.jetbrains.anko:anko-appcompat-v7:0.8.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:appcompat-v7:27.1.0'
+    compile 'pl.droidsonroids:jspoon:1.0.0'
+    compile 'pl.droidsonroids.retrofit2:converter-jspoon:1.0.0'
     compile 'com.squareup.moshi:moshi:1.5.0'
     compile 'com.android.support:multidex:1.0.3'
     compile 'com.squareup.moshi:moshi-kotlin:1.5.0'

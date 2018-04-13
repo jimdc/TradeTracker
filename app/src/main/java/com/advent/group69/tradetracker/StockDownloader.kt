@@ -8,6 +8,7 @@ import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import io.reactivex.Observable
+import io.reactivex.Single
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -69,18 +70,16 @@ object StockDownloader {
      * @todo add option to compare crypto to any other crypto by swapping out USD with cryptoUnits (can still be USD)
      * @return crypto price if successful, [INTERNET_EXCEPTION], or exceptions in [parseCryptoPrice]
      */
+    private val dataModel = DataModel()
     fun getCryptoPrice(ticker: String): Double {
         return try {
-            parseCryptoPrice(urlHtml
-            ("https://min-api.cryptocompare.com/data/price?fsym=${ticker.toUpperCase()}&tsyms=USD"))
+            dataModel.getCryptoPrice(ticker.toUpperCase())
+                    .map { x -> x.USD }
+                    .blockingGet()
         } catch (ie: IOException) {
             INTERNET_EXCEPTION
         }
     }
-
-    private val dataModel = DataModel()
-    fun getCryptoPriceObservable(ticker: String): Observable<Double>
-            = dataModel.getCryptoPrice(ticker).map { x -> x.USD }
 
     /**
      * As a second resort, check NASDAQ's symbol site, but not the "real-time" one.
