@@ -1,5 +1,6 @@
 package com.advent.group69.tradetracker
 
+import android.util.Log
 import com.advent.group69.tradetracker.StockDownloader.INTERNET_EXCEPTION
 import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.group69.tradetracker.model.Cryptocurrency
@@ -143,7 +144,7 @@ object StockDownloader {
         } catch (jo: JsonDataException) {
             return JSON_DATA_ERROR
         }
-
+        Log.d("cryptoprice", currency.toString())
         return currency?.USD ?: SKIPPED_PARSE_ERROR
     }
 

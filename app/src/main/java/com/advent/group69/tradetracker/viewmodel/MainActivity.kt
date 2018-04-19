@@ -89,8 +89,9 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
 
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(BatteryAwareness.powerSaverOffPleaseReceiver, IntentFilter(BatteryAwareness.INTENT_FILTER))
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode) {
-            isPowerSavingOn = true
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if(powerManager.isPowerSaveMode)
+                isPowerSavingOn = true
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)

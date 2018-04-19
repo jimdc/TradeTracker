@@ -16,6 +16,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import io.reactivex.subjects.PublishSubject
 import android.widget.EditText
+import com.advent.group69.tradetracker.R.id.stopLoss
 import com.advent.group69.tradetracker.R.id.trailingPercent
 import io.reactivex.Observable
 
@@ -33,6 +34,7 @@ class AddEditStockActivity : AppCompatActivity() {
     private lateinit var btnDelete: Button
     private lateinit var activationPrice: EditText
     private lateinit var trailingPercent: EditText
+    private lateinit var stopLoss: EditText
 
 
     private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, 0L, 0L, 0L)
@@ -50,6 +52,7 @@ class AddEditStockActivity : AppCompatActivity() {
         btnDelete = findViewById(R.id.delbtn)
         activationPrice = findViewById(R.id.activationPrice)
         trailingPercent = findViewById(R.id.trailingPercent)
+        stopLoss = findViewById(R.id.stopLoss)
         val btnAdd = findViewById<FloatingActionButton>(R.id.fab)
         btnAdd.setOnClickListener(stockClickListener)
 
@@ -90,8 +93,14 @@ class AddEditStockActivity : AppCompatActivity() {
 
             title = resources.getString(R.string.title_activity_edit_stock, workingStock.ticker)
 
+            toast("HP: " + workingStock.highestPrice.toString() + " trail: " + workingStock.trailingPercent.toString())
+
+
             tickerName.setText(workingStock.ticker)
             tickerPrice.setText(workingStock.target.toString())
+            trailingPercent.setText(workingStock.trailingPercent.toString())
+            activationPrice.setText(workingStock.activationPrice.toString())
+            stopLoss.setText(workingStock.stopLoss.toString())
             phoneChecked.isChecked = workingStock.phone > 0L
             if (workingStock.above > 0L) aboveChecked.isChecked = true else belowChecked.isChecked = true
 
@@ -100,6 +109,8 @@ class AddEditStockActivity : AppCompatActivity() {
         } else if (isEditingExisting == false) {
 
             workingStock.stockid = Calendar.getInstance().timeInMillis
+            if (isEditingCrypto == true) workingStock.crypto = 1L
+            else workingStock.crypto = 0L
 
             title =
                     if (isEditingCrypto == true) resources.getString(R.string.title_activity_add_crypto)
@@ -119,6 +130,9 @@ class AddEditStockActivity : AppCompatActivity() {
 
         workingStock.ticker = tickerName.text.toString()
         workingStock.target = tickerPrice.text.toString().toDoubleOrNull() ?: -1.0
+        workingStock.trailingPercent = trailingPercent.text.toString().toDoubleOrNull() ?: -1.0
+        workingStock.activationPrice = activationPrice.text.toString().toDoubleOrNull() ?: -1.0
+        workingStock.stopLoss = stopLoss.text.toString().toDoubleOrNull() ?: -1.0
         workingStock.above = if (aboveChecked.isChecked) 1L else 0L
         workingStock.phone = if (phoneChecked.isChecked) 1L else 0L
 

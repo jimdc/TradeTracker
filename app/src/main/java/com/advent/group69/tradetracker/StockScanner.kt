@@ -54,10 +54,13 @@ class StockScanner(private val callerContext: Context) {
         Log.v("StockScanner ", if (stocksTargets.isEmpty()) "might be empty list: " else "stocks targets: " + stocksTargets.joinToString(", ") { it.ticker })
 
         for (stockx in stocksTargets) {
+
             val ticker: String = stockx.ticker
 
             val currentPrice = if (stockx.crypto == 1L) { StockDownloader.getCryptoPrice(ticker)
             } else { StockDownloader.getLateStockPrice(ticker) } //changed from getStockPrice, the livestockprice is often non-existent and doesnt round as well for penny stocks
+
+            Log.d("stockprice",stockx.ticker + ", " + currentPrice.toString())
 
             if (currentPrice >= 0) {
                 broadcastPriceLocally(stockx.stockid, currentPrice)
@@ -78,12 +81,17 @@ class StockScanner(private val callerContext: Context) {
                         broadcastPriceGlobally(stockx.ticker, stockx.stopLoss.toString(), "b", "regular")
                         continue
                     }
-                    if(currentPrice > stockx.highestPrice)
+
+                    if(currentPrice > stockx.highestPrice) {
+                        Log.d("stockprice","activating")
                         stockx.highestPrice = currentPrice
+                        dbFunctions.addOrEditStock(stockx)
+                    }
                     if( !(stockx.activationPrice == -2.0 || stockx.activationPrice == -1.0) ) {
                         //an activation price of -2.0 denotes that it has already been activated, -1.0 denotes no activation price
                         if(currentPrice >= stockx.activationPrice) {  //activation price must be higher than the start price @ creation
-                            stockx.activationPrice = -2.0
+                            stockx.activationPrice = -2.0 //we could make it so the database subscribes to the observable,
+                            dbFunctions.addOrEditStock(stockx)
                         }
                     }
                     if( stockx.activationPrice == -2.0 || stockx.activationPrice == -1.0 ) {

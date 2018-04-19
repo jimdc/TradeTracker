@@ -6,7 +6,7 @@ import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 
 
-@Database(entities = [(Stock::class)], version=3, exportSchema = false)
+@Database(entities = [(Stock::class)], version=4, exportSchema = false)
 abstract class StockDatabase : RoomDatabase() {
     abstract fun stockDao(): StockDao
 
