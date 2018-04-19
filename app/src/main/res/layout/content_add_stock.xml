@@ -77,54 +77,7 @@
         android:layout_marginBottom="21dp"
         android:text="@string/delete" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:background="@android:color/darker_gray"
-        android:layout_below="@+id/radioGroup"/>
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/divider"
-        android:layout_marginBottom="7dp"
-        android:layout_marginLeft="81dp"
-        android:textSize="23sp"
-        android:ems="10"
-        android:text="Trailing stop-loss" />
-    <EditText
-        android:id="@+id/trailingPercent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/tickerName"
-        android:layout_below="@+id/textView2"
-        android:layout_marginBottom="7dp"
-        android:ems="10"
-        android:hint="Trailing stop-loss %"
-        android:inputType="numberDecimal" />
-    <EditText
-        android:id="@+id/activationPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/tickerName"
-        android:layout_below="@+id/trailingPercent"
-        android:layout_marginBottom="7dp"
-        android:ems="10"
-        android:hint="Trigger price (optional)"
-        android:inputType="numberDecimal" />
-    <EditText
-        android:id="@+id/stopLoss"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/tickerName"
-        android:layout_below="@+id/activationPrice"
-        android:layout_marginBottom="7dp"
-        android:ems="10"
-        android:hint="Stop loss price (optional)"
-        android:inputType="numberDecimal" />
+
 
 
 

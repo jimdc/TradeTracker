@@ -22,22 +22,16 @@ import com.advent.group69.tradetracker.NetworkService
 import com.advent.group69.tradetracker.R.id.stopLoss
 import com.advent.group69.tradetracker.R.id.trailingPercent
 import com.advent.group69.tradetracker.SettingsActivity
-import com.advent.group69.tradetracker.view.SnoozeDialog
 import io.reactivex.Observable
 
-
-const val ADD_SOMETHING = 1
-const val EDIT_SOMETHING = 2
-
-class AddEditStockActivity : AppCompatActivity() {
+class AddTrailingActivity : AppCompatActivity() {
 
     private lateinit var tickerName: EditText
-    private lateinit var tickerPrice: EditText
-    private lateinit var aboveChecked: RadioButton
-    private lateinit var belowChecked: RadioButton
+    private lateinit var activationPrice: EditText
+    private lateinit var trailingPercent: EditText
+    private lateinit var stopLoss: EditText
     private lateinit var phoneChecked: CheckBox
     private lateinit var btnDelete: Button
-
 
 
     private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, 0L, 0L, 0L)
@@ -48,14 +42,11 @@ class AddEditStockActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_stock)
 
         tickerName = findViewById(R.id.tickerName)
-        tickerPrice = findViewById(R.id.tickerPrice)
-        aboveChecked = findViewById(R.id.rbAbove)
-        belowChecked = findViewById(R.id.rbBelow)
         phoneChecked = findViewById(R.id.phoneCallCB)
         btnDelete = findViewById(R.id.delbtn)
-       // activationPrice = findViewById(R.id.activationPrice)
-        //trailingPercent = findViewById(R.id.trailingPercent)
-        //stopLoss = findViewById(R.id.stopLoss)
+        activationPrice = findViewById(R.id.activationPrice)
+        trailingPercent = findViewById(R.id.trailingPercent)
+        stopLoss = findViewById(R.id.stopLoss)
         val btnAdd = findViewById<FloatingActionButton>(R.id.fab)
         btnAdd.setOnClickListener(stockClickListener)
 
@@ -71,6 +62,7 @@ class AddEditStockActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
 
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.target_price -> startActivity<AddEditStockActivity>()
@@ -90,6 +82,7 @@ class AddEditStockActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
     override fun onStart() {
         super.onStart()
 
@@ -110,11 +103,11 @@ class AddEditStockActivity : AppCompatActivity() {
             } else {
                 workingStock.stockid = stockFromView.stockid
                 workingStock.ticker = stockFromView.ticker
-                workingStock.target = stockFromView.target
-       //         workingStock.stopLoss = stockFromView.stopLoss
-       //         workingStock.trailingPercent = stockFromView.trailingPercent
-        //        workingStock.activationPrice = stockFromView.activationPrice
-        //        workingStock.highestPrice = stockFromView.highestPrice
+                workingStock.target = 0.0
+                workingStock.stopLoss = stockFromView.stopLoss
+                workingStock.trailingPercent = stockFromView.trailingPercent
+                workingStock.activationPrice = stockFromView.activationPrice
+                workingStock.highestPrice = stockFromView.highestPrice
                 workingStock.above = stockFromView.above
                 workingStock.crypto = stockFromView.crypto
             }
@@ -126,12 +119,10 @@ class AddEditStockActivity : AppCompatActivity() {
 
 
             tickerName.setText(workingStock.ticker)
-            tickerPrice.setText(workingStock.target.toString())
-            //trailingPercent.setText(workingStock.trailingPercent.toString())
-            //activationPrice.setText(workingStock.activationPrice.toString())
-            //stopLoss.setText(workingStock.stopLoss.toString())
+            trailingPercent.setText(workingStock.trailingPercent.toString())
+            activationPrice.setText(workingStock.activationPrice.toString())
+            stopLoss.setText(workingStock.stopLoss.toString())
             phoneChecked.isChecked = workingStock.phone > 0L
-            if (workingStock.above > 0L) aboveChecked.isChecked = true else belowChecked.isChecked = true
 
             btnDelete.visibility = View.VISIBLE
             btnDelete.setOnClickListener(deleteStockClickListener)
@@ -150,7 +141,7 @@ class AddEditStockActivity : AppCompatActivity() {
     }
 
     private fun isUserInputNotEmpty(): Boolean {
-        return !(tickerName.text.trim().isEmpty() or tickerPrice.text.trim().isEmpty())
+        return !(tickerName.text.trim().isEmpty() or trailingPercent.text.trim().isEmpty())
     }
 
     private fun updateWorkingStockFromUserInput(): Boolean {
@@ -158,11 +149,9 @@ class AddEditStockActivity : AppCompatActivity() {
         if (!isUserInputNotEmpty()) return false
 
         workingStock.ticker = tickerName.text.toString()
-        workingStock.target = tickerPrice.text.toString().toDoubleOrNull() ?: -1.0
-        //workingStock.trailingPercent = trailingPercent.text.toString().toDoubleOrNull() ?: -1.0
-        //workingStock.activationPrice = activationPrice.text.toString().toDoubleOrNull() ?: -1.0
-        //workingStock.stopLoss = stopLoss.text.toString().toDoubleOrNull() ?: -1.0
-        workingStock.above = if (aboveChecked.isChecked) 1L else 0L
+        workingStock.trailingPercent = trailingPercent.text.toString().toDoubleOrNull() ?: -1.0
+        workingStock.activationPrice = activationPrice.text.toString().toDoubleOrNull() ?: -1.0
+        workingStock.stopLoss = stopLoss.text.toString().toDoubleOrNull() ?: -1.0
         workingStock.phone = if (phoneChecked.isChecked) 1L else 0L
 
         return (workingStock.target != -1.0)

@@ -5,68 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.advent.group69.tradetracker.viewmodel.AddEditStockActivity"
+    tools:context="com.advent.group69.tradetracker.viewmodel.AddTrailingActivity"
     tools:showIn="@layout/activity_add_stock_trailing">
 
-    <EditText
-        android:id="@+id/tickerName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="80dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="7dp"
-        android:ems="10"
-        android:hint="@string/tickername"
-        android:inputType="textCapCharacters" />
 
-    <EditText
-        android:id="@+id/tickerPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/tickerName"
-        android:layout_below="@+id/tickerName"
-        android:layout_marginBottom="7dp"
-        android:ems="10"
-        android:hint="@string/targetprice"
-        android:inputType="numberDecimal" />
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:checkedButton="@+id/rbAbove"
-        android:orientation="horizontal"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tickerPrice">
-
-        <RadioButton
-            android:id="@+id/rbAbove"
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="false"
-            android:text="@string/above" />
-
-        <RadioButton
-            android:id="@+id/rbBelow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/below" />
-    </RadioGroup>
-
-    <CheckBox
-        android:id="@+id/phoneCallCB"
-        android:layout_width="139dp"
-        android:layout_height="47dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/delbtn"
-        android:layout_marginEnd="51dp"
-        android:text="@string/callme"
-        android:visibility="invisible" />
 
     <Button
         android:id="@+id/delbtn"
@@ -77,30 +19,35 @@
         android:layout_marginBottom="21dp"
         android:text="@string/delete" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:background="@android:color/darker_gray"
-        android:layout_below="@+id/radioGroup"/>
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/divider"
-        android:layout_marginBottom="7dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="81dp"
-        android:textSize="23sp"
+        android:textSize="30sp"
         android:ems="10"
         android:text="Trailing stop-loss" />
+    <EditText
+        android:id="@+id/tickerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="80dp"
+        android:layout_marginTop="55dp"
+        android:layout_marginBottom="7dp"
+        android:layout_below="@+id/textView2"
+        android:ems="10"
+        android:hint="@string/tickername"
+        android:inputType="textCapCharacters" />
     <EditText
         android:id="@+id/trailingPercent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tickerName"
-        android:layout_below="@+id/textView2"
+        android:layout_below="@+id/tickerName"
         android:layout_marginBottom="7dp"
         android:ems="10"
         android:hint="Trailing stop-loss %"
