@@ -73,8 +73,18 @@ class AddEditStockActivity : AppCompatActivity() {
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.target_price -> startActivity<AddEditStockActivity>()
-            R.id.trailing_stop -> startActivity<AddTrailingActivity>()
+            R.id.target_price -> {
+                val intent = Intent(this, AddEditStockActivity::class.java)
+                intent.putExtra("isEditingCrypto", false)
+                        .putExtra("isEditingExisting", false)
+                startActivityForResult(intent, ADD_SOMETHING)
+            }
+            R.id.trailing_stop -> {
+                val intent = Intent(this, AddTrailingActivity::class.java)
+                intent.putExtra("isEditingCrypto", false)
+                        .putExtra("isEditingExisting", false)
+                startActivityForResult(intent, ADD_SOMETHING)
+            }
             R.id.action_add_stock -> {
                 val intent = Intent(this, AddEditStockActivity::class.java)
                 intent.putExtra("isEditingCrypto", false)

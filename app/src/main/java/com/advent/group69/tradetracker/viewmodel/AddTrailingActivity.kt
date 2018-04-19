@@ -39,16 +39,13 @@ class AddTrailingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_add_stock)
+        setContentView(R.layout.activity_add_stock_trailing)
 
         tickerName = findViewById(R.id.tickerName)
-        phoneChecked = findViewById(R.id.phoneCallCB)
         btnDelete = findViewById(R.id.delbtn)
         activationPrice = findViewById(R.id.activationPrice)
         trailingPercent = findViewById(R.id.trailingPercent)
         stopLoss = findViewById(R.id.stopLoss)
-        val btnAdd = findViewById<FloatingActionButton>(R.id.fab)
-        btnAdd.setOnClickListener(stockClickListener)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -65,8 +62,18 @@ class AddTrailingActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.target_price -> startActivity<AddEditStockActivity>()
-            R.id.trailing_stop -> startActivity<AddTrailingActivity>()
+            R.id.target_price -> {
+                val intent = Intent(this, AddEditStockActivity::class.java)
+                intent.putExtra("isEditingCrypto", false)
+                        .putExtra("isEditingExisting", false)
+                startActivityForResult(intent, ADD_SOMETHING)
+            }
+            R.id.trailing_stop -> {
+                val intent = Intent(this, AddTrailingActivity::class.java)
+                intent.putExtra("isEditingCrypto", false)
+                        .putExtra("isEditingExisting", false)
+                startActivityForResult(intent, ADD_SOMETHING)
+            }
             R.id.action_add_stock -> {
                 val intent = Intent(this, AddEditStockActivity::class.java)
                 intent.putExtra("isEditingCrypto", false)
@@ -108,7 +115,6 @@ class AddTrailingActivity : AppCompatActivity() {
                 workingStock.trailingPercent = stockFromView.trailingPercent
                 workingStock.activationPrice = stockFromView.activationPrice
                 workingStock.highestPrice = stockFromView.highestPrice
-                workingStock.above = stockFromView.above
                 workingStock.crypto = stockFromView.crypto
             }
 
@@ -122,7 +128,7 @@ class AddTrailingActivity : AppCompatActivity() {
             trailingPercent.setText(workingStock.trailingPercent.toString())
             activationPrice.setText(workingStock.activationPrice.toString())
             stopLoss.setText(workingStock.stopLoss.toString())
-            phoneChecked.isChecked = workingStock.phone > 0L
+
 
             btnDelete.visibility = View.VISIBLE
             btnDelete.setOnClickListener(deleteStockClickListener)
@@ -152,9 +158,8 @@ class AddTrailingActivity : AppCompatActivity() {
         workingStock.trailingPercent = trailingPercent.text.toString().toDoubleOrNull() ?: -1.0
         workingStock.activationPrice = activationPrice.text.toString().toDoubleOrNull() ?: -1.0
         workingStock.stopLoss = stopLoss.text.toString().toDoubleOrNull() ?: -1.0
-        workingStock.phone = if (phoneChecked.isChecked) 1L else 0L
 
-        return (workingStock.target != -1.0)
+        return (workingStock.trailingPercent != -1.0)
     }
 
     private val stockClickListener = View.OnClickListener {

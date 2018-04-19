@@ -46,6 +46,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.advent.group69.tradetracker.viewmodel.MainActivity" />
         </activity>
+        <activity
+            android:name="com.advent.group69.tradetracker.viewmodel.AddTrailingActivity"
+            android:windowSoftInputMode="stateVisible"
+            android:label="@string/title_activity_add_stock"
+            android:parentActivityName="com.advent.group69.tradetracker.viewmodel.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.advent.group69.tradetracker.viewmodel.MainActivity" />
+        </activity>
         <service android:name="com.advent.group69.tradetracker.NetworkService" android:exported="false"/>
         <activity android:name="com.advent.group69.tradetracker.SettingsActivity" android:label="@string/settings"
             android:parentActivityName=".viewmodel.MainActivity">
