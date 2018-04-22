@@ -1,6 +1,6 @@
 import org.junit.Test
-import com.advent.group69.tradetracker.Utility.withDollarSignAndDecimal
-import com.advent.group69.tradetracker.Utility.isValidTickerSymbol
+import com.advent.tradetracker.Utility.withDollarSignAndDecimal
+import com.advent.tradetracker.Utility.isValidTickerSymbol
 import org.amshove.kluent.shouldEqual
 
 class UtilityTest {

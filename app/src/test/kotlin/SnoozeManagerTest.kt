@@ -1,4 +1,4 @@
-import com.advent.group69.tradetracker.model.SnoozeManager
+import com.advent.tradetracker.model.SnoozeManager
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.Test

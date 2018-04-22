@@ -1,7 +1,7 @@
 import android.support.test.rule.ServiceTestRule
 import android.support.test.InstrumentationRegistry
 import android.content.Intent
-import com.advent.group69.tradetracker.NetworkService
+import com.advent.tradetracker.NetworkService
 import java.util.concurrent.TimeoutException
 import android.support.test.runner.AndroidJUnit4
 import org.junit.*

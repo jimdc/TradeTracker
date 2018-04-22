@@ -12,8 +12,8 @@ import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
-import com.advent.group69.tradetracker.viewmodel.MainActivity
-import com.advent.group69.tradetracker.R
+import com.advent.tradetracker.viewmodel.MainActivity
+import com.advent.tradetracker.R
 import org.junit.runner.RunWith
 import android.content.Context
 import org.junit.*
