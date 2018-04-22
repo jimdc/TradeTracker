@@ -8,7 +8,7 @@ UI mockup diagrams exported from http://draw.io/ on advfintech@gmail.com on Feb 
 
 ![Add a stock to track](/AddStock.png "Add Stock")
 
-**Stock** type stored in SQLite [table](https://github.com/jimdc/TradeTracker/blob/master/app/src/main/java/com/example/group69/alarm/stockbox.kt) [`TableVersion2`]
+**Stock** type stored in SQLite [table](https://github.com/jimdc/TradeTracker/blob/master/app/src/main/java/com/example/alarm/stockbox.kt) [`TableVersion2`]
 
 | Name          | Type          | Default  | 
 | ------------- |:-------------:| --------:| 

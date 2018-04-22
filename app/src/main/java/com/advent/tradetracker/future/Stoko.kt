@@ -24,7 +24,7 @@ data class Stoko(var ticker: String = "") {
 
     @Embedded var stokoPosition = StokoPosition()
 
-    @Ignore private var alarmos: List<Alarmo>? = null
+    @Ignore private var alarmos: List<com.advent.tradetracker.future.Alarmo>? = null
     @Ignore @ColumnInfo(name="current_price") var currentprice: Long = 0
 
     override fun toString() = ticker

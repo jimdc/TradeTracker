@@ -11,10 +11,18 @@ import android.os.Process
 import android.os.HandlerThread
 import java.lang.Thread.*
 import android.support.v7.preference.PreferenceManager
-import com.advent.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
+
+import android.util.Log
 import com.advent.tradetracker.BatteryAwareness.notifiedOfPowerSaving
 import com.advent.tradetracker.model.SnoozeManager
+import java.io.FileNotFoundException
+import java.text.SimpleDateFormat
+import java.util.*
+import com.advent.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
+
+
 import timber.log.Timber
+
 
 class NetworkService : Service() {
     private var runTargetScan = true
@@ -23,7 +31,7 @@ class NetworkService : Service() {
     private var updateFrequencyPreference: Long = 8000
     private val targetScanThread = HandlerThread("TutorialService",
             Process.THREAD_PRIORITY_BACKGROUND)
-    var stockScanner = StockScanner(this@NetworkService)
+    var stockScanner = com.advent.tradetracker.StockScanner(this@NetworkService)
 
     /**
      * Avoids CPU blocking by creating background handler [serviceHandler] for the service
@@ -97,22 +105,22 @@ class NetworkService : Service() {
             var secondsSinceScanStarted = 0
             var iteration = 0
             val snoozeMsecInterval = 1000L
-            val logger = Logger(this@NetworkService, "Updaten.txt")
+            val logger = com.advent.tradetracker.Logger(this@NetworkService, "Updaten.txt")
             stockScanner.isRunning = true
 
-            while (!currentThread().isInterrupted) {
+            while (stockScanner.isRunning) {
                 val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
                 val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag")
-                if (SnoozeManager.isSnoozing()) {
+                if (com.advent.tradetracker.model.SnoozeManager.isSnoozing()) {
                     wakeLock.acquire(60000)
-                    Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
+                    com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
                     wakeLock.release()
                 } else {
                     Timber.i( "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
                     wakeLock.acquire(60000)
 
                     logger.logHowLongItTakesToRun { stockScanner.scanNetwork() }
-                    Utility.sleepWithThreadInterruptIfWokenUp(updateFrequencyPreference)
+                    com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(updateFrequencyPreference)
 
                     wakeLock.release()
                 }

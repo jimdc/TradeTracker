@@ -24,7 +24,7 @@ class SnoozeDialog {
     private lateinit var textHour: EditText
     private lateinit var textMinute: EditText
     private lateinit var context: Context
-    private var snoozeInterface: SnoozeInterface? = null
+    private var snoozeInterface: com.advent.tradetracker.model.SnoozeInterface? = null
     private var snoozeMsecInterval = 1000L
 
     /**
@@ -34,13 +34,13 @@ class SnoozeDialog {
     fun open(context: Context, isNetworkServiceRunning: Boolean) {
 
         try {
-            snoozeInterface = context as SnoozeInterface
+            snoozeInterface = context as com.advent.tradetracker.model.SnoozeInterface
             this.context = context
         } catch (classCastException: ClassCastException) {
             Timber.d("Could not cast $snoozeInterface as StockInterface. Implement in MainActivity?")
         }
 
-        if (SnoozeManager.isSnoozing()) {
+        if (com.advent.tradetracker.model.SnoozeManager.isSnoozing()) {
             context.toast(R.string.alreadysnoozing)
             return
         }
@@ -78,7 +78,7 @@ class SnoozeDialog {
                     val minutes = if (iMinutet.isEmpty()) 0L else iMinutet.toLong()
                     snoozeMsecTotal = 1000 * (hours * 3600 + minutes * 60)
 
-                    SnoozeManager.startSnooze(snoozeMsecTotal, forceRestart = true)
+                    com.advent.tradetracker.model.SnoozeManager.startSnooze(snoozeMsecTotal, forceRestart = true)
 
                 } catch (numberFormatException: NumberFormatException) {
                     Toast.makeText(this, getString(R.string.NaN, "$iHourt/$iMinutet"), Toast.LENGTH_SHORT).show()
@@ -89,16 +89,16 @@ class SnoozeDialog {
                 Timber.i("isSnoozing set to true. Scan pausing.")
                 async {
                     snoozeInterface?.setMaxSnoozeProgress(snoozeMsecTotal.toInt())
-                    SnoozeManager.snoozeMsecTotal = snoozeMsecTotal
-                    while (SnoozeManager.isSnoozing()) {
+                    com.advent.tradetracker.model.SnoozeManager.snoozeMsecTotal = snoozeMsecTotal
+                    while (com.advent.tradetracker.model.SnoozeManager.isSnoozing()) {
                         uiThread {
-                            snoozeInterface?.setSnoozeProgress(SnoozeManager.getSnoozeTimeRemaining().toInt())
+                            snoozeInterface?.setSnoozeProgress(com.advent.tradetracker.model.SnoozeManager.getSnoozeTimeRemaining().toInt())
                             snoozeInterface?.setSnoozeInfo(
                                     resources.getString(R.string.snoozeremain,
-                                            SnoozeManager.getSnoozeTimeRemaining().toInt(),
+                                            com.advent.tradetracker.model.SnoozeManager.getSnoozeTimeRemaining().toInt(),
                                             snoozeMsecTotal))
                         }
-                        Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
+                        com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
                     }
 
                     uiThread {

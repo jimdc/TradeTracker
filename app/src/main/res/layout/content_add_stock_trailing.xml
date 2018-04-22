@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.advent.tradetracker.viewmodel.AddTrailingActivity"
+    tools:showIn="@layout/activity_add_stock_trailing">
+
+
+
+    <Button
+        android:id="@+id/delbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/tickerPrice"
+        android:layout_marginBottom="21dp"
+        android:text="@string/delete" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="79dp"
+        android:textSize="30sp"
+        android:ems="10"
+        android:text="Trailing stop-loss" />
+    <EditText
+        android:id="@+id/tickerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="80dp"
+        android:layout_marginTop="55dp"
+        android:layout_marginBottom="7dp"
+        android:layout_below="@+id/textView2"
+        android:ems="10"
+        android:hint="@string/tickername"
+        android:inputType="textCapCharacters" />
+    <EditText
+        android:id="@+id/trailingPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tickerName"
+        android:layout_below="@+id/tickerName"
+        android:layout_marginBottom="7dp"
+        android:ems="10"
+        android:hint="Trailing stop-loss %"
+        android:inputType="numberDecimal" />
+    <EditText
+        android:id="@+id/activationPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tickerName"
+        android:layout_below="@+id/trailingPercent"
+        android:layout_marginBottom="7dp"
+        android:ems="10"
+        android:hint="Trigger price (optional)"
+        android:inputType="numberDecimal" />
+    <EditText
+        android:id="@+id/stopLoss"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/tickerName"
+        android:layout_below="@+id/activationPrice"
+        android:layout_marginBottom="7dp"
+        android:ems="10"
+        android:hint="Stop loss price (optional)"
+        android:inputType="numberDecimal" />
+
+
+
+</android.widget.RelativeLayout>

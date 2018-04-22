@@ -14,6 +14,7 @@ import android.content.Intent
 import com.advent.tradetracker.R
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import io.reactivex.subjects.PublishSubject
@@ -22,45 +23,36 @@ import com.advent.tradetracker.NetworkService
 import com.advent.tradetracker.R.id.stopLoss
 import com.advent.tradetracker.R.id.trailingPercent
 import com.advent.tradetracker.SettingsActivity
-import com.advent.tradetracker.view.SnoozeDialog
+import com.advent.tradetracker.model.DatabaseFunctions
 import io.reactivex.Observable
-import android.widget.Toast
-import android.R.id.button2
-import android.R.id.button1
+import io.reactivex.disposables.CompositeDisposable
 
-
-
-const val ADD_SOMETHING = 1
-const val EDIT_SOMETHING = 2
-
-class AddEditStockActivity : AppCompatActivity() {
+class AddTrailingActivity : AppCompatActivity() {
 
     private lateinit var tickerName: EditText
-    private lateinit var tickerPrice: EditText
-    private lateinit var aboveChecked: RadioButton
-    private lateinit var belowChecked: RadioButton
+    private lateinit var activationPrice: EditText
+    private lateinit var trailingPercent: EditText
+    private lateinit var stopLoss: EditText
     private lateinit var phoneChecked: CheckBox
     private lateinit var btnDelete: Button
-    private var trailStop = false
-
-
+    private lateinit var dbFunctions: com.advent.tradetracker.model.DatabaseFunctions
+    private val compositeDisposable = CompositeDisposable()
+    fun getCompositeDisposable() = compositeDisposable
 
     private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, 0L, 0L, 0L)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_add_stock)
+        setContentView(R.layout.activity_add_stock_trailing)
 
         tickerName = findViewById(R.id.tickerName)
-        tickerPrice = findViewById(R.id.tickerPrice)
-        aboveChecked = findViewById(R.id.rbAbove)
-        belowChecked = findViewById(R.id.rbBelow)
-        phoneChecked = findViewById(R.id.phoneCallCB)
         btnDelete = findViewById(R.id.delbtn)
+        activationPrice = findViewById(R.id.activationPrice)
+        trailingPercent = findViewById(R.id.trailingPercent)
+        stopLoss = findViewById(R.id.stopLoss)
         val btnAdd = findViewById<FloatingActionButton>(R.id.fab)
         btnAdd.setOnClickListener(stockClickListener)
-
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -70,10 +62,12 @@ class AddEditStockActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.scan_type_action_menu, menu)
+
         return super.onCreateOptionsMenu(menu)
 
     }
- /*   override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.target_price -> {
                 val intent = Intent(this, AddEditStockActivity::class.java)
@@ -86,7 +80,6 @@ class AddEditStockActivity : AppCompatActivity() {
                 intent.putExtra("isEditingCrypto", false)
                         .putExtra("isEditingExisting", false)
                 startActivityForResult(intent, ADD_SOMETHING)
-                //finish()
             }
             R.id.action_add_stock -> {
                 val intent = Intent(this, AddEditStockActivity::class.java)
@@ -102,8 +95,7 @@ class AddEditStockActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    } */
-
+    }
 
     override fun onStart() {
         super.onStart()
@@ -125,8 +117,11 @@ class AddEditStockActivity : AppCompatActivity() {
             } else {
                 workingStock.stockid = stockFromView.stockid
                 workingStock.ticker = stockFromView.ticker
-                workingStock.target = stockFromView.target
-                workingStock.above = stockFromView.above
+                workingStock.target = 0.0
+                workingStock.stopLoss = stockFromView.stopLoss
+                workingStock.trailingPercent = stockFromView.trailingPercent
+                workingStock.activationPrice = stockFromView.activationPrice
+                workingStock.highestPrice = stockFromView.highestPrice
                 workingStock.crypto = stockFromView.crypto
             }
 
@@ -137,18 +132,16 @@ class AddEditStockActivity : AppCompatActivity() {
 
 
             tickerName.setText(workingStock.ticker)
-            tickerPrice.setText(workingStock.target.toString())
-            phoneChecked.isChecked = workingStock.phone > 0L
-            if (workingStock.above > 0L) aboveChecked.isChecked = true else belowChecked.isChecked = true
+            trailingPercent.setText(workingStock.trailingPercent.toString())
+            activationPrice.setText(workingStock.activationPrice.toString())
+            stopLoss.setText(workingStock.stopLoss.toString())
+
 
             btnDelete.visibility = View.VISIBLE
             btnDelete.setOnClickListener(deleteStockClickListener)
         } else if (isEditingExisting == false) {
 
             workingStock.stockid = Calendar.getInstance().timeInMillis
-            if (isEditingCrypto == true) workingStock.crypto = 1L
-            else workingStock.crypto = 0L
-
             if (isEditingCrypto == true) workingStock.crypto = 1L
             else workingStock.crypto = 0L
 
@@ -160,74 +153,22 @@ class AddEditStockActivity : AppCompatActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        when (item.itemId) {
-
-            R.id.menubtn -> {
-
-                // THE R.id.button2 has to be the same as the item that will trigger the popup menu.
-                val v = findViewById<View>(R.id.menubtn)
-                val pm = PopupMenu(this@AddEditStockActivity, v)
-                pm.menuInflater.inflate(R.menu.more_buttons, pm.menu)
-                pm.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
-                    override fun onMenuItemClick(item: MenuItem): Boolean {
-                        when (item.itemId) {
-
-                            R.id.target_price -> {
-
-                            }
-
-                            R.id.trailing_stop -> {
-                                val intent = Intent(applicationContext, AddTrailingActivity::class.java)
-                                intent.putExtra("isEditingCrypto", false)
-                                        .putExtra("isEditingExisting", false)
-                                startActivityForResult(intent, ADD_SOMETHING)
-
-                            }
-
-
-
-                            else -> {
-                                toast("error")
-                            }
-                        }
-
-                        return true
-                    }
-
-                } )
-
-                pm.show()
-
-            }
-            //
-
-            else -> { toast("error2")
-            }
-
-        }// DO SOMETHING HERE
-
-        return false
-    }
-
     private fun isUserInputNotEmpty(): Boolean {
-        return !(tickerName.text.trim().isEmpty() or tickerPrice.text.trim().isEmpty())
+        return !(tickerName.text.trim().isEmpty() or trailingPercent.text.trim().isEmpty())
     }
 
     private fun updateWorkingStockFromUserInput(): Boolean {
 
-        if (!isUserInputNotEmpty()) return false
+        //
+        // if (!isUserInputNotEmpty()) return false
 
         workingStock.ticker = tickerName.text.toString()
-        workingStock.target = tickerPrice.text.toString().toDoubleOrNull() ?: -1.0
-        //workingStock.trailingPercent = trailingPercent.text.toString().toDoubleOrNull() ?: -1.0
-        //workingStock.activationPrice = activationPrice.text.toString().toDoubleOrNull() ?: -1.0
-        //workingStock.stopLoss = stopLoss.text.toString().toDoubleOrNull() ?: -1.0
-        workingStock.above = if (aboveChecked.isChecked) 1L else 0L
-        workingStock.phone = if (phoneChecked.isChecked) 1L else 0L
+        workingStock.trailingPercent = trailingPercent.text.toString().toDoubleOrNull() ?: -1.0
+        workingStock.activationPrice = activationPrice.text.toString().toDoubleOrNull() ?: -1.0
+        workingStock.stopLoss = stopLoss.text.toString().toDoubleOrNull() ?: -1.0
+        //workingStock.phone = if (phoneChecked.isChecked) 1L else 0L
 
-        return (workingStock.target != -1.0)
+        return (workingStock.trailingPercent != -1.0)
     }
 
     private val stockClickListener = View.OnClickListener {
@@ -267,18 +208,6 @@ class AddEditStockActivity : AppCompatActivity() {
         })
 
         return subject
-    }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val stock = data?.getParcelableExtra<Stock>("stock")
-        toast("trailing done")
-        if (stock != null) {
-            val resultIntent = Intent()
-            resultIntent.putExtra("stock", stock)
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
-        } else {
-            toast("Did not receive stock info back to add")
-        }
     }
 
 }

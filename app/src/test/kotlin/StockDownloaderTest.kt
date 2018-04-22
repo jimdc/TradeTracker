@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+import com.advent.tradetracker.StockDownloader
+=======
 import com.advent.tradetracker.StockDownloader.getCryptoPrice
 import com.advent.tradetracker.StockDownloader.getStockPrice
 import com.advent.tradetracker.StockDownloader.parseCryptoPrice
@@ -6,11 +9,22 @@ import org.amshove.kluent.shouldBePositive
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.junit.Before
+>>>>>>> fd7659fdcbce0757b4bf585fcb1690a6c5608a6d
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.BufferedReader
+<<<<<<< HEAD
+import com.advent.tradetracker.StockDownloader.parseLiveStockPrice
+import com.advent.tradetracker.StockDownloader.parseLateStockPrice
+import com.advent.tradetracker.StockDownloader.parseCryptoPrice
+import com.advent.tradetracker.StockDownloader.getStockPrice
+import com.advent.tradetracker.StockDownloader.getLateStockPrice
+import com.advent.tradetracker.StockDownloader.getCryptoPrice
+import org.amshove.kluent.*
+=======
 import java.io.StringReader
+>>>>>>> fd7659fdcbce0757b4bf585fcb1690a6c5608a6d
 
 /**
  * old hardcoded info: notice MSFT is "late" stock price mode in NASDAQ, GOOG is "live" stock price.
@@ -62,6 +76,26 @@ class StockDownloaderTest (
         parseLateStockPrice(asBufferedReader(unparsedAsStock)).shouldEqual(parsedAsStock)
     }
 
+<<<<<<< HEAD
+    @Test
+    fun testTickerMismatch() {
+        getStockPrice("ETH").shouldNotBe(com.advent.tradetracker.StockDownloader.getCryptoPrice("ETH")) //Ethan Allen Interiors != Ethereum
+        getStockPrice("BTC").shouldBeNegative() //BTC is a cryptocurrency but not a stock ticker
+        getCryptoPrice("MSFT").shouldBeNegative() //MSFT is a stock but not a cryptocurrency
+    }
+
+    @Test
+    fun testNetworkAndParsing() {
+        //Stock prices should be positive
+        getCryptoPrice("ETH").shouldBePositive()
+        val goog = getStockPrice("GOOG")
+        goog.shouldBePositive()
+        getLateStockPrice("MSFT").shouldBePositive()
+
+        //Sanity check: more expensive vs cheaper stocks
+        val salliemae = com.advent.tradetracker.StockDownloader.getStockPrice("SLM")
+        goog.shouldBeGreaterThan(salliemae)
+=======
     private var asStockPrice = 0.0
     private var asCryptoPrice = 0.0
 
@@ -73,6 +107,7 @@ class StockDownloaderTest (
     @Test fun recognizesBothAsStockAndAsCrypto() {
         asStockPrice.shouldBePositive()
         asCryptoPrice.shouldBePositive()
+>>>>>>> fd7659fdcbce0757b4bf585fcb1690a6c5608a6d
     }
 
     @Test fun stockAndCryptoPriceAreDistinct() {

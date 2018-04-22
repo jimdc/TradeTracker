@@ -18,7 +18,7 @@ class MainServicetest {
     @Test(timeout=1000 * 60)
     fun setUp() {
         val context = InstrumentationRegistry.getTargetContext()
-        val serviceIntent = Intent(context, NetworkService::class.java)
+        val serviceIntent = Intent(context, com.advent.tradetracker.NetworkService::class.java)
         try {
             val service = serviceRule.startService(serviceIntent)
         } catch (e: TimeoutException) {

@@ -10,7 +10,7 @@ import android.arch.persistence.room.PrimaryKey
  */
 
 @Entity(tableName = "alarmstable",
-        foreignKeys = [(ForeignKey(entity= Stoko::class, parentColumns = arrayOf("stockid"),
+        foreignKeys = [(ForeignKey(entity= com.advent.tradetracker.future.Stoko::class, parentColumns = arrayOf("stockid"),
                 childColumns=arrayOf("myStockId"),
                 onDelete= ForeignKey.CASCADE))]
 )

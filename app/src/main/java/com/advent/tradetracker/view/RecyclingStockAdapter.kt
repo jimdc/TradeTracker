@@ -25,6 +25,7 @@ import com.advent.tradetracker.viewmodel.MainActivity
 import timber.log.Timber
 
 
+
 /**
  * Provide views to RecyclerView with data from stockList.
  */
@@ -80,13 +81,13 @@ class RecyclingStockAdapter(
         holder.thestock = stock
 
         //Start a drag whenever hte handle view is touched
-        holder.itemView.onTouch {
+     /*   holder.itemView.onTouch {
             _, motionEvent ->
                 if (motionEvent.action == MotionEvent.ACTION_DOWN) {
                     dragStartListener.onStartDrag(holder)
                 }
             false
-        }
+        } */
     }
 
     override fun onItemDismiss(view: RecyclerView.ViewHolder, position: Int) {
@@ -106,6 +107,7 @@ class RecyclingStockAdapter(
         } else {
             view.itemView.context.toast("Internal error: ViewHolder passed was not ItemViewHolder. Delete this stock through edit.")
         }
+        refresh(stockList)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
@@ -143,7 +145,7 @@ class RecyclingStockAdapter(
         }
 
         override fun onItemSelected() {
-            itemView.setBackgroundColor(Color.DKGRAY)
+            //itemView.setBackgroundColor(Color.DKGRAY)
         }
 
         override fun onItemClear() {

@@ -16,6 +16,7 @@ object BatteryAwareness {
     var isPowerSavingOn = false
     var wentThroughFirstTimeFalseAlarm = false
 
+
     private const val POWER_OFF_PLEASE_ID = 33
     const val INTENT_FILTER = "POWERSAVENOTIFY"
 

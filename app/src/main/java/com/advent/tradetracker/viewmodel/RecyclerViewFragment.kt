@@ -217,6 +217,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "PRICEUPDATE" -> {
+
                     val stockId = intent.getLongExtra("stockid", -666)
                     val price = intent.getDoubleExtra("currentprice", -666.0)
                     val time = intent.getStringExtra("time") ?: "not found"

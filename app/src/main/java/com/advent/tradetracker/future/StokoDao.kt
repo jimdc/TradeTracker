@@ -13,26 +13,26 @@ import io.reactivex.Flowable
 @Dao
 interface StokoDao {
     @Query("SELECT * FROM stockstable")
-    fun getAllStokosFlowable(): Flowable<List<Stoko>>
+    fun getAllStokosFlowable(): Flowable<List<com.advent.tradetracker.future.Stoko>>
 
     @Query("SELECT * FROM stockstable")
-    fun getAllStokos(): List<Stoko>
+    fun getAllStokos(): List<com.advent.tradetracker.future.Stoko>
 
     //@Query("SELECT * FROM Alarmo WHERE my_stock_id =: p0")
     //fun getAlarmoList(stockId: Long)
 
     @Query("SELECT * FROM stockstable WHERE stock_id = :id")
-    fun findStokoById(id: Long): Stoko
+    fun findStokoById(id: Long): com.advent.tradetracker.future.Stoko
 
     @Insert(onConflict = REPLACE)
-    fun insertStoko(stoko: Stoko)
+    fun insertStoko(stoko: com.advent.tradetracker.future.Stoko)
 
     //@Insert
     //fun insertAlarmos(alarmos: List<Alarmo>)
 
     @Update(onConflict = REPLACE)
-    fun update(stoko: Stoko)
+    fun update(stoko: com.advent.tradetracker.future.Stoko)
 
     @Delete
-    fun delete(stoko: Stoko)
+    fun delete(stoko: com.advent.tradetracker.future.Stoko)
 }

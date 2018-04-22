@@ -1,8 +1,12 @@
 package com.advent.tradetracker
 
+
+import android.util.Log
 import com.advent.tradetracker.StockDownloader.INTERNET_EXCEPTION
 import com.advent.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.tradetracker.model.Cryptocurrency
+import com.advent.tradetracker.StockDownloader.INTERNET_EXCEPTION
+import com.advent.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.tradetracker.model.DataModel
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory
@@ -28,7 +32,7 @@ object StockDownloader {
      * @param[ticker] The ticker name, e.g. GOOG
      * @return Stock price if successful
      */
-    fun getStockPrice(ticker: String): Double {
+    fun getStockPriceLive(ticker: String): Double {
 
         val tickerLowercase = ticker.toLowerCase()
 
@@ -114,11 +118,13 @@ object StockDownloader {
 
             val line = iterator.next()
 
-            if (isStock) { if (!line.contains("quotes_content_left__LastSale")) continue }
-            if (isLateStock) { if (!line.contains("qwidget_lastsale")) continue }
-
+            if (!line.contains("quotes_content_left__LastSale")) continue
+            if(!line.contains("display:inline-block")) continue
+            //if (isLateStock) { if (!line.contains("qwidget_lastsale")) continue }
+            Log.d("stockline",line)
             val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
             matcher.find()
+            Log.d("stocko",matcher.group())
 
 
             ret = try {
@@ -136,8 +142,8 @@ object StockDownloader {
     fun parseCryptoPrice(json: String): Double {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
-        val jsonAdapter = moshi.adapter(Cryptocurrency::class.java)
-        val currency: Cryptocurrency?
+        val jsonAdapter = moshi.adapter(com.advent.tradetracker.model.Cryptocurrency::class.java)
+        val currency: com.advent.tradetracker.model.Cryptocurrency?
 
         try {
             currency = jsonAdapter.fromJson(json)
@@ -146,7 +152,7 @@ object StockDownloader {
         } catch (jo: JsonDataException) {
             return JSON_DATA_ERROR
         }
-
+        Log.d("cryptoprice", currency.toString())
         return currency?.USD ?: SKIPPED_PARSE_ERROR
     }
 

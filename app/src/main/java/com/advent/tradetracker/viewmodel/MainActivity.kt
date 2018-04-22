@@ -24,9 +24,9 @@ import io.fabric.sdk.android.Fabric
 import io.reactivex.Flowable
 import timber.log.Timber
 
-class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
+class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterface, AppCompatActivity() {
 
-    private lateinit var dbFunctions: DatabaseFunctions
+    private lateinit var dbFunctions: com.advent.tradetracker.model.DatabaseFunctions
     private val compositeDisposable = CompositeDisposable()
     override fun getCompositeDisposable() = compositeDisposable
 
@@ -85,7 +85,7 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
         Fabric.with(this, Crashlytics())
         Fabric.with(this, Answers())
 
-        dbFunctions = DatabaseFunctions(this.applicationContext)
+        dbFunctions = com.advent.tradetracker.model.DatabaseFunctions(this.applicationContext)
 
         setContentView(R.layout.activity_main)
         infoSnoozer = findViewById(R.id.infoSnoozing)
@@ -101,9 +101,10 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(BatteryAwareness.powerSaverOffPleaseReceiver, IntentFilter(BatteryAwareness.INTENT_FILTER))
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode) {
-            isPowerSavingOn = true
+                .registerReceiver(com.advent.tradetracker.BatteryAwareness.powerSaverOffPleaseReceiver, IntentFilter(com.advent.tradetracker.BatteryAwareness.INTENT_FILTER))
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if(powerManager.isPowerSaveMode)
+                isPowerSavingOn = true
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
@@ -117,12 +118,12 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
         inflater.inflate(R.menu.main_activity_action_menu, menu)
 
         val switchScanningOrNot = menu?.findItem(R.id.show_scanning)?.actionView?.findViewById(R.id.show_scanning_switch) as? ToggleButton
-        switchScanningOrNot?.isChecked = isMyServiceRunning(NetworkService::class.java)
-        val serviceIntent = Intent(this, NetworkService::class.java)
+        switchScanningOrNot?.isChecked = isMyServiceRunning(com.advent.tradetracker.NetworkService::class.java)
+        val serviceIntent = Intent(this, com.advent.tradetracker.NetworkService::class.java)
 
         switchScanningOrNot?.setOnCheckedChangeListener { _, boo -> when(boo) {
                 true -> {
-                    if (!isMyServiceRunning(NetworkService::class.java))
+                    if (!isMyServiceRunning(com.advent.tradetracker.NetworkService::class.java))
                         startService(serviceIntent)
                     else
                         toast("Scan already isRunning")
@@ -140,10 +141,10 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_settings -> startActivity<SettingsActivity>()
+            R.id.action_settings -> startActivity<com.advent.tradetracker.SettingsActivity>()
             R.id.action_snooze -> {
                 val snoozeDialog = SnoozeDialog()
-                snoozeDialog.open(this, isMyServiceRunning(NetworkService::class.java))
+                snoozeDialog.open(this, isMyServiceRunning(com.advent.tradetracker.NetworkService::class.java))
             }
             R.id.action_add_stock -> {
                 val intent = Intent(this, AddEditStockActivity::class.java)
@@ -198,24 +199,24 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
 
     override fun onDestroy() {
         dbFunctions.cleanup() //Close database access
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(BatteryAwareness.powerSaverOffPleaseReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(com.advent.tradetracker.BatteryAwareness.powerSaverOffPleaseReceiver)
         super.onDestroy()
     }
 
     override fun onResume() {
         super.onResume()
-        if ((SnoozeManager.isSnoozing()) && (infoSnoozer!!.text.equals(resources.getString(R.string.notsnoozing)))) {
+        if ((com.advent.tradetracker.model.SnoozeManager.isSnoozing()) && (infoSnoozer!!.text.equals(resources.getString(R.string.notsnoozing)))) {
             //It is snoozing but the UIthread that SnoozeDialog created in the background was destroyed :(
             async {
-                setMaxSnoozeProgress(SnoozeManager.snoozeMsecTotal.toInt())
-                while (SnoozeManager.isSnoozing()) {
+                setMaxSnoozeProgress(com.advent.tradetracker.model.SnoozeManager.snoozeMsecTotal.toInt())
+                while (com.advent.tradetracker.model.SnoozeManager.isSnoozing()) {
                     uiThread {
-                        setSnoozeProgress(SnoozeManager.getSnoozeTimeRemaining().toInt())
+                        setSnoozeProgress(com.advent.tradetracker.model.SnoozeManager.getSnoozeTimeRemaining().toInt())
                         setSnoozeInfo(resources.getString(R.string.snoozeremain,
-                                SnoozeManager.getSnoozeTimeRemaining().toInt(),
-                                SnoozeManager.snoozeMsecTotal))
+                                com.advent.tradetracker.model.SnoozeManager.getSnoozeTimeRemaining().toInt(),
+                                com.advent.tradetracker.model.SnoozeManager.snoozeMsecTotal))
                     }
-                    Utility.sleepWithThreadInterruptIfWokenUp(1000L)
+                    com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(1000L)
                 }
 
                 uiThread {
