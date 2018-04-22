@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
@@ -23,6 +22,7 @@ import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
 import io.reactivex.Flowable
+import timber.log.Timber
 
 class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
 
@@ -38,30 +38,30 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
 
     override fun addOrEditStock(stock: Stock): Boolean {
         return if (::dbFunctions.isInitialized) {
-            Log.v("MainActivity", "addOrEditStock called")
+            Timber.v( "addOrEditStock called")
             dbFunctions.addOrEditStock(stock)
         } else {
-            Log.d("MainActivity", "dbFunctions is not initialized yet; could not add or edit")
+            Timber.d("dbFunctions is not initialized yet; could not add or edit")
             false
         }
     }
 
     override fun deleteStockByStockId(stockId: Long): Boolean {
         return if (::dbFunctions.isInitialized) {
-            Log.v("MainActivity", "deleteStockByStockId called")
+            Timber.v("deleteStockByStockId called")
             dbFunctions.deleteStockByStockId(stockId)
         } else {
-            Log.d("MainActivity","dbFunctions is not initialized yet; could not delete")
+            Timber.d("dbFunctions is not initialized yet; could not delete")
             false
         }
     }
 
     override fun getFlowingStockList(): Flowable<List<Stock>> {
         return if (::dbFunctions.isInitialized) {
-            Log.v("MainActivity", "getFlowingStockList called")
+            Timber.v( "getFlowingStockList called")
             dbFunctions.getFlowableStockList()
         } else {
-            Log.d("MainActivity","dbFunctions is not initialized yet; could not return flowable list")
+            Timber.d("dbFunctions is not initialized yet; could not return flowable list")
             Flowable.empty()
         }
     }
@@ -226,11 +226,11 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.name == service.service.className) {
-                Log.i("isMyServiceRunning?", true.toString() + "")
+                Timber.i( true.toString() + "")
                 return true
             }
         }
-        Log.i("isMyServiceRunning?", false.toString() + "")
+        Timber.i( false.toString() + "")
         return false
     }
 }

@@ -15,6 +15,7 @@ import android.util.Log
 import com.advent.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
 import com.advent.tradetracker.BatteryAwareness.notifiedOfPowerSaving
 import com.advent.tradetracker.model.SnoozeManager
+import timber.log.Timber
 
 class NetworkService : Service() {
     private var runTargetScan = true
@@ -34,7 +35,7 @@ class NetworkService : Service() {
         toast("scanning")
 
         if (!stockScanner.isRunning) {
-            Log.v("NetworkService", "stockScanner.isRunning == false, so starting up service.")
+            Timber.v( "stockScanner.isRunning == false, so starting up service.")
             stockScanner.isRunning = true
             stockScanner.startup()
             targetScanThread.start()
@@ -70,7 +71,7 @@ class NetworkService : Service() {
      * Interrupts [targetScanThread] and cancels [stockScanner]
      */
     override fun onDestroy() {
-        Log.i("NetworkService", "onDestroy called")
+        Timber.i( "onDestroy called")
         runTargetScan = false
         targetScanThread.interrupt()
         if (stockScanner.isRunning) {
@@ -108,7 +109,7 @@ class NetworkService : Service() {
                     Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
                     wakeLock.release()
                 } else {
-                    Log.i("NetworkService", "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
+                    Timber.i( "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
                     wakeLock.acquire(60000)
 
                     logger.logHowLongItTakesToRun { stockScanner.scanNetwork() }

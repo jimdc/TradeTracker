@@ -15,7 +15,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.support.v7.widget.helper.ItemTouchHelper
-import android.util.Log
 import com.advent.tradetracker.R
 import com.advent.tradetracker.model.Stock
 import com.advent.tradetracker.model.StockInterface
@@ -25,13 +24,13 @@ import com.advent.tradetracker.view.SimpleItemTouchHelperCallback
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 
 /**
  * Demonstrates the use of {@link RecyclerView} with a {@link LinearLayoutManager} and a
  * {@link GridLayoutManager}. Also initializes dataset with dbFunction
  */
-private const val TAG = "RecyclerViewFragment"
 private const val KEY_LAYOUT_MANAGER = "layoutManager"
 private const val SPAN_COUNT = 2
 
@@ -106,18 +105,18 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        if (context == null) Log.d(TAG, "context==null onAttach")
+        if (context == null) Timber.d("context==null onAttach")
         try {
             if (context is MainActivity) {
                 this.callBackMainActivity = context
-                Log.v(TAG, "callBackMainActivity assigned in onAttach")
+                Timber.v( "callBackMainActivity assigned in onAttach")
 
                 subscriptionToStockListUpdates = callBackMainActivity?.getFlowingStockList()
                         ?.subscribeOn(Schedulers.io())
                         ?.observeOn(AndroidSchedulers.mainThread())
                         ?.subscribe(
                                 { stockList -> recyclingStockAdapter.refresh(stockList)},
-                                { throwable -> Log.d("Disposable::fail", throwable.message)}
+                                { throwable -> Timber.d(throwable.message)}
                         )
 
                 /**
@@ -129,16 +128,16 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
                     callBackMainActivity?.getCompositeDisposable()?.add(subscriptionToStockListUpdates!!)
                     val newSubscriptionCount = callBackMainActivity?.getCompositeDisposable()?.size()
                     if (newSubscriptionCount == 1) {
-                        Log.v("RecyclerViewFragment", "Successfully attached subscriptionToStockListUpdates bc has 0")
+                        Timber.v( "Successfully attached subscriptionToStockListUpdates bc has 0")
                     } else if (newSubscriptionCount == 0) {
-                        Log.d("RecyclerViewFragment", "I could not subscribe to stock list updates; changes might not be reflected in UI!")
+                        Timber.d( "I could not subscribe to stock list updates; changes might not be reflected in UI!")
                     }
                 } else {
-                    Log.v("RecyclerViewFragment", "Not subscribing to StockListUpdates bc already has one subscription (but may not be ours!)")
+                    Timber.v( "Not subscribing to StockListUpdates bc already has one subscription (but may not be ours!)")
                 }
 
             } else {
-                Log.d(TAG, "context.applicationContext isn't MainActivity but rather $context")
+                Timber.d("context.applicationContext isn't MainActivity but rather $context")
             }
         } catch (classCastException: ClassCastException) {
             throw ClassCastException("Activity must implement StockInterface")
@@ -151,7 +150,6 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater?.inflate(R.layout.recycler_view_frag, container, false)
-        rootView?.tag = TAG
 
         recyclerView = rootView!!.findViewById(R.id.recyclerView)
         layoutManager = LinearLayoutManager(activity)
@@ -226,7 +224,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
                     val stockId = intent?.getLongExtra("stockid", -666)
                     val price = intent?.getDoubleExtra("currentprice", -666.0)
                     val time = intent?.getStringExtra("time") ?: "not found"
-                    Log.v(TAG, "Received price update of $stockId as $price at $time")
+                    Timber.v("Received price update of $stockId as $price at $time")
                     recyclingStockAdapter.setCurrentPrice(stockId!!, price!!, time!!)
                 }
             }
