@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.util.Log
 import android.content.Context
 import android.content.Intent
 import android.widget.ImageView
@@ -23,14 +22,13 @@ import com.advent.tradetracker.model.StockInterface
 import com.advent.tradetracker.viewmodel.AddEditStockActivity
 import com.advent.tradetracker.viewmodel.EDIT_SOMETHING
 import com.advent.tradetracker.viewmodel.MainActivity
+import timber.log.Timber
 
 
 
 /**
  * Provide views to RecyclerView with data from stockList.
  */
-
-private const val TAG = "RecyclingStockAdapter"
 
 class RecyclingStockAdapter(
         stocks: List<Stock>,
@@ -61,7 +59,7 @@ class RecyclingStockAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        Log.d(TAG, "Element $position set.")
+        Timber.d("Element $position set.")
 
         val stock = stockList[position]
         if (stock.crypto == 1L) {
@@ -94,7 +92,7 @@ class RecyclingStockAdapter(
 
     override fun onItemDismiss(view: RecyclerView.ViewHolder, position: Int) {
 
-        Log.v(TAG, "Delete $position clicked.")
+        Timber.v("Delete $position clicked.")
         if (view is ItemViewHolder) {
             if (callBackMainActivity?.deleteStockByStockId(view.thestock.stockid) == true) {
                 deletedStocks.push(view.thestock)
@@ -131,9 +129,9 @@ class RecyclingStockAdapter(
 
         init {
             btnEdit.setOnClickListener { view ->
-                Log.v(TAG, "Edit $adapterPosition clicked.")
+                Timber.v("Edit $adapterPosition clicked.")
                 if (!::thestock.isInitialized) {
-                    Log.d("RecyclingStockAdapter", "thestock is not initialized; I can't pass to AddEditActivity!")
+                    Timber.d("thestock is not initialized; I can't pass to AddEditActivity!")
                 }
 
                 val intent = Intent(view.context as Activity, AddEditStockActivity::class.java)
@@ -181,8 +179,11 @@ class RecyclingStockAdapter(
     fun refresh(newStockList: List<Stock>) {
 
         if (!stockList.containsAll(newStockList) || stockList.size != newStockList.size) { //To preserve order
-            stockList = newStockList.sortedWith(com.advent.tradetracker.model.AlphabeticalStocks).toMutableList()
+            Timber.v( "refresh called; I'm changing something")
+            stockList = newStockList.sortedWith(AlphabeticalStocks).toMutableList()
             notifyDataSetChanged()
+        } else {
+            Timber.v( "refresh called BUT doesn't meet my criteria")
         }
 
         //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above

@@ -11,13 +11,18 @@ import android.os.Process
 import android.os.HandlerThread
 import java.lang.Thread.*
 import android.support.v7.preference.PreferenceManager
+
 import android.util.Log
-import com.advent.tradetracker.BatteryAwareness.notif1
 import com.advent.tradetracker.BatteryAwareness.notifiedOfPowerSaving
 import com.advent.tradetracker.model.SnoozeManager
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
+import com.advent.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
+
+
+import timber.log.Timber
+
 
 class NetworkService : Service() {
     private var runTargetScan = true
@@ -37,7 +42,7 @@ class NetworkService : Service() {
         toast("scanning")
 
         if (!stockScanner.isRunning) {
-            Log.v("NetworkService", "stockScanner.isRunning == false, so starting up service.")
+            Timber.v( "stockScanner.isRunning == false, so starting up service.")
             stockScanner.isRunning = true
             stockScanner.startup()
             targetScanThread.start()
@@ -73,7 +78,7 @@ class NetworkService : Service() {
      * Interrupts [targetScanThread] and cancels [stockScanner]
      */
     override fun onDestroy() {
-        Log.i("NetworkService", "onDestroy called")
+        Timber.i( "onDestroy called")
         runTargetScan = false
         targetScanThread.interrupt()
         if (stockScanner.isRunning) {
@@ -82,7 +87,7 @@ class NetworkService : Service() {
         }
         toast("Stopping scan")
         notifiedOfPowerSaving = false
-        notif1 = false
+        wentThroughFirstTimeFalseAlarm = false
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -111,7 +116,7 @@ class NetworkService : Service() {
                     com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
                     wakeLock.release()
                 } else {
-                    Log.i("NetworkService", "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
+                    Timber.i( "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
                     wakeLock.acquire(60000)
 
                     logger.logHowLongItTakesToRun { stockScanner.scanNetwork() }

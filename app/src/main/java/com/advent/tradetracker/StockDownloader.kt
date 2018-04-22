@@ -1,9 +1,13 @@
 package com.advent.tradetracker
 
+
 import android.util.Log
 import com.advent.tradetracker.StockDownloader.INTERNET_EXCEPTION
 import com.advent.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.tradetracker.model.Cryptocurrency
+import com.advent.tradetracker.StockDownloader.INTERNET_EXCEPTION
+import com.advent.tradetracker.StockDownloader.parseCryptoPrice
+import com.advent.tradetracker.model.DataModel
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
@@ -68,10 +72,12 @@ object StockDownloader {
      * @todo add option to compare crypto to any other crypto by swapping out USD with cryptoUnits (can still be USD)
      * @return crypto price if successful, [INTERNET_EXCEPTION], or exceptions in [parseCryptoPrice]
      */
+    private val dataModel = DataModel()
     fun getCryptoPrice(ticker: String): Double {
         return try {
-            parseCryptoPrice(urlHtml
-            ("https://min-api.cryptocompare.com/data/price?fsym=${ticker.toUpperCase()}&tsyms=USD"))
+            dataModel.getCryptoPrice(ticker.toUpperCase())
+                    .map { x -> x.USD }
+                    .blockingGet()
         } catch (ie: IOException) {
             INTERNET_EXCEPTION
         }

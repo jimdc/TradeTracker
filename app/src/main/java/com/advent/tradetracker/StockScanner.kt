@@ -2,7 +2,6 @@ package com.advent.tradetracker
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.util.Log
 import android.content.Context
 import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
@@ -16,6 +15,9 @@ import android.os.Build
 import com.advent.tradetracker.BatteryAwareness
 import com.advent.tradetracker.model.DatabaseFunctions
 import com.advent.tradetracker.view.PriceAlertBroadcastReceiver
+
+
+import timber.log.Timber
 
 
 /**
@@ -40,7 +42,7 @@ class StockScanner(private val callerContext: Context) {
      */
   
     fun scanNetwork() {
-        Log.d("StockScanner","scanNetwork start")
+        Timber.d("scanNetwork start")
         var failCount = 0
 
         if(com.advent.tradetracker.BatteryAwareness.isPowerSavingOn && !com.advent.tradetracker.BatteryAwareness.notifiedOfPowerSaving) {
@@ -51,7 +53,7 @@ class StockScanner(private val callerContext: Context) {
         deletePendingFinishedStock()
 
         val stocksTargets = dbFunctions.getStockList()
-        Log.v("StockScanner ", if (stocksTargets.isEmpty()) "might be empty list: " else "stocks targets: " + stocksTargets.joinToString(", ") { it.ticker })
+        Timber.v(if (stocksTargets.isEmpty()) "might be empty list: " else "stocks targets: " + stocksTargets.joinToString(", ") { it.ticker })
 
         for (stockx in stocksTargets) {
 
@@ -60,11 +62,11 @@ class StockScanner(private val callerContext: Context) {
             val currentPrice = if (stockx.crypto == 1L) { com.advent.tradetracker.StockDownloader.getCryptoPrice(ticker)
             } else { com.advent.tradetracker.StockDownloader.getStockPriceLive(ticker) } //changed from getStockPrice, the livestockprice is often non-existent and doesnt round as well for penny stocks
 
-            Log.d("stockprice",stockx.ticker + ", " + currentPrice.toString())
+            Timber.d(stockx.ticker + ", " + currentPrice.toString())
 
             if (currentPrice >= 0) {
                 broadcastPriceLocally(stockx.stockid, currentPrice)
-                Log.v("StockScanner", "currentPrice $currentPrice is not null")
+                Timber.v("currentPrice $currentPrice is not null")
                 if(stockx.target>0) {
                     if (
                             ((stockx.above == 1L) && (currentPrice > stockx.target)) ||
@@ -83,7 +85,7 @@ class StockScanner(private val callerContext: Context) {
                     }
 
                     if(currentPrice > stockx.highestPrice) {
-                        Log.d("stockprice","activating")
+                        Timber.d("activating")
                         stockx.highestPrice = currentPrice
                         dbFunctions.addOrEditStock(stockx)
                     }
@@ -105,13 +107,13 @@ class StockScanner(private val callerContext: Context) {
 
                 }
             } else {
-                Log.v("StockScanner", "currentPrice $currentPrice < 0, ++failCount to " + ++failCount)
+                Timber.v( "currentPrice $currentPrice < 0, ++failCount to " + ++failCount)
             }
 
         }
 
         if (failCount == stocksTargets.size) {
-            Log.e("StockScanner", "All stocks below zero. Connection error?")
+            Timber.e( "All stocks below zero. Connection error?")
         }
     }
 
@@ -121,22 +123,23 @@ class StockScanner(private val callerContext: Context) {
     private fun setPendingFinishedStock(stockId: Long) {
         alarmPlayed = true
         stockToDeleteId = stockId
-        Log.v("StockScanner", "scheduled deletion of stock $stockId")
+        Timber.v( "scheduled deletion of stock $stockId")
     }
 
     private fun deletePendingFinishedStock() {
         if (alarmPlayed) {
             dbFunctions.deleteStockByStockId(stockToDeleteId)
-            Log.v("StockScanner", "deletePendingFinishedStock: requested DBS delete of $stockToDeleteId")
+            Timber.v( "deletePendingFinishedStock: requested DBS delete of $stockToDeleteId")
         }
     }
 
     private fun broadcastPriceLocally(stockId: Long, currentPrice: Double) {
-        Log.i("StockScanner", "Sending price update of $stockId as $currentPrice")
+        Timber.i( "Sending price update of $stockId as $currentPrice")
         val intent = Intent("PRICEUPDATE")
-        intent.putExtra("stockId", stockId)
-        intent.putExtra("currentPrice", currentPrice)
-        intent.putExtra("time", GregorianCalendar().time)
+
+        intent.putExtra("stockid", stockId)
+        intent.putExtra("currentprice", currentPrice)
+        intent.putExtra("time", GregorianCalendar().time.toString())
         LocalBroadcastManager.getInstance(callerContext).sendBroadcast(intent)
     }
 
@@ -150,7 +153,7 @@ class StockScanner(private val callerContext: Context) {
      */
     private fun broadcastPriceGlobally(ticker: String, price: String, ab: String, type: String) {
 
-        Log.v("StockScanner", "Building tradetracker with ticker=$ticker, price=$price, ab=$ab")
+        Timber.v("Building tradetracker with ticker=$ticker, price=$price, ab=$ab")
         val alertTime = GregorianCalendar().timeInMillis + 5
 
         val alertIntent = Intent(callerContext, PriceAlertBroadcastReceiver::class.java)

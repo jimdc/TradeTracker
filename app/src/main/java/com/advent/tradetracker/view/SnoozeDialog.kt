@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -17,6 +16,7 @@ import org.jetbrains.anko.async
 import org.jetbrains.anko.layoutInflater
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import timber.log.Timber
 
 class SnoozeDialog {
 
@@ -37,7 +37,7 @@ class SnoozeDialog {
             snoozeInterface = context as com.advent.tradetracker.model.SnoozeInterface
             this.context = context
         } catch (classCastException: ClassCastException) {
-            Log.d("SnoozeManager", "Could not cast $snoozeInterface as StockInterface. Implement in MainActivity?")
+            Timber.d("Could not cast $snoozeInterface as StockInterface. Implement in MainActivity?")
         }
 
         if (com.advent.tradetracker.model.SnoozeManager.isSnoozing()) {
@@ -54,7 +54,7 @@ class SnoozeDialog {
         val mView = context.layoutInflater.inflate(R.layout.snooze_dialog, null)
         mBuilder.setView(mView)
 
-        Log.i("SnoozeDialog", "Opening snooze dialog")
+        Timber.i("Opening snooze dialog")
         dialog = mBuilder.create()
         textHour = mView.findViewById(R.id.inputHour) as EditText
         textMinute = mView.findViewById(R.id.inputMinute) as EditText
@@ -86,7 +86,7 @@ class SnoozeDialog {
                 }
 
                 snoozeInterface?.setSnoozeInfo(resources.getString(R.string.snoozingfor, snoozeMsecTotal))
-                Log.i("MainActivity", "isSnoozing set to true. Scan pausing.")
+                Timber.i("isSnoozing set to true. Scan pausing.")
                 async {
                     snoozeInterface?.setMaxSnoozeProgress(snoozeMsecTotal.toInt())
                     com.advent.tradetracker.model.SnoozeManager.snoozeMsecTotal = snoozeMsecTotal

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
@@ -23,6 +22,7 @@ import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
 import io.reactivex.Flowable
+import timber.log.Timber
 
 class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterface, AppCompatActivity() {
 
@@ -38,27 +38,30 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
 
     override fun addOrEditStock(stock: Stock): Boolean {
         return if (::dbFunctions.isInitialized) {
+            Timber.v( "addOrEditStock called")
             dbFunctions.addOrEditStock(stock)
         } else {
-            Log.d("MainActivity", "dbFunctions is not initialized yet; could not add or edit")
+            Timber.d("dbFunctions is not initialized yet; could not add or edit")
             false
         }
     }
 
     override fun deleteStockByStockId(stockId: Long): Boolean {
-        return if (::dbFunctions.isInitialized)
+        return if (::dbFunctions.isInitialized) {
+            Timber.v("deleteStockByStockId called")
             dbFunctions.deleteStockByStockId(stockId)
-        else {
-            Log.d("MainActivity","dbFunctions is not initialized yet; could not delete")
+        } else {
+            Timber.d("dbFunctions is not initialized yet; could not delete")
             false
         }
     }
 
     override fun getFlowingStockList(): Flowable<List<Stock>> {
-        return if (::dbFunctions.isInitialized)
+        return if (::dbFunctions.isInitialized) {
+            Timber.v( "getFlowingStockList called")
             dbFunctions.getFlowableStockList()
-        else {
-            Log.d("MainActivity","dbFunctions is not initialized yet; could not return flowable list")
+        } else {
+            Timber.d("dbFunctions is not initialized yet; could not return flowable list")
             Flowable.empty()
         }
     }
@@ -69,6 +72,16 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //It is recommended to separate out this logic by build instead of programmatically
+        //https://medium.com/@caueferreira/timber-enhancing-your-logging-experience-330e8af97341
+        //But didn't do this yet because our project structure doesn't match that in the tutorial
+
+        if (BuildConfig.DEBUG)
+            Timber.plant(Timber.DebugTree())
+        else
+            Timber.plant(ReleaseTree())
+
         Fabric.with(this, Crashlytics())
         Fabric.with(this, Answers())
 
@@ -156,7 +169,11 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
                 if (resultCode == Activity.RESULT_OK) {
                     val stock = data?.getParcelableExtra<Stock>("stock")
                     if (stock != null) {
-                        if (addOrEditStock(stock)) toast("Added stock ${stock.ticker} successfully") else toast("Failed to add ${stock.ticker}")
+                        if (addOrEditStock(stock)) {
+                            toast("Added stock ${stock.ticker} successfully")
+                        } else {
+                            toast("Failed to add ${stock.ticker}")
+                        }
                     } else {
                         toast("Did not receive stock info back to add")
                     }
@@ -220,11 +237,11 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.name == service.service.className) {
-                Log.i("isMyServiceRunning?", true.toString() + "")
+                Timber.i( true.toString() + "")
                 return true
             }
         }
-        Log.i("isMyServiceRunning?", false.toString() + "")
+        Timber.i( false.toString() + "")
         return false
     }
 }

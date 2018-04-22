@@ -1,7 +1,7 @@
 package com.advent.tradetracker
 
 import android.content.Context
-import android.util.Log
+import timber.log.Timber
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,10 +32,10 @@ class Logger(val context: Context, val fileName: String) {
                 stream.write(lastTime.toByteArray())
             }
         } catch (fileNotFoundException: FileNotFoundException) {
-            Log.d("Logger", fileNotFoundException.toString())
+            Timber.d(fileNotFoundException.toString())
             return false
         }
-        Log.i("Logger", "wrote: $lastTime")
+        Timber.i("wrote: $lastTime")
         return true
     }
 

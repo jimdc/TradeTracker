@@ -5,11 +5,11 @@ import android.arch.persistence.room.*
 @Dao
 interface AlarmoDao {
     @Insert
-    fun insert (alarmo: com.advent.tradetracker.future.Alarmo)
+    fun insert (alarmo: Alarmo)
 
     @Update
-    fun update (alarmo: com.advent.tradetracker.future.Alarmo)
+    fun update (alarmo: Alarmo)
 
     @Delete
-    fun delete(alarmo: com.advent.tradetracker.future.Alarmo)
+    fun delete(alarmo: Alarmo)
 }
