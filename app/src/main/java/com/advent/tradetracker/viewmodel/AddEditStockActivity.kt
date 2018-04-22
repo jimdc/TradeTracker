@@ -8,10 +8,10 @@ import android.view.View
 import org.jetbrains.anko.*
 import java.util.Calendar
 import android.widget.*
-import com.advent.group69.tradetracker.model.Stock
+import com.advent.tradetracker.model.Stock
 import android.app.Activity
 import android.content.Intent
-import com.advent.group69.tradetracker.R
+import com.advent.tradetracker.R
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -19,15 +19,14 @@ import android.view.MenuItem
 import io.reactivex.subjects.PublishSubject
 import android.widget.EditText
 import com.advent.tradetracker.NetworkService
-import com.advent.group69.tradetracker.R.id.stopLoss
-import com.advent.group69.tradetracker.R.id.trailingPercent
+import com.advent.tradetracker.R.id.stopLoss
+import com.advent.tradetracker.R.id.trailingPercent
 import com.advent.tradetracker.SettingsActivity
-import com.advent.group69.tradetracker.view.SnoozeDialog
+import com.advent.tradetracker.view.SnoozeDialog
 import io.reactivex.Observable
 import android.widget.Toast
 import android.R.id.button2
 import android.R.id.button1
-
 
 
 

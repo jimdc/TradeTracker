@@ -9,8 +9,8 @@ import android.content.Intent
 import android.net.Uri
 import android.support.v4.app.NotificationCompat
 import android.support.v7.preference.PreferenceManager
-import com.advent.group69.tradetracker.viewmodel.MainActivity
-import com.advent.group69.tradetracker.R
+import com.advent.tradetracker.viewmodel.MainActivity
+import com.advent.tradetracker.R
 
 
 class PriceAlertBroadcastReceiver : BroadcastReceiver() {

@@ -16,14 +16,14 @@ import org.jetbrains.anko.*
 import java.util.*
 import android.view.MotionEvent
 import android.support.design.widget.Snackbar
-import com.advent.group69.tradetracker.*
+import com.advent.tradetracker.*
 import com.advent.tradetracker.model.AlphabeticalStocks
-import com.advent.group69.tradetracker.model.Stock
-import com.advent.group69.tradetracker.model.StockInterface
-import com.advent.group69.tradetracker.viewmodel.AddEditStockActivity
-import com.advent.group69.tradetracker.viewmodel.EDIT_SOMETHING
-import com.advent.group69.tradetracker.viewmodel.MainActivity
 import com.advent.tradetracker.model.Stock
+import com.advent.tradetracker.model.StockInterface
+import com.advent.tradetracker.viewmodel.AddEditStockActivity
+import com.advent.tradetracker.viewmodel.EDIT_SOMETHING
+import com.advent.tradetracker.viewmodel.MainActivity
+
 
 
 /**

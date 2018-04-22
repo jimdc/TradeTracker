@@ -1,8 +1,8 @@
 package com.advent.tradetracker
 
 import android.util.Log
-import com.advent.group69.tradetracker.StockDownloader.INTERNET_EXCEPTION
-import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
+import com.advent.tradetracker.StockDownloader.INTERNET_EXCEPTION
+import com.advent.tradetracker.StockDownloader.parseCryptoPrice
 import com.advent.tradetracker.model.Cryptocurrency
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory

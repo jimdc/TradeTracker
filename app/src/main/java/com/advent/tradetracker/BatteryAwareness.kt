@@ -7,7 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.support.v4.app.NotificationCompat
-import com.advent.group69.tradetracker.view.MorePowerInfoNotification
+import com.advent.tradetracker.view.MorePowerInfoNotification
 import org.jetbrains.anko.toast
 
 object BatteryAwareness {

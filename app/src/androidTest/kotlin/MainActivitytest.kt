@@ -18,10 +18,10 @@ import android.support.test.espresso.intent.Intents.intended
 import android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.v7.widget.RecyclerView
-import com.advent.group69.tradetracker.*
-import com.advent.group69.tradetracker.model.Stock
-import com.advent.group69.tradetracker.viewmodel.AddEditStockActivity
-import com.advent.group69.tradetracker.viewmodel.MainActivity
+import com.advent.tradetracker.*
+import com.advent.tradetracker.model.Stock
+import com.advent.tradetracker.viewmodel.AddEditStockActivity
+import com.advent.tradetracker.viewmodel.MainActivity
 
 
 /**

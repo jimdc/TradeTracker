@@ -15,7 +15,7 @@ import android.os.VibrationEffect
 import android.os.Build
 import com.advent.tradetracker.BatteryAwareness
 import com.advent.tradetracker.model.DatabaseFunctions
-import com.advent.group69.tradetracker.view.PriceAlertBroadcastReceiver
+import com.advent.tradetracker.view.PriceAlertBroadcastReceiver
 
 
 /**

@@ -9,7 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import com.advent.group69.tradetracker.R
+import com.advent.tradetracker.R
 import com.advent.tradetracker.model.SnoozeManager
 import com.advent.tradetracker.Utility
 import com.advent.tradetracker.model.SnoozeInterface

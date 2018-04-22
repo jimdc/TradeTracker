@@ -15,10 +15,10 @@ import android.view.MenuItem
 import android.widget.*
 import io.reactivex.disposables.CompositeDisposable
 import android.os.Build
-import com.advent.group69.tradetracker.*
+import com.advent.tradetracker.*
 import com.advent.tradetracker.BatteryAwareness.isPowerSavingOn
-import com.advent.group69.tradetracker.model.*
-import com.advent.group69.tradetracker.view.SnoozeDialog
+import com.advent.tradetracker.model.*
+import com.advent.tradetracker.view.SnoozeDialog
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
