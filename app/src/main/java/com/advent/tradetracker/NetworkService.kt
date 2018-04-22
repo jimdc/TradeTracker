@@ -11,7 +11,6 @@ import android.os.Process
 import android.os.HandlerThread
 import java.lang.Thread.*
 import android.support.v7.preference.PreferenceManager
-import android.util.Log
 import com.advent.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
 import com.advent.tradetracker.BatteryAwareness.notifiedOfPowerSaving
 import com.advent.tradetracker.model.SnoozeManager

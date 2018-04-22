@@ -72,6 +72,16 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //It is recommended to separate out this logic by build instead of programmatically
+        //https://medium.com/@caueferreira/timber-enhancing-your-logging-experience-330e8af97341
+        //But didn't do this yet because our project structure doesn't match that in the tutorial
+
+        if (BuildConfig.DEBUG)
+            Timber.plant(Timber.DebugTree())
+        else
+            Timber.plant(ReleaseTree())
+
         Fabric.with(this, Crashlytics())
         Fabric.with(this, Answers())
 

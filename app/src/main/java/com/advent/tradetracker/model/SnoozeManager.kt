@@ -8,7 +8,7 @@ object SnoozeManager {
     private var isSnoozing = false
     private var wakeupSystemTime = 0L
     private var snoozeTimeRemaining = 0L
-    public var snoozeMsecTotal = 0L
+    var snoozeMsecTotal = 0L
 
     /**
      * @return false if snooze already running, unless ![forceRestart]

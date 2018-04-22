@@ -1,7 +1,6 @@
 package com.advent.tradetracker
 
 import android.content.Context
-import android.util.Log
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat

@@ -144,12 +144,8 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater?.inflate(R.layout.recycler_view_frag, container, false)
+        val rootView = inflater.inflate(R.layout.recycler_view_frag, container, false)
 
         recyclerView = rootView!!.findViewById(R.id.recyclerView)
         layoutManager = LinearLayoutManager(activity)
@@ -172,7 +168,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState?.putSerializable(KEY_LAYOUT_MANAGER, currentLayoutManagerType)
+        outState.putSerializable(KEY_LAYOUT_MANAGER, currentLayoutManagerType)
         super.onSaveInstanceState(outState)
     }
 
@@ -221,11 +217,11 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "PRICEUPDATE" -> {
-                    val stockId = intent?.getLongExtra("stockid", -666)
-                    val price = intent?.getDoubleExtra("currentprice", -666.0)
-                    val time = intent?.getStringExtra("time") ?: "not found"
+                    val stockId = intent.getLongExtra("stockid", -666)
+                    val price = intent.getDoubleExtra("currentprice", -666.0)
+                    val time = intent.getStringExtra("time") ?: "not found"
                     Timber.v("Received price update of $stockId as $price at $time")
-                    recyclingStockAdapter.setCurrentPrice(stockId!!, price!!, time!!)
+                    recyclingStockAdapter.setCurrentPrice(stockId, price, time)
                 }
             }
         }

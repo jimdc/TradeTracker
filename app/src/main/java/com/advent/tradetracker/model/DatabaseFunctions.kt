@@ -2,9 +2,9 @@ package com.advent.tradetracker.model
 
 import android.content.Context
 import android.database.sqlite.SQLiteException
-import android.util.Log
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 
 /**
  * Database stuff done here. Not necessarily on its own thread...
@@ -27,7 +27,7 @@ class DatabaseFunctions(val context: Context) : StockInterface {
             try {
                 rez = stockDao?.delete(stock)
             } catch (e: SQLiteException) {
-                Log.e("DatabaseFunctions", "could not delete $stockId: " + e.toString())
+                Timber.e( "could not delete $stockId: " + e.toString())
             }
         }
 
@@ -48,7 +48,7 @@ class DatabaseFunctions(val context: Context) : StockInterface {
         try {
             results = stockDatabase?.stockDao()?.getAllStocks()
         } catch (e: SQLiteException) {
-            Log.e("DatabaseFunctions", "getStockList exception: " + e.toString())
+            Timber.e( "getStockList exception: " + e.toString())
         }
 
         return results ?: emptyList()
@@ -66,15 +66,15 @@ class DatabaseFunctions(val context: Context) : StockInterface {
     override fun addOrEditStock(stock: Stock): Boolean {
 
         if (stockDao == null) {
-            Log.d("DatabaseFunctions", "stockDao is null; I cannot add or edit")
+            Timber.d("stockDao is null; I cannot add or edit")
             return false
         } else {
             val rownum: Long? = stockDao!!.insert(stock)
             if (rownum == null || rownum == -1L) {
-                Log.d("DatabaseFunctions", "SQL function for add/edit failed.")
+                Timber.d( "SQL function for add/edit failed.")
                 return false
             } else {
-                Log.v("DatabaseFunctions", "Looks like that addition was a success.")
+                Timber.v( "Looks like that addition was a success.")
             }
         }
 
