@@ -1,7 +1,5 @@
 
-import com.advent.group69.tradetracker.model.StockRestService
-import org.mockito.MockitoAnnotations
-import org.junit.Before
+import com.advent.tradetracker.model.StockRestService
 import org.mockito.Mock
 
 @Mock

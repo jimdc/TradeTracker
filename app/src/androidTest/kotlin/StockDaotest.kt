@@ -1,8 +1,8 @@
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
-import com.advent.group69.tradetracker.model.Stock
-import com.advent.group69.tradetracker.model.StockDao
-import com.advent.group69.tradetracker.model.StockDatabase
+import com.advent.tradetracker.model.Stock
+import com.advent.tradetracker.model.StockDao
+import com.advent.tradetracker.model.StockDatabase
 import io.reactivex.subscribers.TestSubscriber
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo

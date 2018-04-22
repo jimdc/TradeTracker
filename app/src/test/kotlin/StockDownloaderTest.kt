@@ -1,7 +1,7 @@
-import com.advent.group69.tradetracker.StockDownloader.getCryptoPrice
-import com.advent.group69.tradetracker.StockDownloader.getStockPrice
-import com.advent.group69.tradetracker.StockDownloader.parseCryptoPrice
-import com.advent.group69.tradetracker.StockDownloader.parseLateStockPrice
+import com.advent.tradetracker.StockDownloader.getCryptoPrice
+import com.advent.tradetracker.StockDownloader.getStockPrice
+import com.advent.tradetracker.StockDownloader.parseCryptoPrice
+import com.advent.tradetracker.StockDownloader.parseLateStockPrice
 import org.amshove.kluent.shouldBePositive
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
