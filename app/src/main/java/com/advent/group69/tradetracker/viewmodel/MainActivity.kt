@@ -38,6 +38,7 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
 
     override fun addOrEditStock(stock: Stock): Boolean {
         return if (::dbFunctions.isInitialized) {
+            Log.v("MainActivity", "addOrEditStock called")
             dbFunctions.addOrEditStock(stock)
         } else {
             Log.d("MainActivity", "dbFunctions is not initialized yet; could not add or edit")
@@ -46,18 +47,20 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
     }
 
     override fun deleteStockByStockId(stockId: Long): Boolean {
-        return if (::dbFunctions.isInitialized)
+        return if (::dbFunctions.isInitialized) {
+            Log.v("MainActivity", "deleteStockByStockId called")
             dbFunctions.deleteStockByStockId(stockId)
-        else {
+        } else {
             Log.d("MainActivity","dbFunctions is not initialized yet; could not delete")
             false
         }
     }
 
     override fun getFlowingStockList(): Flowable<List<Stock>> {
-        return if (::dbFunctions.isInitialized)
+        return if (::dbFunctions.isInitialized) {
+            Log.v("MainActivity", "getFlowingStockList called")
             dbFunctions.getFlowableStockList()
-        else {
+        } else {
             Log.d("MainActivity","dbFunctions is not initialized yet; could not return flowable list")
             Flowable.empty()
         }
@@ -155,7 +158,11 @@ class MainActivity : SnoozeInterface, StockInterface, AppCompatActivity() {
                 if (resultCode == Activity.RESULT_OK) {
                     val stock = data?.getParcelableExtra<Stock>("stock")
                     if (stock != null) {
-                        if (addOrEditStock(stock)) toast("Added stock ${stock.ticker} successfully") else toast("Failed to add ${stock.ticker}")
+                        if (addOrEditStock(stock)) {
+                            toast("Added stock ${stock.ticker} successfully")
+                        } else {
+                            toast("Failed to add ${stock.ticker}")
+                        }
                     } else {
                         toast("Did not receive stock info back to add")
                     }

@@ -179,8 +179,11 @@ class RecyclingStockAdapter(
     fun refresh(newStockList: List<Stock>) {
 
         if (!stockList.containsAll(newStockList) || stockList.size != newStockList.size) { //To preserve order
+            Log.v("RecyclingStockAdapter", "refresh called; I'm changing something")
             stockList = newStockList.sortedWith(AlphabeticalStocks).toMutableList()
             notifyDataSetChanged()
+        } else {
+            Log.v("RecyclingStockAdapter", "refresh called BUT doesn't meet my criteria")
         }
 
         //Doesn't work, because onBindViewHolder doesn' take the new info, see commented function above

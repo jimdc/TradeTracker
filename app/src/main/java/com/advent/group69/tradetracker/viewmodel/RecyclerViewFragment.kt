@@ -56,8 +56,30 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
     override fun onResume() {
         super.onResume()
 
+        /**
+         * See explanation in the "else" clause for why we don't do this memory release anymore.
+         * It is replaced by the size() check on CompositeDisposable in onAttach
+
         if (callBackMainActivity == null) Log.d(TAG, "callBackMainActivity==null onResume")
-        else callBackMainActivity?.getCompositeDisposable()?.remove(subscriptionToStockListUpdates!!)
+        else {
+            val sizeBefore = callBackMainActivity?.getCompositeDisposable()?.size()
+            callBackMainActivity?.getCompositeDisposable()?.add(subscriptionToStockListUpdates!!)
+            val sizeAfter = callBackMainActivity?.getCompositeDisposable()?.size()
+            Log.v("RecyclerViewFragment", "onResume: added composite subscription; CD $sizeBefore -> $sizeAfter")
+
+            /**
+             * Sometimes the database will change when the RecyclerView is "paused"
+             * So we need to check when we get back, if we are in sync.
+             * This froze the app so we'll just not unsubscribe...
+
+
+            val mostUpdatedList = callBackMainActivity?.getFlowingStockList()?.blockingLast()
+            if (mostUpdatedList != null) {
+                recyclingStockAdapter.refresh(mostUpdatedList)
+            }
+            */
+        }
+        */
 
         LocalBroadcastManager.getInstance(this.context!!.applicationContext)
                 .registerReceiver(currentPriceReceiver, IntentFilter("PRICEUPDATE"))
@@ -66,8 +88,17 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
     override fun onPause() {
         super.onPause()
 
+        /**
+         * see explanation in onResume for why we don't do this anymore
+
         if (callBackMainActivity == null) Log.d(TAG, "callBackMainActivity==null onPause")
-        callBackMainActivity?.getCompositeDisposable()?.add(subscriptionToStockListUpdates!!)
+        else {
+            val sizeBefore = callBackMainActivity?.getCompositeDisposable()?.size()
+            callBackMainActivity?.getCompositeDisposable()?.remove(subscriptionToStockListUpdates!!)
+            val sizeAfter = callBackMainActivity?.getCompositeDisposable()?.size()
+            Log.v("RecyclerViewFragment", "onPause: removed composite subscription; CD $sizeBefore -> $sizeAfter")
+        }
+        */
 
         LocalBroadcastManager.getInstance(this.context!!.applicationContext)
                 .unregisterReceiver(currentPriceReceiver)
@@ -88,6 +119,24 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
                                 { stockList -> recyclingStockAdapter.refresh(stockList)},
                                 { throwable -> Log.d("Disposable::fail", throwable.message)}
                         )
+
+                /**
+                 * The logic here needs to change if Updaten subscribes to flowable, which it should!
+                 */
+                val subscriptionCount = callBackMainActivity?.getCompositeDisposable()?.size()
+                if (subscriptionCount == 0) {
+
+                    callBackMainActivity?.getCompositeDisposable()?.add(subscriptionToStockListUpdates!!)
+                    val newSubscriptionCount = callBackMainActivity?.getCompositeDisposable()?.size()
+                    if (newSubscriptionCount == 1) {
+                        Log.v("RecyclerViewFragment", "Successfully attached subscriptionToStockListUpdates bc has 0")
+                    } else if (newSubscriptionCount == 0) {
+                        Log.d("RecyclerViewFragment", "I could not subscribe to stock list updates; changes might not be reflected in UI!")
+                    }
+                } else {
+                    Log.v("RecyclerViewFragment", "Not subscribing to StockListUpdates bc already has one subscription (but may not be ours!)")
+                }
+
             } else {
                 Log.d(TAG, "context.applicationContext isn't MainActivity but rather $context")
             }
