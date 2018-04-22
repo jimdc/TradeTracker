@@ -1,7 +1,7 @@
 import android.support.test.rule.ServiceTestRule
 import android.support.test.InstrumentationRegistry
 import android.content.Intent
-import com.advent.group69.tradetracker.NetworkService
+import com.advent.tradetracker.NetworkService
 import java.util.concurrent.TimeoutException
 import android.support.test.runner.AndroidJUnit4
 import org.junit.*
@@ -18,7 +18,7 @@ class MainServicetest {
     @Test(timeout=1000 * 60)
     fun setUp() {
         val context = InstrumentationRegistry.getTargetContext()
-        val serviceIntent = Intent(context, NetworkService::class.java)
+        val serviceIntent = Intent(context, com.advent.tradetracker.NetworkService::class.java)
         try {
             val service = serviceRule.startService(serviceIntent)
         } catch (e: TimeoutException) {

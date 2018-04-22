@@ -56,8 +56,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.advent.group69.tradetracker.viewmodel.MainActivity" />
         </activity>
-        <service android:name="com.advent.group69.tradetracker.NetworkService" android:exported="false"/>
-        <activity android:name="com.advent.group69.tradetracker.SettingsActivity" android:label="@string/settings"
+        <service android:name="com.advent.group69.tradetracker.com.advent.tradetracker.NetworkService" android:exported="false"/>
+        <activity android:name="com.advent.group69.tradetracker.com.advent.tradetracker.SettingsActivity" android:label="@string/settings"
             android:parentActivityName=".viewmodel.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

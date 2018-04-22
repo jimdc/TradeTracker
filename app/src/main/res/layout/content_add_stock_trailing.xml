@@ -24,8 +24,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/divider"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="10dp"
-        android:layout_marginLeft="81dp"
+        android:layout_marginLeft="79dp"
         android:textSize="30sp"
         android:ems="10"
         android:text="Trailing stop-loss" />

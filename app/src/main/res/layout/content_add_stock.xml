@@ -21,6 +21,7 @@
         android:hint="@string/tickername"
         android:inputType="textCapCharacters" />
 
+
     <EditText
         android:id="@+id/tickerPrice"
         android:layout_width="wrap_content"
