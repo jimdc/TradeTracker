@@ -27,7 +27,7 @@ import io.reactivex.Observable
 import android.widget.Toast
 import android.R.id.button2
 import android.R.id.button1
-
+import timber.log.Timber
 
 
 const val ADD_SOMETHING = 1
@@ -185,29 +185,20 @@ class AddEditStockActivity : AppCompatActivity() {
                                 startActivityForResult(intent, ADD_SOMETHING)
 
                             }
-
-
-
                             else -> {
-                                toast("error")
+                                Timber.d("error")
                             }
                         }
-
                         return true
                     }
-
                 } )
-
                 pm.show()
-
             }
-            //
-
-            else -> { toast("error2")
+            else -> {
+                Timber.d("error2")
             }
 
-        }// DO SOMETHING HERE
-
+        }
         return false
     }
 
@@ -270,14 +261,14 @@ class AddEditStockActivity : AppCompatActivity() {
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val stock = data?.getParcelableExtra<Stock>("stock")
-        toast("trailing done")
+
         if (stock != null) {
             val resultIntent = Intent()
             resultIntent.putExtra("stock", stock)
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         } else {
-            toast("Did not receive stock info back to add")
+            Timber.d("Did not receive stock info back to add")
         }
     }
 

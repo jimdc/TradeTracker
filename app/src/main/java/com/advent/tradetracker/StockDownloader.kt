@@ -11,6 +11,7 @@ import com.advent.tradetracker.model.DataModel
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
+import timber.log.Timber
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -121,10 +122,10 @@ object StockDownloader {
             if (!line.contains("quotes_content_left__LastSale")) continue
             if(!line.contains("display:inline-block")) continue
             //if (isLateStock) { if (!line.contains("qwidget_lastsale")) continue }
-            Log.d("stockline",line)
+
             val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
             matcher.find()
-            Log.d("stocko",matcher.group())
+
 
 
             ret = try {
@@ -152,7 +153,7 @@ object StockDownloader {
         } catch (jo: JsonDataException) {
             return JSON_DATA_ERROR
         }
-        Log.d("cryptoprice", currency.toString())
+        Timber.d(currency.toString())
         return currency?.USD ?: SKIPPED_PARSE_ERROR
     }
 
