@@ -114,7 +114,8 @@ class NetworkService : Service() {
                 if (com.advent.tradetracker.model.SnoozeManager.isSnoozing()) {
                     wakeLock.acquire(60000)
                     com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
-                    wakeLock.release()
+                    if (wakeLock.isHeld())
+                        wakeLock.release()
                 } else {
                     Timber.i( "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
                     wakeLock.acquire(60000)
@@ -122,7 +123,8 @@ class NetworkService : Service() {
                     logger.logHowLongItTakesToRun { stockScanner.scanNetwork() }
                     com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(updateFrequencyPreference)
 
-                    wakeLock.release()
+                    if (wakeLock.isHeld())
+                        wakeLock.release()
                 }
                 secondsSinceScanStarted++
             }
