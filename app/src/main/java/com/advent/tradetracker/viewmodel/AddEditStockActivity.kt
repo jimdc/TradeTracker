@@ -18,6 +18,7 @@ import android.view.Menu
 import android.view.MenuItem
 import io.reactivex.subjects.PublishSubject
 import android.widget.EditText
+import com.advent.tradetracker.Utility.isValidTickerSymbol
 import com.advent.tradetracker.NetworkService
 import com.advent.tradetracker.R.id.stopLoss
 import com.advent.tradetracker.R.id.trailingPercent
@@ -66,25 +67,30 @@ class AddEditStockActivity : AppCompatActivity() {
         tickerObservable = getTextWatcherObservable(tickerName)
         targetObservable = getTextWatcherObservable(tickerPrice)
 
-        fun onNextTickerBetterNotBeEmpty(t: String) {
+        fun onNextTickerValidate(t: String) {
             if (t.isEmpty()) {
                 tickerHelper.text = "Empty"
-                tickerHelper.setTextColor(Color.RED)
+                tickerHelper.setTextColor(Color.MAGENTA)
             } else {
-                tickerHelper.text = "OK"
-                tickerHelper.setTextColor(Color.GREEN)
+                if (!t.isValidTickerSymbol()) {
+                    tickerHelper.text = "Malformed"
+                    tickerHelper.setTextColor(Color.RED)
+                } else {
+                    tickerHelper.text = "OK"
+                    tickerHelper.setTextColor(Color.GREEN)
+                }
             }
         }
         fun onNextTargetBetterNotBeEmpty(p: String) {
             if (p.isEmpty()) {
                 targetHelper.text = "Empty"
-                targetHelper.setTextColor(Color.RED)
+                targetHelper.setTextColor(Color.MAGENTA)
             } else {
                 targetHelper.text = "OK"
                 targetHelper.setTextColor(Color.GREEN)
             }
         }
-        tickerObservable.subscribe({ t -> onNextTickerBetterNotBeEmpty(t) })
+        tickerObservable.subscribe({ t -> onNextTickerValidate(t) })
         targetObservable.subscribe({ p -> onNextTargetBetterNotBeEmpty(p) })
 
         isUserInputNotEmpty = Observables.combineLatest(
