@@ -27,6 +27,7 @@ object StockDownloader {
     private const val DOUBLE_CONVERSION_ERROR = -4.0
     private const val JSON_DATA_ERROR = -5.0
     private const val IO_ERROR = -6.0
+    private const val OTHER_EXCEPTION = -7.0
 
     /**
      * Scrapes the NASDAQ website, parses out stock info
@@ -75,13 +76,20 @@ object StockDownloader {
      */
     private val dataModel = DataModel()
     fun getCryptoPrice(ticker: String): Double {
-        return try {
-            dataModel.getCryptoPrice(ticker.toUpperCase())
-                    .map { x -> x.USD }
-                    .blockingGet()
-        } catch (ie: IOException) {
-            INTERNET_EXCEPTION
+
+        try {
+            return try {
+                dataModel.getCryptoPrice(ticker.toUpperCase())
+                        .map { x -> x.USD }
+                        .blockingGet()
+            } catch (ie: IOException) {
+                INTERNET_EXCEPTION
+            }
         }
+        catch (ie: IOException) {
+            return OTHER_EXCEPTION
+        }
+
     }
 
     /**

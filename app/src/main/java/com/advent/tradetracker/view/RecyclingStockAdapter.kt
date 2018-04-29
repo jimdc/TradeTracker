@@ -74,7 +74,7 @@ class RecyclingStockAdapter(
                 stockOrCrypto,
                 stock.ticker,
                 targetOperator,
-                stock.target
+                dollarFormatter(stock.target)
         )
         val currentPrice = currentPrices[stock.stockid]?.toString() ?: context?.resources?.getString(R.string.notUpdatedRecently)
         holder.rowCurrentPrice?.text = context?.resources?.getString(R.string.rowCurrentPrice, position, currentPrice)
@@ -116,7 +116,24 @@ class RecyclingStockAdapter(
         notifyItemMoved(fromPosition, toPosition)
         return true
     }
+    /**
+     * This will take a double and remove the trailing zeros except for 1 zero if hundreds place is not used.
+     */
+    fun dollarFormatter(num: Double): String {
+        var s : String = num.toString()
 
+        var ss : String =  s.trimEnd('0' )
+        if(ss.endsWith('.')){
+            return ss.plus("00")
+        }
+        else if(ss.indexOf('.') == ss.length - 2){
+            //if i knew how to do regular expressions i'd check for a period(.) followed by a single character. I improvised
+            return ss.plus("0")
+        }
+        else {
+            return ss
+        }
+    }
     /**
      * Simple example of a view holder that implements {@link ItemTouchHelperViewHolder} and has a
      * "handle" view that initiates a drag event when touched.

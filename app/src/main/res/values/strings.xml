@@ -78,8 +78,8 @@
     <string name="stockupddlgmsg">How many millisecond interval?</string>
     <string name="undo_string">Undo</string>
     <string name="notUpdatedRecently">not updated recently</string>
-    <string name="rowStockAndAlarm">%1$s alerts if %2$s %3$s %4$3f</string>
-    <string name="rowCurrentPrice">Row %1$d at %2$s</string>
+    <string name="rowStockAndAlarm">%1$s:   %2$s %3$s %4$s</string>
+    <string name="rowCurrentPrice">%2$s</string>
 
     <!-- Settings preference keys -->
     <string name="gridlayout_key">gridlayout</string>
