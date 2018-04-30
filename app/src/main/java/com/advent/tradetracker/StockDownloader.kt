@@ -18,6 +18,7 @@ import java.io.InputStreamReader
 import java.io.Reader
 import java.lang.NumberFormatException
 import java.net.URL
+import java.net.UnknownHostException
 import java.util.regex.Pattern
 
 object StockDownloader {
@@ -77,7 +78,6 @@ object StockDownloader {
     private val dataModel = DataModel()
     fun getCryptoPrice(ticker: String): Double {
 
-        try {
             return try {
                 dataModel.getCryptoPrice(ticker.toUpperCase())
                         .map { x -> x.USD }
@@ -85,12 +85,17 @@ object StockDownloader {
             } catch (ie: IOException) {
                 INTERNET_EXCEPTION
             }
-        }
-        catch (ie: IOException) {
-            return OTHER_EXCEPTION
-        }
-
+            catch (ie: java.lang.RuntimeException) {
+                return OTHER_EXCEPTION
+            }
+            catch (e: UnknownHostException){
+                return OTHER_EXCEPTION
+            }
+            catch (e2: Exception){
+                return OTHER_EXCEPTION
+            }
     }
+
 
     /**
      * As a second resort, check NASDAQ's symbol site, but not the "real-time" one.
