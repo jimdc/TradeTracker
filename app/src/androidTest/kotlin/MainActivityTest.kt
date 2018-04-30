@@ -33,7 +33,7 @@ import com.advent.tradetracker.viewmodel.MainActivity
 val activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
 @RunWith(AndroidJUnit4::class)
-class MainActivitytest {
+class MainActivityTest {
 
     private lateinit var activity: MainActivity
 

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.advent.tradetracker.ErrorHandlingActivity"
+    tools:showIn="@layout/activity_error_handling">
+
+    <Button
+        android:id="@+id/btnIgnoreIt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="9dp"
+        android:text="Ignore"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnCloseIt" />
+
+    <TextView
+        android:id="@+id/shortErrorDescription"
+        android:layout_width="236dp"
+        android:layout_height="67dp"
+        android:layout_marginBottom="18dp"
+        android:layout_marginEnd="23dp"
+        android:text="Short error description "
+        app:layout_constraintBottom_toTopOf="@+id/longErrorDescription"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/errorCode"
+        android:layout_width="73dp"
+        android:layout_height="65dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="26dp"
+        android:text="Error Code"
+        app:layout_constraintBottom_toTopOf="@+id/longErrorDescription"
+        app:layout_constraintEnd_toStartOf="@+id/shortErrorDescription" />
+
+    <Button
+        android:id="@+id/btnCloseIt"
+        android:layout_width="71dp"
+        android:layout_height="43dp"
+        android:layout_marginBottom="17dp"
+        android:layout_marginEnd="19dp"
+        android:text="Quit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnTryAgain" />
+
+    <Button
+        android:id="@+id/btnTryAgain"
+        android:layout_width="113dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="68dp"
+        android:text="Try again"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/longErrorDescription"
+        android:layout_width="335dp"
+        android:layout_height="134dp"
+        android:layout_marginBottom="23dp"
+        android:layout_marginEnd="23dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:text="Long error description"
+        app:layout_constraintBottom_toTopOf="@+id/longUserRecommendations"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/longUserRecommendations"
+        android:layout_width="335dp"
+        android:layout_height="171dp"
+        android:layout_marginBottom="21dp"
+        android:layout_marginEnd="23dp"
+        android:layout_marginStart="26dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/btnTryAgain"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</android.support.constraint.ConstraintLayout>

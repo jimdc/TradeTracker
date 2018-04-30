@@ -19,6 +19,7 @@ import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
 import com.advent.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
+import com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp
 
 
 import timber.log.Timber
@@ -102,39 +103,35 @@ class NetworkService : Service() {
          */
         override fun handleMessage(msg: Message) {
             // Add your cpu-blocking activity here
-            var secondsSinceScanStarted = 0
+            var iterations = 0
             var iteration = 0
             val snoozeMsecInterval = 1000L
-            val logger = com.advent.tradetracker.Logger(this@NetworkService, "Updaten.txt")
+            val wakeLocker = BatteryAwareness.wakeLocker(this@NetworkService)
+
             stockScanner.isRunning = true
 
             while (stockScanner.isRunning) {
-                val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-                val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag")
-                if (com.advent.tradetracker.model.SnoozeManager.isSnoozing()) {
-                    wakeLock.acquire(60000)
-                    com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(snoozeMsecInterval)
-                    if (wakeLock.isHeld())
-                        wakeLock.release()
+                if (SnoozeManager.isSnoozing()) {
+                    wakeLocker.wakeLockDo(60000, {
+                        sleepWithThreadInterruptIfWokenUp(
+                                snoozeMsecInterval
+                        )
+                    })
                 } else {
                     Timber.i( "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
-                    wakeLock.acquire(60000)
-
-                    logger.logHowLongItTakesToRun { stockScanner.scanNetwork() }
-                    com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp(updateFrequencyPreference)
-
-                    if (wakeLock.isHeld())
-                        wakeLock.release()
+                    wakeLocker.wakeLockDo(60000, {
+                        stockScanner.scanNetwork()
+                        sleepWithThreadInterruptIfWokenUp(
+                                updateFrequencyPreference
+                        )
+                    })
                 }
-                secondsSinceScanStarted++
+                iterations++
             }
 
-            toast("Scan stopped after $secondsSinceScanStarted iterations")
+            toast("Scan stopped after $iterations iterations")
             stockScanner.isRunning = false
-
-            //this would stop the service on it's own. we don't want that unless the user toggles scanning button to off
             stopSelf(msg.arg1)
-            return
         }
     }
 }

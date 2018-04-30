@@ -18,6 +18,7 @@ import android.view.Menu
 import android.view.MenuItem
 import io.reactivex.subjects.PublishSubject
 import android.widget.EditText
+import com.advent.tradetracker.Utility.isValidTickerSymbol
 import com.advent.tradetracker.NetworkService
 import com.advent.tradetracker.R.id.stopLoss
 import com.advent.tradetracker.R.id.trailingPercent
@@ -27,6 +28,8 @@ import io.reactivex.Observable
 import android.widget.Toast
 import android.R.id.button2
 import android.R.id.button1
+import android.graphics.Color
+import io.reactivex.rxkotlin.Observables
 import timber.log.Timber
 
 
@@ -37,6 +40,12 @@ class AddEditStockActivity : AppCompatActivity() {
 
     private lateinit var tickerName: EditText
     private lateinit var tickerPrice: EditText
+    private lateinit var tickerObservable: Observable<String>
+    private lateinit var targetObservable: Observable<String>
+    private lateinit var isUserInputNotEmpty: Observable<Boolean>
+    private lateinit var tickerHelper: TextView
+    private lateinit var targetHelper: TextView
+
     private lateinit var aboveChecked: RadioButton
     private lateinit var belowChecked: RadioButton
     private lateinit var phoneChecked: CheckBox
@@ -54,6 +63,40 @@ class AddEditStockActivity : AppCompatActivity() {
 
         tickerName = findViewById(R.id.tickerName)
         tickerPrice = findViewById(R.id.tickerPrice)
+        tickerHelper = findViewById(R.id.tickerHelper)
+        targetHelper = findViewById(R.id.targetHelper)
+        tickerObservable = getTextWatcherObservable(tickerName)
+        targetObservable = getTextWatcherObservable(tickerPrice)
+
+        fun onNextTickerValidate(t: String) {
+            if (t.isEmpty()) {
+                tickerHelper.text = "Empty"
+                tickerHelper.setTextColor(Color.MAGENTA)
+            } else {
+                if (!t.isValidTickerSymbol()) {
+                    tickerHelper.text = "Malformed"
+                    tickerHelper.setTextColor(Color.RED)
+                } else {
+                    tickerHelper.text = "OK"
+                    tickerHelper.setTextColor(Color.GREEN)
+                }
+            }
+        }
+        fun onNextTargetBetterNotBeEmpty(p: String) {
+            if (p.isEmpty()) {
+                targetHelper.text = "Empty"
+                targetHelper.setTextColor(Color.MAGENTA)
+            } else {
+                targetHelper.text = "OK"
+                targetHelper.setTextColor(Color.GREEN)
+            }
+        }
+        tickerObservable.subscribe({ t -> onNextTickerValidate(t) })
+        targetObservable.subscribe({ p -> onNextTargetBetterNotBeEmpty(p) })
+
+        isUserInputNotEmpty = Observables.combineLatest(
+                tickerObservable, targetObservable) { t: String, p: String -> t.isNotEmpty() && p.isNotEmpty() }
+
         aboveChecked = findViewById(R.id.rbAbove)
         belowChecked = findViewById(R.id.rbBelow)
         phoneChecked = findViewById(R.id.phoneCallCB)
@@ -202,13 +245,23 @@ class AddEditStockActivity : AppCompatActivity() {
         return false
     }
 
-    private fun isUserInputNotEmpty(): Boolean {
-        return !(tickerName.text.trim().isEmpty() or tickerPrice.text.trim().isEmpty())
+    private fun getTextWatcherObservable(editText: EditText): Observable<String> {
+        val subject = PublishSubject.create<String>()
+
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) { }
+            override fun afterTextChanged(s: Editable) {
+                subject.onNext(s.toString())
+            }
+        })
+
+        return subject
     }
 
     private fun updateWorkingStockFromUserInput(): Boolean {
 
-        if (!isUserInputNotEmpty()) return false
+        //if (isUserInputNotEmpty.blockingLast() == false) return false
 
         workingStock.ticker = tickerName.text.toString()
         workingStock.target = tickerPrice.text.toString().toDoubleOrNull() ?: -1.0
@@ -239,26 +292,6 @@ class AddEditStockActivity : AppCompatActivity() {
         finish()
     }
 
-    fun getTextWatcherObservable(editText: EditText): Observable<String> {
-
-        val subject = PublishSubject.create<String>()
-
-        editText.addTextChangedListener(object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-
-            }
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-
-            }
-            override fun afterTextChanged(s: Editable) {
-                subject.onNext(s.toString())
-            }
-
-        })
-
-        return subject
-    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val stock = data?.getParcelableExtra<Stock>("stock")
 
