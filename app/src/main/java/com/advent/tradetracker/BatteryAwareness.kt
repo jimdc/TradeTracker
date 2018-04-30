@@ -6,6 +6,7 @@ import android.app.TaskStackBuilder
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
 import com.advent.tradetracker.view.MorePowerInfoNotification
 import org.jetbrains.anko.toast
@@ -70,5 +71,21 @@ object BatteryAwareness {
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(POWER_OFF_PLEASE_ID, notificBuilder.build())
+    }
+
+    class wakeLocker(context: Context) {
+
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag")
+
+        fun wakeLockDo(timeout: Long, importantFunction: () -> Unit) {
+            wakeLock.acquire(timeout)
+
+            importantFunction()
+
+            if (wakeLock.isHeld) {
+                wakeLock.release()
+            }
+        }
     }
 }
