@@ -109,6 +109,9 @@ object StockDownloader {
      * @param[isLateStock] checks only a certain line
      * @return crypto price if successful, [SKIPPED_PARSE_ERROR], [DOUBLE_CONVERSION_ERROR]
      */
+
+    //<div id="qwidget_lastsale" class="qwidget-dollar">$22.3</div>
+
     private fun parseStockOrCryptoPrice(source: BufferedReader, isStock: Boolean, isLateStock: Boolean): Double {
 
         var ret = SKIPPED_PARSE_ERROR
@@ -118,21 +121,33 @@ object StockDownloader {
 
             val line = iterator.next()
 
-            if (!line.contains("quotes_content_left__LastSale")) continue
-            if(!line.contains("display:inline-block")) continue
-            //if (isLateStock) { if (!line.contains("qwidget_lastsale")) continue }
-            Log.d("stockline",line)
-            val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
-            matcher.find()
-            Log.d("stocko",matcher.group())
+            /**
+             * If you modify this logic, modify [StockDownloaderTest] to make sure the test works too!
+             */
+            if (isStock) {
+                if (!line.contains("quotes_content_left__LastSale")) {
+                    continue
+                }
+                if (!line.contains("display:inline-block")) {
+                    continue
+                }
+            }
+            if (isLateStock) {
+                if (!line.contains("qwidget_lastsale")) {
+                    continue
+                }
+            }
 
+            val matcher = Pattern.compile("\\d+.\\d+").matcher(line)
+
+            if (!matcher.find()) {
+                return SKIPPED_PARSE_ERROR
+            }
 
             ret = try {
                 java.lang.Double.parseDouble(matcher.group())
             } catch (numberFormatException: NumberFormatException) {
                 DOUBLE_CONVERSION_ERROR
-            } catch (illegalStateException: IllegalStateException) {
-                SKIPPED_PARSE_ERROR
             }
         }
 
@@ -152,7 +167,7 @@ object StockDownloader {
         } catch (jo: JsonDataException) {
             return JSON_DATA_ERROR
         }
-        Log.d("cryptoprice", currency.toString())
+
         return currency?.USD ?: SKIPPED_PARSE_ERROR
     }
 
