@@ -7,17 +7,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/my_backup_rules"
         android:icon="@drawable/tradetracker"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
         <activity
-            android:name="com.advent.tradetracker.viewmodel.MainActivity"
+            android:name=".viewmodel.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -27,45 +27,58 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.advent.tradetracker.view.MorePowerInfoNotification"
+            android:name=".view.MorePowerInfoNotification"
             android:label="@string/moar"
-            android:parentActivityName="com.advent.tradetracker.viewmodel.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.advent.tradetracker.viewmodel.MainActivity" />
-        </activity>
-        <receiver android:name="com.advent.tradetracker.view.PriceAlertBroadcastReceiver" />
-
-        <activity
-            android:name="com.advent.tradetracker.viewmodel.AddEditStockActivity"
-            android:windowSoftInputMode="stateVisible"
-            android:label="@string/title_activity_add_stock"
-            android:parentActivityName="com.advent.tradetracker.viewmodel.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.advent.tradetracker.viewmodel.MainActivity" />
-        </activity>
-        <activity
-            android:name="com.advent.tradetracker.viewmodel.AddTrailingActivity"
-            android:windowSoftInputMode="stateVisible"
-            android:label="@string/title_activity_add_stock"
-            android:parentActivityName="com.advent.tradetracker.viewmodel.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.advent.tradetracker.viewmodel.MainActivity" />
-        </activity>
-        <service android:name="com.advent.tradetracker.NetworkService" android:exported="false"/>
-        <activity android:name="com.advent.tradetracker.SettingsActivity" android:label="@string/settings"
             android:parentActivityName=".viewmodel.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".viewmodel.MainActivity"/>
+                android:value="com.advent.tradetracker.viewmodel.MainActivity" />
         </activity>
+
+        <receiver android:name=".view.PriceAlertBroadcastReceiver" />
+
+        <activity
+            android:name=".viewmodel.AddEditStockActivity"
+            android:label="@string/title_activity_add_stock"
+            android:parentActivityName=".viewmodel.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateVisible">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.advent.tradetracker.viewmodel.MainActivity" />
+        </activity>
+        <activity
+            android:name=".viewmodel.AddTrailingActivity"
+            android:label="@string/title_activity_add_stock"
+            android:parentActivityName=".viewmodel.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateVisible">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.advent.tradetracker.viewmodel.MainActivity" />
+        </activity>
+
+        <service
+            android:name=".NetworkService"
+            android:exported="false" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings"
+            android:parentActivityName=".viewmodel.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".viewmodel.MainActivity" />
+        </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="e4e65d494a84c6e0cb25c34f71e5fcf967921da4" />
+
+        <activity
+            android:name=".ErrorHandlingActivity"
+            android:label="@string/title_activity_error_handling"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

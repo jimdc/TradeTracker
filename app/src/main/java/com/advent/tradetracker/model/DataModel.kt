@@ -1,9 +1,11 @@
 package com.advent.tradetracker.model
 
+import com.advent.tradetracker.nASDAQService
 import com.advent.tradetracker.stockRestService
 
 class DataModel : IDataModel {
     override fun getCryptoPrice(tickerName: String) = stockRestService.cryptoPrice(tickerName)
+    override fun getStockPrice(tickerName: String) = nASDAQService.stockPrice(tickerName)
 
     /**
      * for fresher data

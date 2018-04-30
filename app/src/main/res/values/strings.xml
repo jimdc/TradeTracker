@@ -91,5 +91,6 @@
     <string name="tickerRoseDroppedMsg">tickerRoseDroppedMsg</string>
     <string name="tickerTargetPrice">tickerTargetPrice</string>
     <string name="aboveBelow">aboveBelow</string>
+    <string name="title_activity_error_handling">Serious Error</string>
 
 </resources>

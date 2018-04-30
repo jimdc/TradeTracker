@@ -15,7 +15,7 @@ class UtilityTest {
         "JELK90#$".isValidTickerSymbol() shouldEqual false
         "1".isValidTickerSymbol() shouldEqual false
         "0".isValidTickerSymbol() shouldEqual false
-        "R".isValidTickerSymbol() shouldEqual false
+        "R".isValidTickerSymbol() shouldEqual true
         "25.36".isValidTickerSymbol() shouldEqual false
         "1.0".isValidTickerSymbol() shouldEqual false
         "GOOG".isValidTickerSymbol() shouldEqual true
