@@ -111,7 +111,6 @@ class NetworkService : Service() {
             stockScanner.isRunning = true
 
             while (stockScanner.isRunning) {
-
                 if (SnoozeManager.isSnoozing()) {
                     wakeLocker.wakeLockDo(60000, {
                         sleepWithThreadInterruptIfWokenUp(
@@ -120,7 +119,6 @@ class NetworkService : Service() {
                     })
                 } else {
                     Timber.i( "HandleMessage call stockScanner.scanNetwork() iteration #" + ++iteration)
-
                     wakeLocker.wakeLockDo(60000, {
                         stockScanner.scanNetwork()
                         sleepWithThreadInterruptIfWokenUp(

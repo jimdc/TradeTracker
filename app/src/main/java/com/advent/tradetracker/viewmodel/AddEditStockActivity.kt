@@ -228,30 +228,20 @@ class AddEditStockActivity : AppCompatActivity() {
                                 startActivityForResult(intent, ADD_SOMETHING)
 
                             }
-
-
-
                             else -> {
                                 Timber.d("error")
                             }
                         }
-
                         return true
                     }
-
                 } )
-
                 pm.show()
-
             }
-            //
-
             else -> {
                 Timber.d("error2")
             }
 
-        }// DO SOMETHING HERE
-
+        }
         return false
     }
 
@@ -304,7 +294,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val stock = data?.getParcelableExtra<Stock>("stock")
-        toast("trailing done")
+
         if (stock != null) {
             val resultIntent = Intent()
             resultIntent.putExtra("stock", stock)
