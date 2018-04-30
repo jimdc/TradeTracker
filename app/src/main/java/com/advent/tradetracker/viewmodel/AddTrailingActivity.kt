@@ -39,6 +39,7 @@ class AddTrailingActivity : AppCompatActivity() {
     private lateinit var dbFunctions: com.advent.tradetracker.model.DatabaseFunctions
     private val compositeDisposable = CompositeDisposable()
     fun getCompositeDisposable() = compositeDisposable
+    private var isEditingCrypt : Boolean? = false
 
     private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, 0L, 0L, 0L)
 
@@ -84,7 +85,7 @@ class AddTrailingActivity : AppCompatActivity() {
 
                             R.id.target_price -> {
                                 val intent = Intent(applicationContext, AddEditStockActivity::class.java)
-                                intent.putExtra("isEditingCrypto", false)
+                                intent.putExtra("isEditingCrypto", isEditingCrypt)
                                         .putExtra("isEditingExisting", false)
                                 startActivityForResult(intent, ADD_SOMETHING)
                             }
@@ -114,6 +115,7 @@ class AddTrailingActivity : AppCompatActivity() {
 
         val bundleFromIntent = intent.extras
         val isEditingCrypto: Boolean? = bundleFromIntent.getBoolean("isEditingCrypto")
+        isEditingCrypt = isEditingCrypto
         val isEditingExisting: Boolean? = bundleFromIntent.getBoolean("isEditingExisting")
         if ((isEditingCrypto == null) or (isEditingExisting == null)) {
             toast("Did not receive isEditingCrypto or isEditingExisting from MainActivity")

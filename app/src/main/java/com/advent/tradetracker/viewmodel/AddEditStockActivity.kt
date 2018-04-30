@@ -28,6 +28,7 @@ import io.reactivex.Observable
 import android.widget.Toast
 import android.R.id.button2
 import android.R.id.button1
+import com.advent.tradetracker.model.Cryptocurrency
 import android.graphics.Color
 import io.reactivex.rxkotlin.Observables
 import timber.log.Timber
@@ -51,7 +52,7 @@ class AddEditStockActivity : AppCompatActivity() {
     private lateinit var phoneChecked: CheckBox
     private lateinit var btnDelete: Button
     private var trailStop = false
-
+    private var isEditingCrypt : Boolean? = false
 
 
     private var workingStock = Stock(-1, "Default", -1.0, -1.0, -1.0, -1.0, -1.0, 0L, 0L, 0L)
@@ -153,6 +154,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
         val bundleFromIntent = intent.extras
         val isEditingCrypto: Boolean? = bundleFromIntent.getBoolean("isEditingCrypto")
+        isEditingCrypt = isEditingCrypto
         val isEditingExisting: Boolean? = bundleFromIntent.getBoolean("isEditingExisting")
         if ((isEditingCrypto == null) or (isEditingExisting == null)) {
             toast("Did not receive isEditingCrypto or isEditingExisting from MainActivity")
@@ -223,7 +225,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
                             R.id.trailing_stop -> {
                                 val intent = Intent(applicationContext, AddTrailingActivity::class.java)
-                                intent.putExtra("isEditingCrypto", false)
+                                intent.putExtra("isEditingCrypto", isEditingCrypt)
                                         .putExtra("isEditingExisting", false)
                                 startActivityForResult(intent, ADD_SOMETHING)
 

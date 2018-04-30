@@ -140,6 +140,7 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
     * For navigation drawer in toolbar
     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        //throw RuntimeException("Hi There!")
         when (item.itemId) {
             R.id.action_settings -> startActivity<com.advent.tradetracker.SettingsActivity>()
             R.id.action_snooze -> {
@@ -164,6 +165,7 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         // Check which request we're responding to
+
         when(requestCode) {
             ADD_SOMETHING -> {
                 if (resultCode == Activity.RESULT_OK) {
