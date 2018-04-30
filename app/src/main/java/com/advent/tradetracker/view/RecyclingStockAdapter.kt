@@ -63,7 +63,8 @@ class RecyclingStockAdapter(
 
         val stock = stockList[position]
         if (stock.crypto == 1L) {
-            holder.itemView?.setBackgroundColor(Color.GRAY)
+            //holder.itemView?.setBackgroundColor(Color.GRAY)
+            //will uncomment once the color bug is fixed (other stocks keep randomly flickering and turning gray)
         }
 
         val stockOrCrypto = if (stock.crypto == 0L) "Stock" else "Crypto"

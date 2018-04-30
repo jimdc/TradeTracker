@@ -30,6 +30,7 @@ import android.R.id.button2
 import android.R.id.button1
 import android.graphics.Color
 import io.reactivex.rxkotlin.Observables
+import timber.log.Timber
 
 
 const val ADD_SOMETHING = 1
@@ -231,7 +232,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
 
                             else -> {
-                                toast("error")
+                                Timber.d("error")
                             }
                         }
 
@@ -245,7 +246,8 @@ class AddEditStockActivity : AppCompatActivity() {
             }
             //
 
-            else -> { toast("error2")
+            else -> {
+                Timber.d("error2")
             }
 
         }// DO SOMETHING HERE
@@ -309,7 +311,7 @@ class AddEditStockActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         } else {
-            toast("Did not receive stock info back to add")
+            Timber.d("Did not receive stock info back to add")
         }
     }
 

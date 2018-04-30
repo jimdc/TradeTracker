@@ -26,6 +26,7 @@ import com.advent.tradetracker.SettingsActivity
 import com.advent.tradetracker.model.DatabaseFunctions
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 
 class AddTrailingActivity : AppCompatActivity() {
 
@@ -68,33 +69,44 @@ class AddTrailingActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         when (item.itemId) {
-            R.id.target_price -> {
-                val intent = Intent(this, AddEditStockActivity::class.java)
-                intent.putExtra("isEditingCrypto", false)
-                        .putExtra("isEditingExisting", false)
-                startActivityForResult(intent, ADD_SOMETHING)
+
+            R.id.menubtn -> {
+
+                // THE R.id.button2 has to be the same as the item that will trigger the popup menu.
+                val v = findViewById<View>(R.id.menubtn)
+                val pm = PopupMenu(this@AddTrailingActivity, v)
+                pm.menuInflater.inflate(R.menu.more_buttons, pm.menu)
+                pm.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
+                    override fun onMenuItemClick(item: MenuItem): Boolean {
+                        when (item.itemId) {
+
+                            R.id.target_price -> {
+                                val intent = Intent(applicationContext, AddEditStockActivity::class.java)
+                                intent.putExtra("isEditingCrypto", false)
+                                        .putExtra("isEditingExisting", false)
+                                startActivityForResult(intent, ADD_SOMETHING)
+                            }
+
+                            R.id.trailing_stop -> {
+
+                            }
+                            else -> {
+                                Timber.d("error")
+                            }
+                        }
+                        return true
+                    }
+                } )
+                pm.show()
             }
-            R.id.trailing_stop -> {
-                val intent = Intent(this, AddTrailingActivity::class.java)
-                intent.putExtra("isEditingCrypto", false)
-                        .putExtra("isEditingExisting", false)
-                startActivityForResult(intent, ADD_SOMETHING)
+            else -> {
+                Timber.d("error2")
             }
-            R.id.action_add_stock -> {
-                val intent = Intent(this, AddEditStockActivity::class.java)
-                intent.putExtra("isEditingCrypto", false)
-                        .putExtra("isEditingExisting", false)
-                startActivityForResult(intent, ADD_SOMETHING)
-            }
-            R.id.action_add_crypto -> {
-                val intent = Intent(this, AddEditStockActivity::class.java)
-                intent.putExtra("isEditingCrypto", true)
-                        .putExtra("isEditingExisting", false)
-                startActivityForResult(intent, ADD_SOMETHING)
-            }
+
         }
-        return super.onOptionsItemSelected(item)
+        return false
     }
 
     override fun onStart() {
@@ -209,5 +221,16 @@ class AddTrailingActivity : AppCompatActivity() {
 
         return subject
     }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val stock = data?.getParcelableExtra<Stock>("stock")
 
+        if (stock != null) {
+            val resultIntent = Intent()
+            resultIntent.putExtra("stock", stock)
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
+        } else {
+            toast("Did not receive stock info back to add")
+        }
+    }
 }
