@@ -5,4 +5,5 @@ import io.reactivex.Single
 
 interface IDataModel {
     fun getCryptoPrice(tickerName: String): Single<CryptoModel.Result>
+    fun getStockPrice(tickerName: String): Single<NASDAQService.NASDAQPage>
 }

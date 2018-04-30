@@ -2,9 +2,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.BufferedReader
-import com.advent.tradetracker.StockDownloader.parseLateStockPrice
-import com.advent.tradetracker.StockDownloader.parseCryptoPrice
-import com.advent.tradetracker.StockDownloader.getLateStockPrice
+import com.advent.tradetracker.StockDownloader.getStockPrice
 import com.advent.tradetracker.StockDownloader.getCryptoPrice
 import org.amshove.kluent.*
 import org.junit.Before
@@ -23,41 +21,17 @@ import java.io.StringReader
 
 @RunWith(Parameterized::class)
 class StockDownloaderTest (
-        private val sharedTickerSymbol: String,
-        private val unparsedAsCrypto: String,
-        private val parsedAsCrypto: Double,
-        private val unparsedAsStock: String,
-        private val parsedAsStock: Double
+        private val sharedTickerSymbol: String
 ) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters
 
         fun data() = listOf(
-                arrayOf("ETH", //Ethereum and Ethan Allen Interiors on 2018-03-12
-                        "{\"USD\":463.7}", 463.7,
-                        "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$22.3</div>", 22.3
-                        ),
-                arrayOf("LTC", //Litecoin and LTC Properties, Inc. on 2018-03-12
-                        "{\"USD\":120.95}", 120.95,
-                        "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$36.64</div>", 36.64
-                        ),
-                arrayOf("NEO", //NEO currency and NeoGeonomics on 2018-03-12
-                        "{\"USD\":61.17}", 61.17,
-                        "<div id=\"qwidget_lastsale\" class=\"qwidget-dollar\">\$8.32</div>", 8.32
-                        )
+                arrayOf("ETH") //Ethereum and Ethan Allen Interiors
+                ,arrayOf("LTC") //Litecoin and LTC Properties, Inc
+                ,arrayOf("NEO") //NEO currency and NeoGeonomics
             )
-    }
-
-    @Test fun parsesCryptoOutput () {
-        parseCryptoPrice(unparsedAsCrypto).shouldEqual(parsedAsCrypto)
-    }
-
-    /**
-     * parse"Live"StockPrice will not work because the format is "Late"
-     */
-    @Test fun parsesStockOutput () {
-        parseLateStockPrice(asBufferedReader(unparsedAsStock)).shouldEqual(parsedAsStock)
     }
 
     private var asStockPrice = 0.0
@@ -65,7 +39,7 @@ class StockDownloaderTest (
 
     @Before
     fun initialize() { //So we don't waste time with redundant network calls
-        asStockPrice = getLateStockPrice(sharedTickerSymbol)
+        asStockPrice = getStockPrice(sharedTickerSymbol)
         asCryptoPrice = getCryptoPrice(sharedTickerSymbol)
     }
 

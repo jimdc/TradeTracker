@@ -59,8 +59,11 @@ class StockScanner(private val callerContext: Context) {
 
             val ticker: String = stockx.ticker
 
-            val currentPrice = if (stockx.crypto == 1L) { com.advent.tradetracker.StockDownloader.getCryptoPrice(ticker)
-            } else { com.advent.tradetracker.StockDownloader.getStockPriceLive(ticker) } //changed from getStockPrice, the livestockprice is often non-existent and doesnt round as well for penny stocks
+            val currentPrice = if (stockx.crypto == 1L) {
+                com.advent.tradetracker.StockDownloader.getCryptoPrice(ticker)
+            } else {
+                com.advent.tradetracker.StockDownloader.getStockPrice(ticker)
+            } //changed from getStockPrice, the livestockprice is often non-existent and doesnt round as well for penny stocks
 
             Timber.d(stockx.ticker + ", " + currentPrice.toString())
 
