@@ -75,6 +75,6 @@
     <string name="stockupddlgmsg">Combien d\'intervalle millisecondes ?</string>
     <string name="undo_string">Annuler</string>
     <string name="notUpdatedRecently">pas mis à jour récemment</string>
-    <string name="rowStockAndAlarm">%1$s alerte si %2$s %3$s %4$3f</string>
+    <string name="rowStockAndAlarm">%1$s:   %2$s %3$s %4$s</string>
     <string name="rowCurrentPrice">Ligne %1$d à %2$s</string>
 </resources>
