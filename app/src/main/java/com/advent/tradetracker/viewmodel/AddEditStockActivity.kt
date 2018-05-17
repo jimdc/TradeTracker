@@ -70,11 +70,12 @@ class AddEditStockActivity : AppCompatActivity() {
         targetObservable = getTextWatcherObservable(tickerPrice)
 
         fun onNextTickerValidate(t: String) {
-            if (t.isEmpty()) {
+            val tRimmed = t.trim()
+            if (tRimmed.isEmpty()) {
                 tickerHelper.text = "Empty"
                 tickerHelper.setTextColor(Color.MAGENTA)
             } else {
-                if (!t.isValidTickerSymbol()) {
+                if (!tRimmed.isValidTickerSymbol()) {
                     tickerHelper.text = "Malformed"
                     tickerHelper.setTextColor(Color.RED)
                 } else {
@@ -265,7 +266,7 @@ class AddEditStockActivity : AppCompatActivity() {
 
         //if (isUserInputNotEmpty.blockingLast() == false) return false
 
-        workingStock.ticker = tickerName.text.toString()
+        workingStock.ticker = tickerName.text.toString().trim()
         workingStock.target = tickerPrice.text.toString().toDoubleOrNull() ?: -1.0
         //workingStock.trailingPercent = trailingPercent.text.toString().toDoubleOrNull() ?: -1.0
         //workingStock.activationPrice = activationPrice.text.toString().toDoubleOrNull() ?: -1.0
