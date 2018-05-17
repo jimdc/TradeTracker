@@ -13,21 +13,6 @@ import retrofit2.http.Query
 import timber.log.Timber
 import java.net.UnknownHostException
 
-/**
- * TODO: also https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=CNY&apikey=demo
- * {
-"Realtime Currency Exchange Rate": {
-"1. From_Currency Code": "BTC",
-"2. From_Currency Name": "Bitcoin",
-"3. To_Currency Code": "CNY",
-"4. To_Currency Name": "Chinese Yuan",
-"5. Exchange Rate": "52250.28570460",
-"6. Last Refreshed": "2018-05-17 21:03:15",
-"7. Time Zone": "UTC"
-}
-}
- */
-
 interface AlphaVantageService {
 
     /**
@@ -41,7 +26,22 @@ interface AlphaVantageService {
             @Query("symbols") symbols: String = "MSFT,FB,AAPL",
             @Query("apikey") apiKey: String = "demo"
     ):
-            Single<BatchStockModel>
+            Single<BatchStockModel.StockQuotes>
+
+    /**
+     *  Equivalent to https://www.alphavantage.co/
+     *      query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=CNY&apikey=demo
+     */
+
+    @GET("query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=CNY&apikey=demo")
+    fun cryptoPrice(
+            /*@Query("function") function: String = "CURRENCY_EXCHANGE_RATE",
+            @Query("from_currency") fromCurrency: String = "BTC",
+            @Query("to_currency") toCurrency: String = "CNY",
+            @Query("apikey") apiKey: String = "demo"*/
+    ):
+            Single<CurrencyModel.Result>
+
 
     /**
      * {"USD":65.59}
@@ -60,15 +60,36 @@ interface AlphaVantageService {
      */
     object BatchStockModel {
         data class MetaData(val information: String, val notes: String, val timeZone: String)
-        data class StockQuotes(val individualQuotes: Array<IndividualQuote>)
+        data class StockQuotes(val individualQuotes: List<IndividualQuote>)
+        data class IndividualQuote(val symbol: String, val price: String, val volume: String, val timestamp: String)
     }
 
-    data class IndividualQuote(
-            val symbol: String,
-            val price: String,
-            val volume: String,
-            val timestamp: String
-    )
+    /**
+     *  {
+    "Realtime Currency Exchange Rate": {
+    "1. From_Currency Code": "BTC",
+    "2. From_Currency Name": "Bitcoin",
+    "3. To_Currency Code": "CNY",
+    "4. To_Currency Name": "Chinese Yuan",
+    "5. Exchange Rate": "52250.28570460",
+    "6. Last Refreshed": "2018-05-17 21:03:15",
+    "7. Time Zone": "UTC"
+    }
+    }
+     */
+
+    object CurrencyModel {
+        data class Result(var realTimeCurrencyExchangeRate: RealTimeCurrencyExchangeRate)
+        data class RealTimeCurrencyExchangeRate(
+                val fromCurrencyCode: String,
+                val fromCurrencyName: String,
+                val toCurrencyCode: String,
+                val toCurrencyName: String,
+                val exchangeRate: String,
+                val lastRefreshed: String,
+                val timeZone: String
+        )
+    }
 
     companion object {
         fun create(): AlphaVantageService {
