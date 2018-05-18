@@ -31,9 +31,12 @@ interface AlphaVantageService {
     /**
      *  Equivalent to https://www.alphavantage.co/
      *      query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=CNY&apikey=demo
+     *
+     *  Scratch that.
+     *  https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=USD&apikey=UJ5TXUHQG1IV6NZM
      */
 
-    @GET("query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=CNY&apikey=demo")
+    @GET("query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=USD&apikey=UJ5TXUHQG1IV6NZM")
     fun cryptoPrice(
             /*@Query("function") function: String = "CURRENCY_EXCHANGE_RATE",
             @Query("from_currency") fromCurrency: String = "BTC",
