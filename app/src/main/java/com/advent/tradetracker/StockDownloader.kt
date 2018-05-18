@@ -35,7 +35,7 @@ object StockDownloader {
         return try {
             dataModel.getStockPrice(ticker.toLowerCase())
                     .map { x -> x.lastSale }
-                    .map { x -> x.substring(1).toDouble() } //remove the $ symbol
+                    .map { x -> x.toDouble() } //remove the $ symbol.. JK
                     .blockingGet()
         } catch (ie: IOException) {
             INTERNET_EXCEPTION

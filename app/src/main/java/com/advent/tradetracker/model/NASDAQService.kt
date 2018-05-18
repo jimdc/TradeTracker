@@ -12,13 +12,13 @@ import retrofit2.http.Query
 
 interface NASDAQService {
 
-    @GET("symbol/{ticker}")
+    @GET("symbol/{ticker}/real-time")
     fun stockPrice(
             @Path("ticker") ticker: String
     ): Single<NASDAQService.NASDAQPage>
 
     class NASDAQPage {
-        @Selector("#qwidget_lastsale")
+        @Selector("#quotes_content_left__LastSale")
         var lastSale: String? = null
     }
 

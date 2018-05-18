@@ -1,5 +1,7 @@
 package com.advent.tradetracker
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -20,6 +22,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.advent.tradetracker.BatteryAwareness.wentThroughFirstTimeFalseAlarm
 import com.advent.tradetracker.Utility.sleepWithThreadInterruptIfWokenUp
+import com.advent.tradetracker.Utility.withDollarSignAndDecimal
+import com.advent.tradetracker.view.PriceAlertBroadcastReceiver
 
 
 import timber.log.Timber
@@ -41,6 +45,7 @@ class NetworkService : Service() {
     override fun onCreate() {
         super.onCreate()
         toast("scanning")
+        //displayNotif()
 
         if (!stockScanner.isRunning) {
             Timber.v( "stockScanner.isRunning == false, so starting up service.")
@@ -72,7 +77,7 @@ class NetworkService : Service() {
                     8000
                 }
 
-        return Service.START_NOT_STICKY
+        return Service.START_STICKY
     }
 
     /**
@@ -133,5 +138,17 @@ class NetworkService : Service() {
             stockScanner.isRunning = false
             stopSelf(msg.arg1)
         }
+    }
+    fun displayNotif(){
+        val alertTime = GregorianCalendar().timeInMillis + 5
+
+        val alertIntent = Intent(this@NetworkService, PriceAlertBroadcastReceiver::class.java)
+
+        val alarmManager = this@NetworkService.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.set(
+                AlarmManager.RTC_WAKEUP,
+                alertTime,
+                PendingIntent
+                        .getBroadcast(this@NetworkService, 1, alertIntent, PendingIntent.FLAG_UPDATE_CURRENT))
     }
 }

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.preference.PreferenceManager
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -149,7 +150,6 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
 
         recyclerView = rootView!!.findViewById(R.id.recyclerView)
         layoutManager = LinearLayoutManager(activity)
-
         currentLayoutManagerType = if (savedInstanceState != null) {
             savedInstanceState.getSerializable(KEY_LAYOUT_MANAGER) as LayoutManagerType
         } else {
@@ -163,7 +163,7 @@ class RecyclerViewFragment : Fragment(), OnStartDragListener {
 
         recyclingStockAdapter = RecyclingStockAdapter(dataSet, this, this.context)
         recyclerView.adapter = recyclingStockAdapter
-
+        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         return rootView
     }
 

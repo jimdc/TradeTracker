@@ -96,10 +96,12 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
             val fragment = RecyclerViewFragment()
             transaction.replace(R.id.stock_content_fragment, fragment)
             transaction.commit()
-        }
-        val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
-        setSupportActionBar(toolbar)
 
+        }
+
+        val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
+
+        setSupportActionBar(toolbar)
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(com.advent.tradetracker.BatteryAwareness.powerSaverOffPleaseReceiver, IntentFilter(com.advent.tradetracker.BatteryAwareness.INTENT_FILTER))
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
