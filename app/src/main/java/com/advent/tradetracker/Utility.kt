@@ -37,7 +37,7 @@ object Utility {
      */
     fun String.isValidTickerSymbol(): Boolean {
         val validTickerFormat =
-                Regex("^(([a-z]{2,4}):(?![a-z\\d]+\\.))?([a-z]{1,4}|\\d{1,3}(?=\\.)|\\d{4,})(\\.([a-z]{2}))?$",
+                Regex("^(([a-z]{2,4}):(?![a-z\\d]+\\.))?([a-z]{1,5}|\\d{1,3}(?=\\.)|\\d{4,})(\\.([a-z]{2}))?$",
                         RegexOption.IGNORE_CASE)
 
         val results = validTickerFormat.matchEntire(this)?.groupValues

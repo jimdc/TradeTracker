@@ -24,6 +24,7 @@ class UtilityTest {
         "$90".isValidTickerSymbol() shouldEqual false
         "98774".isValidTickerSymbol() shouldEqual true //because more than 4 digit long
         "789.BY".isValidTickerSymbol() shouldEqual true //because ends with .[A-Z]{2,2}
+        "FWONA".isValidTickerSymbol() shouldEqual true
     }
 
 }

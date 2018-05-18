@@ -12,8 +12,6 @@ import java.util.*
 import com.advent.tradetracker.Utility.withDollarSignAndDecimal
 import android.os.VibrationEffect
 import android.os.Build
-import com.advent.tradetracker.BatteryAwareness
-import com.advent.tradetracker.model.DatabaseFunctions
 import com.advent.tradetracker.view.PriceAlertBroadcastReceiver
 
 
@@ -42,14 +40,10 @@ class StockScanner(private val callerContext: Context) {
      */
   
     fun scanNetwork() {
-        Timber.d("scanNetwork start")
+        Timber.i("scanNetwork start")
         var failCount = 0
 
-        if(com.advent.tradetracker.BatteryAwareness.isPowerSavingOn && !com.advent.tradetracker.BatteryAwareness.notifiedOfPowerSaving) {
-            val intent = Intent(com.advent.tradetracker.BatteryAwareness.INTENT_FILTER)
-            LocalBroadcastManager.getInstance(callerContext).sendBroadcast(intent)
-        }
-
+        BatteryAwareness.checkPowerStatusAndNotify(LocalBroadcastManager.getInstance(callerContext))
         deletePendingFinishedStock()
 
         val stocksTargets = dbFunctions.getStockList()

@@ -5,4 +5,5 @@ package com.advent.tradetracker.model
  */
 object TradeTrackerConstants {
     var CRYPTO_BASE_URL = "https://min-api.cryptocompare.com/data/"
+    var ALPHA_BASE_URL = "https://www.alphavantage.co/"
 }

@@ -1,32 +1,62 @@
-## TradeTracker
+# TradeTracker
 
-UI mockup diagrams exported from http://draw.io/ on advfintech@gmail.com on Feb 9, 2018. More detailed specifications in KDocs and the [wiki](https://github.com/jimdc/TradeTracker/wiki).
+## Functional Specification [?](https://www.joelonsoftware.com/whattimeisit/)
 
-![What the home screen will look like](/MainActivity.png "Main Activity")
+### Overview
+**TradeTracker** is a mobile app that alerts you to personally-relevant changes in the share prices of stocks and cryptocurrencies. 
 
-### Model
+This spec is not complete, and it does not discuss algorithmic/implementation details. It simply discusses what the user sees when they interact with the app.
 
-![Add a stock to track](/AddStock.png "Add Stock")
+### Scenarios
+#### Scenario 1: Jean-Pierre
+Jean-Pierre is a busy college student. He has a great intuitive sense of when a stock will rebound after a fall, since he spends many hours looking at share price trends. But sometimes, significant price events will happen to penny stocks in which he owns shares; while he sleeps. 
 
-**Stock** type stored in SQLite [table](https://github.com/jimdc/TradeTracker/blob/master/app/src/main/java/com/example/alarm/stockbox.kt) [`TableVersion2`]
+Jean-Pierre does not mind being woken up about these price events, if it means averting losses. Since he uses Investopedia's "trailing stop loss" technique; a natural Google search leads him to **TradeTracker**.
 
-| Name          | Type          | Default  | 
-| ------------- |:-------------:| --------:| 
-| stockid       | Long          | 1337     |
-| ticker        | String        | "BABA"   |
-| target        | Double        | 4.20     |
-| above         | Long          | 1        |
-| phone         | Long          | 0        |
-| crypto        | Long          | 0        |
+JP wants to set a limit on his maximum possible loss while not limiting his maximum possible gain. He takes the $50 he invests in an Israeli agrochemical startup, and tells **TradeTracker**: alert me if the price dips by 2%. Originally, that's 50->49, but it goes up to 100. Now TradeTracker is sensitive to if it goes from 100->98. (Is this how it works?)
 
-### View
+#### Scenario 2: Subbaraman
+Subbaraman is a millenial Québécoise barista who doesn't trust banks, and so she spreads her savings into various cryptocurrencies. She is OK if the prices all fall; but if one falls or rises rapidly to another, she needs to spend more time attending to her portfolio.
 
-![Manage alarms for a stock](/AddAlarmExternal.png "Add Alarm External")
+(... somehow she finds **TradeTracker** and uses some very specific features ...)
 
-Uses a listview with a custom adapter.
+### Non Goals
+This version will *not* support the following features:
+* Make trades for you
+* Analyze historical data
+* Suggest how you should trade
 
-### Controller
+### TradeTracker Flowchart
+(storyboard picture goes here)
 
-![Manage alarm type](/AddAlarmInternal.png "Add Alarm Internal")
+### Screen by Screen specification
+**TradeTracker** has several screens, and all of them are written in XML using Android's standard Material Design library.
 
-Creates a service which starts up an AsyncTask thread to scrape HTML from NASDAQ and CryptoCompare.
+#### Stock alert list
+...The entries are color-coded as stock or crypto...
+
+(screenshot goes here)
+
+#### Add/edit stock
+...the user specifies the ticker name and target...
+
+(screenshot goes here)
+
+#### Advanced add/edit
+...trailing stop loss and so forth...
+
+(screenshot goes here)
+
+#### Snooze
+...the user can tell the app to stop scanning for a few hours, but then to resume...
+
+(screenshot goes here)
+
+#### Settings
+...the user can specify how often TradeTracker should query the prices from the net...
+
+(screenshot goes here)
+
+## Technical Specification
+
+(It could be a page on the Advent website)
