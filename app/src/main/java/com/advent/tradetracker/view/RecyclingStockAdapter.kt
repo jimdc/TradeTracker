@@ -16,6 +16,7 @@ import java.util.*
 import android.view.MotionEvent
 import android.support.design.widget.Snackbar
 import com.advent.tradetracker.*
+import com.advent.tradetracker.R.id.recyclerView
 import com.advent.tradetracker.model.AlphabeticalStocks
 import com.advent.tradetracker.model.Stock
 import com.advent.tradetracker.model.StockInterface
@@ -23,7 +24,10 @@ import com.advent.tradetracker.viewmodel.AddEditStockActivity
 import com.advent.tradetracker.viewmodel.EDIT_SOMETHING
 import com.advent.tradetracker.viewmodel.MainActivity
 import timber.log.Timber
-
+import android.support.v7.widget.DividerItemDecoration
+import com.advent.tradetracker.R.id.recyclerView
+import android.support.v7.widget.RecyclerView.ItemDecoration
+import android.widget.ToggleButton
 
 
 /**
@@ -66,12 +70,11 @@ class RecyclingStockAdapter(
             //holder.itemView?.setBackgroundColor(Color.GRAY)
             //will uncomment once the color bug is fixed (other stocks keep randomly flickering and turning gray)
         }
-
-        val stockOrCrypto = if (stock.crypto == 0L) "Stock" else "Crypto"
+        holder.stockOrCryptoButton?.isChecked = (stock.crypto == 1L)
+        val stockOrCrypto = ""
         val targetOperator = if (stock.above == 1L) ">" else "<"
 
         holder.rowStockAndAlarm?.text = context?.resources?.getString(R.string.rowStockAndAlarm,
-                stockOrCrypto,
                 stock.ticker,
                 targetOperator,
                 dollarFormatter(stock.target)
@@ -141,6 +144,7 @@ class RecyclingStockAdapter(
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), ItemTouchHelperViewHolder {
 
         var rowStockAndAlarm: TextView? = itemView.findViewById(R.id.txtName)
+        val stockOrCryptoButton : ToggleButton? = itemView.findViewById(R.id.stockCrypto)
         var rowCurrentPrice: TextView? = itemView.findViewById(R.id.txtComment)
         private var btnEdit = itemView.findViewById<ImageView>(R.id.imgEditStock)
         lateinit var thestock : Stock //Accursed violation of separation of concerns

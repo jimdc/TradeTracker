@@ -67,8 +67,9 @@ object StockDownloader {
         return try {
             dataModel.getStockPrice(ticker.toLowerCase())
                     .map { x -> x.lastSale }
-                    .map { x -> x.substring(1).toDouble() } //remove the $ symbol
-                    .blockingGet() }
+
+                    .map { x -> x.toDouble() } 
+          .blockingGet() }
         catch (de: NumberFormatException) { DOUBLE_CONVERSION_ERROR }
         catch (ie: IOException) { INTERNET_EXCEPTION }
         catch (npe: NullPointerException) { NULL_POINTER_EXCEPTION }
