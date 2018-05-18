@@ -106,7 +106,9 @@ class NetworkService : Service() {
             var iterations = 0
             var iteration = 0
             val snoozeMsecInterval = 1000L
-            val wakeLocker = BatteryAwareness.wakeLocker(this@NetworkService)
+
+            val powerManager = this@NetworkService.getSystemService(Context.POWER_SERVICE) as PowerManager
+            val wakeLocker = BatteryAwareness.WakeLocker(powerManager)
 
             stockScanner.isRunning = true
 
