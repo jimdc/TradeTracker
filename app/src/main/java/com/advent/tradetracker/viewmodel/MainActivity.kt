@@ -7,15 +7,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import org.jetbrains.anko.*
 import android.support.v4.content.LocalBroadcastManager
-import android.content.IntentFilter
 import android.support.v7.preference.PreferenceManager
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
 import io.reactivex.disposables.CompositeDisposable
-import android.os.Build
 import com.advent.tradetracker.*
-import com.advent.tradetracker.BatteryAwareness.isPowerSavingOn
 import com.advent.tradetracker.model.*
 import com.advent.tradetracker.view.SnoozeDialog
 import com.crashlytics.android.Crashlytics
@@ -23,6 +20,9 @@ import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
 import io.reactivex.Flowable
 import timber.log.Timber
+import android.os.StrictMode
+
+
 
 class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterface, AppCompatActivity() {
 
@@ -77,10 +77,26 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
         //https://medium.com/@caueferreira/timber-enhancing-your-logging-experience-330e8af97341
         //But didn't do this yet because our project structure doesn't match that in the tutorial
 
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
-        else
+
+            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .build())
+
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build())
+
+        } else {
             Timber.plant(ReleaseTree())
+        }
 
         Fabric.with(this, Crashlytics())
         Fabric.with(this, Answers())
@@ -101,14 +117,8 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
 
-        setSupportActionBar(toolbar)
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(com.advent.tradetracker.BatteryAwareness.powerSaverOffPleaseReceiver, IntentFilter(com.advent.tradetracker.BatteryAwareness.INTENT_FILTER))
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if(powerManager.isPowerSaveMode)
-                isPowerSavingOn = true
-        }
 
+        BatteryAwareness.registerReceiver(LocalBroadcastManager.getInstance(this), powerManager)
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
     }
 
@@ -203,7 +213,7 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
 
     override fun onDestroy() {
         dbFunctions.cleanup() //Close database access
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(com.advent.tradetracker.BatteryAwareness.powerSaverOffPleaseReceiver)
+        BatteryAwareness.unregisterReceiver(LocalBroadcastManager.getInstance(this))
         super.onDestroy()
     }
 
