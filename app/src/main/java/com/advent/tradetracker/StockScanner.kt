@@ -40,7 +40,7 @@ class StockScanner(private val callerContext: Context) {
     /**
      * Iterates through the stocks and sends alert if necessary
      */
-  
+
     fun scanNetwork() {
         Timber.d("scanNetwork start")
         var failCount = 0
