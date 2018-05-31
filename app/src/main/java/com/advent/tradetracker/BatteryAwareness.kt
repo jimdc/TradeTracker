@@ -26,10 +26,10 @@ object BatteryAwareness {
     var wentThroughFirstTimeFalseAlarm = false
 
     private const val POWER_OFF_PLEASE_ID = 33
-    private const val NOTIFY_INTENT_FILTER = "POWERSAVENOTIFY"
+    public const val NOTIFY_INTENT_FILTER = "POWERSAVENOTIFY"
     private const val CHANGE_INTENT_FILTER = "android.os.action.POWER_SAVE_MODE_CHANGED" // For API version 21 and above
 
-    private val powerSaverOffPleaseReceiver = object : BroadcastReceiver() {
+    public val powerSaverOffPleaseReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 NOTIFY_INTENT_FILTER -> checkPowerSaverMode(context)
