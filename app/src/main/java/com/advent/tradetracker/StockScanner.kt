@@ -44,6 +44,7 @@ class StockScanner(private val callerContext: Context) {
         var failCount = 0
 
         BatteryAwareness.checkPowerStatusAndNotify(LocalBroadcastManager.getInstance(callerContext))
+
         deletePendingFinishedStock()
 
         val stocksTargets = dbFunctions.getStockList()

@@ -3,6 +3,8 @@ package com.advent.tradetracker.viewmodel
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import org.jetbrains.anko.*
@@ -21,7 +23,7 @@ import io.fabric.sdk.android.Fabric
 import io.reactivex.Flowable
 import timber.log.Timber
 import android.os.StrictMode
-
+import com.advent.tradetracker.BatteryAwareness.isPowerSavingOn
 
 
 class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterface, AppCompatActivity() {
@@ -117,8 +119,8 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
 
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
 
-
         BatteryAwareness.registerReceiver(LocalBroadcastManager.getInstance(this), powerManager)
+
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
     }
 
@@ -214,6 +216,7 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
     override fun onDestroy() {
         dbFunctions.cleanup() //Close database access
         BatteryAwareness.unregisterReceiver(LocalBroadcastManager.getInstance(this))
+
         super.onDestroy()
     }
 
