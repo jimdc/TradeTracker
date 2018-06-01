@@ -24,6 +24,9 @@ import io.reactivex.Flowable
 import timber.log.Timber
 import android.os.StrictMode
 import com.advent.tradetracker.BatteryAwareness.isPowerSavingOn
+import android.content.SharedPreferences
+
+
 
 
 class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterface, AppCompatActivity() {
@@ -100,8 +103,10 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
             Timber.plant(ReleaseTree())
         }
 
-        Fabric.with(this, Crashlytics())
-        Fabric.with(this, Answers())
+        async {
+            Fabric.with(this.weakRef.get(), Crashlytics())
+            Fabric.with(this.weakRef.get(), Answers())
+        }
 
         dbFunctions = com.advent.tradetracker.model.DatabaseFunctions(this.applicationContext)
 
@@ -117,11 +122,22 @@ class MainActivity : com.advent.tradetracker.model.SnoozeInterface, StockInterfa
 
         }
 
+        val onboardingIntent = Intent(this, OnboardingActivity::class.java)
+        async {
+            PreferenceManager.setDefaultValues(this.weakRef.get(), R.xml.preferences, false)
+
+            val sharedPreferences = PreferenceManager
+                    .getDefaultSharedPreferences(this.weakRef.get())
+            // Check if we need to display our OnboardingFragment
+            if (!sharedPreferences.getBoolean(
+                            COMPLETED_ONBOARDING_PREF_NAME, false)) {
+                // The user hasn't seen the OnboardingFragment yet, so show it
+                // startActivity(onboardingIntent)
+            }
+        }
+
         val toolbar = findViewById(R.id.cooltoolbar) as? android.support.v7.widget.Toolbar
-
         BatteryAwareness.registerReceiver(LocalBroadcastManager.getInstance(this), powerManager)
-
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
     }
 
     /**

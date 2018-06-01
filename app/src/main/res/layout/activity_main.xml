@@ -17,7 +17,7 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/cooltoolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="0dp"
         android:background="?attr/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
