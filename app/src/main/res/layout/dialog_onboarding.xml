@@ -68,7 +68,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:padding="@dimen/activity_horizontal_margin"
-            app:srcCompat="@drawable/ic_keyboard_arrow_right_24dp"
+            android:src="@drawable/ic_keyboard_arrow_right_24dp"
             android:tint="@android:color/white" />
 
     </RelativeLayout>

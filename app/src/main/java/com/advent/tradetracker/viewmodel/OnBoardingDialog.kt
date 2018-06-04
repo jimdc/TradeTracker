@@ -12,18 +12,27 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.dialog_onboarding.*
+import com.advent.tradetracker.R
 
 class OnBoardingDialog : DialogFragment() , ViewPager.OnPageChangeListener{
     override fun onPageScrollStateChanged(state: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        if (position < fragmentList.size - 1 ) {
+//            view_pager_container?.setBackgroundColor(argbEvaluator.evaluate((position.toFloat() + positionOffset) / fragmentList.size.toFloat(),
+//                    startColor, endColor) as Int)
+//        }
     }
 
     override fun onPageSelected(position: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        intro_btn_next.visibility = if (position+1 == pagerAdapter?.count) View.GONE else View.VISIBLE
+        intro_btn_finish.visibility = if (position+1 == pagerAdapter?.count) View.VISIBLE else View.GONE
+        intro_btn_skip.visibility = intro_btn_next.visibility
+        if(indicatorList.size > 0) {
+            indicatorList.forEach { it.setImageResource(R.drawable.indicator_unselected) }
+            indicatorList[position].setImageResource(R.drawable.indicator_selected)
+        }
     }
 
     private val indicatorList = mutableListOf<ImageView>()
@@ -59,7 +68,7 @@ class OnBoardingDialog : DialogFragment() , ViewPager.OnPageChangeListener{
 
     private var pagerAdapter : FragmentPagerAdapter? = null
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pagerAdapter = OnBoardingAdapter(childFragmentManager)
 
@@ -70,6 +79,4 @@ class OnBoardingDialog : DialogFragment() , ViewPager.OnPageChangeListener{
 
         onPageSelected(0)
     }
-
-
 }
